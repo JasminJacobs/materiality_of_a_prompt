@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materiality of a Prompt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Single dark theme by design (style guide). Layout: title + choices on top, one map stage with three scenes, tally right, legend bottom. */
+@font-face { font-family: "Banana Mono"; src: local("MNKY Banana Grotesk Mono TRIAL Regular"), local("MNKY Banana Grotesk Mono TRIAL"), local("MNKYBananaGroteskMonoTRIAL-Regular"); }
+:root {
+  --bg: #252525;
+  --panel: #2c2c2c;
+  --line: #3a3a3a;
+  --certain: #ffffff;
+  --text: #efefeb;
+  --unknown: #7ef6fd;
+  --nodata: #f2508c;
+  --muted: #9a9a96;
+  --font: "Banana Mono", "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 12px; line-height: 1.45; letter-spacing: 0.02em; }
+a { color: var(--unknown); }
+button, select { font: inherit; color: inherit; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto auto minmax(0, 1fr) auto; height: 100%; gap: 0 28px; padding: 24px 32px 18px; }
+header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 40px; padding-bottom: 14px; }
+h1 { margin: 0; font-weight: 400; font-size: clamp(28px, 3.4vw, 50px); letter-spacing: 0.08em; color: var(--unknown); text-shadow: 0 0 14px rgba(126,246,253,0.25); }
+header p { margin: 0; color: var(--unknown); max-width: 58ch; }
+h2 { margin: 0 0 8px; font-weight: 400; font-size: 13px; color: var(--unknown); letter-spacing: 0.06em; }
+.choices { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr) auto; gap: 14px 32px; padding: 12px 0 14px; border-top: 1px solid var(--line); }
+.step { display: flex; flex-direction: column; gap: 7px; }
+.step-label { color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip, .tool { background: transparent; border: 1px solid var(--line); padding: 5px 9px; cursor: pointer; border-radius: 2px; }
+.chip:hover, .tool:hover { border-color: var(--muted); }
+.chip[aria-pressed="true"] { border-color: var(--certain); color: var(--certain); box-shadow: 0 0 10px rgba(255,255,255,0.15); }
+.chip:focus-visible, .tool:focus-visible, select:focus-visible, canvas:focus-visible { outline: 1px solid var(--unknown); outline-offset: 2px; }
+select { background: var(--panel); border: 1px solid var(--line); padding: 5px 8px; border-radius: 2px; width: 100%; }
+.hint { color: var(--muted); font-size: 11px; }
+.stage { position: relative; min-height: 0; border-top: 1px solid var(--line); overflow: hidden; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.stage canvas.dragging { cursor: grabbing; }
+.bar-top { position: absolute; left: 0; right: 0; top: 8px; z-index: 2; display: flex; justify-content: space-between; gap: 12px; pointer-events: none; }
+.bar-top > * { pointer-events: auto; }
+.scenes { display: flex; gap: 6px; flex-wrap: wrap; }
+.scene { position: relative; background: rgba(37,37,37,0.85); border: 1px solid var(--line); padding: 5px 9px 7px; cursor: pointer; border-radius: 2px; min-width: 150px; text-align: left; }
+.scene[aria-current="true"] { border-color: var(--certain); color: var(--certain); }
+.scene .prog { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--certain); width: 0; box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+.tools { display: flex; gap: 6px; }
+.tool { background: rgba(37,37,37,0.85); min-width: 30px; }
+.caption { position: absolute; left: 0; bottom: 10px; z-index: 2; max-width: 62ch; background: rgba(37,37,37,0.88); padding: 8px 10px; border-left: 2px solid var(--unknown); color: var(--text); pointer-events: none; }
+.scale { position: absolute; right: 0; bottom: 12px; z-index: 2; color: var(--muted); font-size: 11px; text-align: right; pointer-events: none; }
+.scale i { display: block; height: 0; border-top: 1px solid var(--muted); margin: 3px 0 0 auto; }
+#tip { position: fixed; z-index: 10; pointer-events: none; background: rgba(30,30,30,0.96); border: 1px solid var(--unknown); padding: 8px 10px; max-width: 300px; display: none; }
+.right { overflow-y: auto; min-height: 0; padding-right: 4px; display: flex; flex-direction: column; gap: 20px; border-top: 1px solid var(--line); padding-top: 12px; }
+.right section { display: flex; flex-direction: column; gap: 6px; transition: opacity 0.4s; }
+.right section.dim { opacity: 0.45; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.row .v { text-align: right; }
+.cert { color: var(--certain); }
+.unc { color: var(--unknown); }
+.nod { color: var(--nodata); }
+.big { font-size: 26px; letter-spacing: 0.04em; }
+.meter { height: 6px; background: var(--line); position: relative; }
+.meter i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--certain); box-shadow: 0 0 6px rgba(255,255,255,0.4); }
+.split { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; color: var(--unknown); font-size: 11px; font-variant-numeric: tabular-nums; }
+.note { color: var(--muted); font-size: 11px; }
+details summary { cursor: pointer; color: var(--unknown); }
+details ul { padding-left: 16px; margin: 8px 0 0; display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+footer { grid-column: 1 / -1; display: grid; grid-template-columns: auto auto 1fr; gap: 10px 40px; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--line); align-items: start; }
+.legend { display: grid; grid-template-columns: 34px auto; gap: 4px 10px; align-items: center; }
+.legend.codes { grid-template-columns: 34px auto; }
+.sw { height: 0; border-top: 2px solid var(--certain); box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+.sw.u { border-top: 2px dashed var(--unknown); box-shadow: 0 0 6px rgba(126,246,253,0.5); }
+.sw.r { border-top: 3px dotted var(--unknown); }
+.sw.n { border-top: 2px solid var(--nodata); box-shadow: 0 0 6px rgba(242,80,140,0.5); }
+.code { color: var(--unknown); }
+.code.n { color: var(--nodata); }
+.code.c { color: var(--certain); }
+@media (max-width: 1050px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto auto 620px auto auto; height: auto; }
+  .choices { grid-template-columns: 1fr; }
+  footer { grid-template-columns: 1fr; }
+  .right { overflow: visible; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Materiality of a Prompt</h1>
+    <p>How many kilometres of cable, of what material, does one prompt need from your device to the answer and back? Solid white is what we can measure. Blue dashed is estimated. Pink is where nothing is published.</p>
+  </header>
+
+  <div class="choices">
+    <div class="step">
+      <span class="step-label">1 &nbsp;Where are you?</span>
+      <select id="place" aria-label="Choose a place in Switzerland"></select>
+      <span class="hint">Or click a point on the map of Switzerland.</span>
+    </div>
+    <div class="step">
+      <span class="step-label">2 &nbsp;Whom do you send your prompt to?</span>
+      <div class="chips" id="providers"></div>
+    </div>
+    <div class="step">
+      <span class="step-label">3 &nbsp;How are you connected?</span>
+      <div class="chips" id="conn">
+        <button class="chip" data-conn="wifi" aria-pressed="true">Wi-Fi</button>
+        <button class="chip" data-conn="mobile" aria-pressed="false">Mobile</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="stage" id="stage">
+    <canvas id="map" tabindex="0" aria-label="Map of the route of your prompt. Drag to move, scroll or use the plus and minus buttons to zoom."></canvas>
+    <div class="bar-top">
+      <div class="scenes" role="tablist" aria-label="Map scenes">
+        <button class="scene" data-scene="0"><span>1 &nbsp;Dive in</span><span class="prog"></span></button>
+        <button class="scene" data-scene="1"><span>2 &nbsp;Through Switzerland</span><span class="prog"></span></button>
+        <button class="scene" data-scene="2"><span>3 &nbsp;Out of Switzerland</span><span class="prog"></span></button>
+      </div>
+      <div class="tools">
+        <button class="tool" id="play" aria-label="Pause">Pause</button>
+        <button class="tool" id="zoomOut" aria-label="Zoom out">−</button>
+        <button class="tool" id="zoomIn" aria-label="Zoom in">+</button>
+        <button class="tool" id="fit" aria-label="Back to the scene view">Fit</button>
+      </div>
+    </div>
+    <div class="caption" id="caption" aria-live="polite"></div>
+    <div class="scale" id="scale"></div>
+  </main>
+
+  <aside class="right" id="tally" aria-live="off"></aside>
+
+  <footer>
+    <div class="step">
+      <span class="step-label">Reading the lines</span>
+      <div class="legend">
+        <span class="sw"></span><span class="cert">Certain: measured or observed</span>
+        <span class="sw u"></span><span class="unc">Uncertain: estimated, or likely but not confirmed</span>
+        <span class="sw n"></span><span class="nod">No data: nothing is published</span>
+        <span class="sw r"></span><span class="unc">Radio hop: device to router or antenna</span>
+      </div>
+    </div>
+    <div class="legend codes">
+      <span class="code c">SR</span><span>Self-reported by the company</span>
+      <span class="code">EXT</span><span>External estimate</span>
+      <span class="code">EST</span><span>Our estimate</span>
+      <span class="code n">?</span><span>No data provided</span>
+    </div>
+    <span class="hint">Hover or click a path to see its kilometres and materials. The thicker one is our default guess. The colour of each data centre says how sure we are that the service uses it. Pause any scene to drag and zoom the map.</span>
+  </footer>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+"use strict";
+// ================= coordinates =================
+function lv95ToWgs(E, N) {
+  const y = (E - 2600000) / 1e6, x = (N - 1200000) / 1e6;
+  const lam = 2.6779094 + 4.728982 * y + 0.791484 * y * x + 0.1306 * y * x * x - 0.0436 * y * y * y;
+  const phi = 16.9023892 + 3.238272 * x - 0.270978 * y * y - 0.002528 * x * x - 0.0447 * y * y * x - 0.0140 * x * x * x;
+  return [lam * 100 / 36, phi * 100 / 36];
+}
+function wgsToLv95(lon, lat) {
+  const p = (lat * 3600 - 169028.66) / 10000, l = (lon * 3600 - 26782.5) / 10000;
+  const E = 2600072.37 + 211455.93 * l - 10938.51 * l * p - 0.36 * l * p * p - 44.54 * l * l * l;
+  const N = 1200147.07 + 308807.95 * p + 3745.25 * l * l + 76.63 * p * p - 194.56 * l * l * p + 119.79 * p * p * p;
+  return [E, N];
+}
+function haversine(a, b) {
+  const R = 6371, t = Math.PI / 180;
+  const dLat = (b[1] - a[1]) * t, dLon = (b[0] - a[0]) * t;
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * t) * Math.cos(b[1] * t) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+// World space in km: equirectangular at 46.5° N. Swiss LV95 is mapped into it with an affine fit.
+const KX = 111.32 * Math.cos(46.5 * Math.PI / 180), KY = 110.57;
+const W = ll => [ll[0] * KX, -ll[1] * KY];
+const A0 = W(lv95ToWgs(2600000, 1200000)), AE = W(lv95ToWgs(2700000, 1200000)), AN = W(lv95ToWgs(2600000, 1300000));
+const aE = [(AE[0] - A0[0]) / 1e5, (AE[1] - A0[1]) / 1e5], aN = [(AN[0] - A0[0]) / 1e5, (AN[1] - A0[1]) / 1e5];
+const LW = (E, N) => [A0[0] + (E - 2.6e6) * aE[0] + (N - 1.2e6) * aN[0], A0[1] + (E - 2.6e6) * aE[1] + (N - 1.2e6) * aN[1]];
+const SW = ll => LW(...wgsToLv95(ll[0], ll[1]));
+
+// ================= data =================
+const PLACES = [
+  { id: "ecal", name: "ÉCAL, Renens", E: 2534350, N: 1154400 },
+  { id: "lausanne", name: "Lausanne centre", E: 2538200, N: 1152500 },
+  { id: "geneve", name: "Genève centre", E: 2500300, N: 1117700 },
+  { id: "bern", name: "Bern centre", E: 2600600, N: 1199700 },
+  { id: "zurich", name: "Zürich centre", E: 2683200, N: 1247900 },
+  { id: "basel", name: "Basel centre", E: 2611300, N: 1267400 },
+  { id: "fribourg", name: "Fribourg centre", E: 2578800, N: 1183800 },
+  { id: "sion", name: "Sion centre", E: 2593900, N: 1120100 },
+  { id: "lugano", name: "Lugano centre", E: 2717800, N: 1095900 },
+  { id: "chur", name: "Chur centre", E: 2759300, N: 1190800 },
+  { id: "stgallen", name: "St. Gallen centre", E: 2746000, N: 1254300 }
+];
+
+// [lon, lat]; ch = inside Switzerland (drawn through the LV95 grid fit)
+const PT = {
+  lausanneSwitch: { ll: [6.566, 46.519], ch: true, name: "SWITCH, Lausanne" },
+  fribourgSwitch: { ll: [7.15, 46.80], ch: true, name: "SWITCH, Fribourg" },
+  zurichSwitch: { ll: [8.55, 47.38], ch: true, name: "SWITCH, Zurich" },
+  bernSwitch: { ll: [7.44, 46.95], ch: true, name: "SWITCH, Bern" },
+  baselSwitch: { ll: [7.59, 47.56], ch: true, name: "SWITCH, Basel" },
+  cixp: { ll: [6.056, 46.234], ch: true, name: "CIXP at CERN, Geneva" },
+  swissix: { ll: [8.55, 47.40], ch: true, name: "SwissIX, Zurich" },
+  equinixzh: { ll: [8.46, 47.39], ch: true, name: "Equinix ZH4, Zurich" },
+  d4: { ll: [6.118, 46.168], ch: true, name: "Infomaniak D4, Plan-les-Ouates" },
+  bilbao: { ll: [-2.98, 43.38], name: "Cable landing, Bilbao" },
+  vabeach: { ll: [-75.98, 36.85], name: "Cable landing, Virginia Beach" },
+  memphis: { ll: [-90.13, 35.06], name: "Colossus 1, Memphis" },
+  newcarlisle: { ll: [-86.51, 41.70], name: "Anthropic-Amazon, New Carlisle (IN)" },
+  waltham: { ll: [-0.03, 51.70], name: "Google, Waltham Cross (UK)" },
+  ashburn: { ll: [-77.49, 39.04], name: "AWS, Northern Virginia" },
+  frankfurt: { ll: [8.68, 50.11], name: "AWS, Frankfurt" },
+  stghislain: { ll: [3.87, 50.47], name: "Google, St. Ghislain (BE)" },
+  eemshaven: { ll: [6.84, 53.43], name: "Google, Eemshaven (NL)" },
+  hamina: { ll: [27.11, 60.54], name: "Google, Hamina (FI)" },
+  paris: { ll: [2.40, 48.60], name: "Mistral compute, Paris region" },
+  germany: { ll: [10.45, 51.16], name: "Proton servers, Germany (city not public)" }
+};
+const posOf = k => PT[k].ch ? SW(PT[k].ll) : W(PT[k].ll);
+
+// Data centre facts. Epoch AI, "AI data centers", Nov 2026 (CC BY 4.0), unless noted.
+const DC = {
+  memphis: { power: ["340 MW", "EXT"], chips: ["H100, H200, B200 · ~276'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #confident" },
+  newcarlisle: { power: ["1'037 MW", "EXT"], chips: ["Amazon Trainium2 · ~818'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #confident" },
+  ashburn: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
+  frankfurt: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
+  waltham: { power: ["88 MW", "EXT"], chips: ["Google TPU v6e · ~124'000 H100e", "EXT"], src: "Epoch AI: Google DeepMind listed as user, #speculative" },
+  stghislain: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
+  eemshaven: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
+  hamina: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
+  d4: { power: ["1.25 MW IT · PUE 1.09", "SR"], chips: ["Nvidia L4, A100, H100", "SR"], src: "Infomaniak; DatacenterDynamics. Exact address not public." },
+  paris: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
+  germany: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Proton names only the country." }
+};
+// state of a data centre: "c" certain, "u" uncertain, "n" no data
+const PROVIDERS = {
+  claude: {
+    label: "Claude", company: "Anthropic", hub: "cixp", hubObserved: true, edge: "Cloudflare's edge for claude.ai",
+    dcs: [
+      { to: "memphis", via: ["bilbao", "vabeach"], def: true, st: "u", why: "Epoch AI lists Anthropic as a user (#confident); not confirmed which prompts it answers." },
+      { to: "newcarlisle", via: ["bilbao", "vabeach"], st: "u", why: "Epoch AI lists Anthropic as a user (#confident); built by Amazon, named mainly for training." },
+      { to: "ashburn", via: ["bilbao", "vabeach"], st: "n", why: "AWS region; Anthropic does not say whether prompts run here." },
+      { to: "frankfurt", via: [], st: "n", why: "AWS region; Anthropic does not say whether prompts run here." }
+    ],
+    energy: ["No data provided", "?"], energyExt: ["~0.3–2.8 Wh", "EXT"], water: ["No data provided", "?"], material: ["No data provided", "?"],
+    dcNote: "Anthropic does not say where a prompt is computed. All its sites in the Epoch AI dataset are in the US. Energy: independent estimates per model (Projet Celsius); agent use such as Claude Code can reach ~150 Wh per prompt (Hausfather 2026)."
+  },
+  gemini: {
+    label: "Gemini", company: "Google", hub: "swissix", hubObserved: true, edge: "Google's edge in Zurich",
+    dcs: [
+      { to: "stghislain", via: [], def: true, st: "n", why: "Google's own site, but Google does not say which site answers a Swiss prompt." },
+      { to: "eemshaven", via: [], st: "n", why: "Google's own site; use for Gemini not disclosed." },
+      { to: "hamina", via: [], st: "n", why: "Google's own site; use for Gemini not disclosed." },
+      { to: "waltham", via: [], st: "u", why: "Epoch AI lists Google DeepMind as a user (#speculative)." }
+    ],
+    energy: ["0.24 Wh", "SR"], water: ["0.26 ml", "SR"], material: ["No data provided", "?"],
+    dcNote: "Google publishes per-prompt energy and water, but not which data centre answers you. Its 0.24 Wh leaves out the network, your device and training."
+  },
+  perplexity: {
+    label: "Perplexity", company: "Perplexity", hub: "equinixzh", hubObserved: true, edge: "Cloudflare's edge in Zurich",
+    dcs: [
+      { to: "ashburn", via: ["bilbao", "vabeach"], def: true, st: "n", why: "Perplexity rents AWS servers; region not published." },
+      { to: "frankfurt", via: [], st: "n", why: "Possible AWS region; not published." }
+    ],
+    energy: ["No data provided", "?"], energyExt: ["~0.5 Wh", "EXT"], water: ["No data provided", "?"], waterExt: ["~0.9 ml", "EXT"], material: ["No data provided", "?"],
+    dcNote: "Perplexity rents AWS and Azure servers and does not publish where."
+  },
+  euria: {
+    label: "Euria", company: "Infomaniak", hub: "cixp", hubObserved: true, edge: "Infomaniak's network, Geneva",
+    dcs: [ { to: "d4", via: [], def: true, st: "c", why: "Infomaniak names D4 for Euria; our traceroute ended in Plan-les-Ouates." } ],
+    energy: ["No data provided", "?"], water: ["None for cooling", "SR"], material: ["No data provided", "?"],
+    extra: [["Heat reused", "~6,000 homes", "SR"]],
+    dcNote: "D4 sits underground in Plan-les-Ouates and feeds server heat into Geneva's district heating. On Wi-Fi and on mobile, every trace ends at Infomaniak routers named 'plo' (Plan-les-Ouates). The exact address is not public."
+  },
+  mistral: {
+    label: "Le Chat", company: "Mistral", hub: "cixp", hubObserved: true, edge: "Cloudflare's edge for chat.mistral.ai",
+    dcs: [ { to: "paris", via: [], def: true, st: "u", why: "Mistral computes in France; site not published." } ],
+    energy: ["No data provided", "?"], water: ["45 ml", "SR"], material: ["0.16 mg Sb eq", "SR"],
+    dcNote: "Mistral's life-cycle analysis is the only one that reports material use. Our traces reach Cloudflare at CIXP, Geneva; every hop after that is hidden."
+  },
+  lumo: {
+    label: "Lumo", company: "Proton", hub: "swissix", hubObserved: false, edge: "Proton's network (not traced yet)",
+    dcs: [ { to: "germany", via: [], def: true, st: "u", why: "Proton says Lumo runs in Germany; the city is not public." } ],
+    energy: ["No data provided", "?"], water: ["No data provided", "?"], material: ["No data provided", "?"],
+    dcNote: "Proton moved Lumo's servers from Switzerland to Germany and is building in Norway. No figures on power or GPUs."
+  }
+};
+
+// Cable data (Data sources, 17 Nov 2026). kg per km of route.
+const DUCT = { kg: 485, split: [["HDPE duct (40 mm)", 375], ["HDPE cable sheath", 45], ["PBT tubes", 20], ["Yarns, tape, gel", 20], ["Glass-fibre rod", 12], ["Optical fibre (glass 3.9, coating 5.8)", 10]] };
+const COPPER = { kg: 40, cu: 7.5, perPair: 3.5 }; // 2-pair cable; 3.5 kg Cu per pair-km at 0.5 mm (Swisscom diameters 0.4–1.0 mm → 2.3–14.1)
+const SEA = { min: 650, max: 1700, mats: "galvanised steel armour, steel tube, HDPE, bitumen, some copper" };
+// One sector (≈ ⅓ of a 3-direction Swisscom site) serves your prompt; counted once, not ×2.
+const MOBILE = [
+  ["Panel antennas in your sector, 1–3 × 12–57 kg", "12–171 kg", "SR"],
+  ["or 5G active antenna (Ericsson AIR 3268)", "~12 kg", "SR"],
+  ["Brackets and clamps, galvanised steel", "5–7 kg each", "SR"],
+  ["Radio units and baseband", "10–30 kg each", "EST"],
+  ["Material split of the antennas", "No data provided", "?"],
+  ["Mast (rooftop ~100 kg … tower several t)", "No data provided", "?"],
+  ["Backup batteries", "No data provided", "?"],
+  ["Radio link instead of fibre at this site?", "No data provided", "?"]
+];
+const LAND_FACTOR = 1.3, SEA_FACTOR = 1.1, LOCAL_KM = 1.5;
+const CLASS = ["none", ">0–10%", ">10–50%", ">50–90%", ">90–100%"];
+const COL = { c: "#ffffff", u: "#7ef6fd", n: "#f2508c" };
+
+// ================= grid =================
+let GRID = null, LAND = null;
+async function loadGrid() {
+  const g = await (await fetch("grid.json")).json();
+  const bin = Uint8Array.from(atob(g.gz), c => c.charCodeAt(0));
+  const ds = new Blob([bin]).stream().pipeThrough(new DecompressionStream("gzip"));
+  g.data = new Uint8Array(await new Response(ds).arrayBuffer()); delete g.gz;
+  return g;
+}
+function cellIdx(E, N) {
+  const col = Math.floor((E - GRID.left) / GRID.res), row = Math.floor((GRID.top - N) / GRID.res);
+  if (col < 0 || row < 0 || col >= GRID.w || row >= GRID.h) return -1;
+  return row * GRID.w + col;
+}
+function decode(v) { return v === 255 ? null : { fibre: Math.floor(v / 25), coax: Math.floor(v / 5) % 5, copper: v % 5 }; }
+function cellAt(E, N) { const i = GRID ? cellIdx(E, N) : -1; return i < 0 ? null : decode(GRID.data[i]); }
+function nearestIdx(E, N) {
+  for (let r = 0; r < 20; r++) for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
+    if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+    const i = cellIdx(E + dx * GRID.res, N + dy * GRID.res); if (i >= 0 && GRID.data[i] !== 255) return i;
+  }
+  return -1;
+}
+function cellCentre(i) { const col = i % GRID.w, row = Math.floor(i / GRID.w); return [GRID.left + (col + 0.5) * GRID.res, GRID.top - (row + 0.5) * GRID.res]; }
+
+// A* over the 250 m grid: cheap where fibre coverage is high. An estimate of the route, not the real trench.
+const COST = [9, 5, 2.6, 1.5, 1];
+function astar(s, g) {
+  const Wd = GRID.w, n = GRID.data.length, gc = new Float32Array(n).fill(Infinity), from = new Int32Array(n).fill(-1), done = new Uint8Array(n);
+  const gx = g % Wd, gy = Math.floor(g / Wd);
+  const h = i => { const dx = Math.abs(i % Wd - gx), dy = Math.abs(Math.floor(i / Wd) - gy); return (Math.max(dx, dy) + 0.414 * Math.min(dx, dy)) * 1.05; };
+  const heap = [], pri = [];
+  const push = (i, p) => { heap.push(i); pri.push(p); let k = heap.length - 1; while (k) { const q = (k - 1) >> 1; if (pri[q] <= pri[k]) break; [heap[q], heap[k]] = [heap[k], heap[q]]; [pri[q], pri[k]] = [pri[k], pri[q]]; k = q; } };
+  const pop = () => { const top = heap[0], li = heap.pop(), lp = pri.pop(); if (heap.length) { heap[0] = li; pri[0] = lp; let k = 0; for (;;) { const l = 2 * k + 1, r = l + 1; let m = k; if (l < heap.length && pri[l] < pri[m]) m = l; if (r < heap.length && pri[r] < pri[m]) m = r; if (m === k) break; [heap[m], heap[k]] = [heap[k], heap[m]]; [pri[m], pri[k]] = [pri[k], pri[m]]; k = m; } } return top; };
+  gc[s] = 0; push(s, h(s));
+  const D = [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, 1.414], [1, -1, 1.414], [-1, 1, 1.414], [-1, -1, 1.414]];
+  while (heap.length) {
+    const i = pop(); if (done[i]) continue; done[i] = 1; if (i === g) break;
+    const x = i % Wd, y = Math.floor(i / Wd);
+    for (const [dx, dy, len] of D) {
+      const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= Wd || ny >= GRID.h) continue;
+      const j = ny * Wd + nx; if (done[j]) continue;
+      const v = GRID.data[j]; const c = v === 255 ? 22 : COST[Math.floor(v / 25)];
+      const ng = gc[i] + len * c; if (ng < gc[j]) { gc[j] = ng; from[j] = i; push(j, ng + h(j)); }
+    }
+  }
+  const out = []; for (let i = g; i >= 0; i = from[i]) { out.push(i); if (i === s) break; }
+  return out.reverse();
+}
+
+// ================= model =================
+const state = { place: PLACES[0], custom: null, provider: "claude", conn: "wifi", selected: null, hover: null,
+  scene: 0, t: 0, playing: true, free: false };
+const DUR = [20, 16, 16];
+let model = null;
+const routeCache = new Map();
+
+function currentPlace() { return state.custom || state.place; }
+function polyCum(pts) { const c = [0]; for (let i = 1; i < pts.length; i++) c.push(c[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); return c; }
+
+function swissRoute(pl, P, observed) {
+  const hops = [];
+  if (observed) {
+    if (P.hub === "cixp") hops.push("lausanneSwitch");
+    else hops.push("lausanneSwitch", "fribourgSwitch", "bernSwitch", "baselSwitch", "zurichSwitch");
+  }
+  const key = [pl.E, pl.N, P.hub, hops.join()].join("|");
+  if (routeCache.has(key)) return routeCache.get(key);
+  const stops = [[pl.E, pl.N], ...hops.map(k => wgsToLv95(...PT[k].ll)), wgsToLv95(...PT[P.hub].ll)];
+  let lv = [[pl.E, pl.N]], km = 0; const hopAt = [];
+  for (let k = 1; k < stops.length; k++) {
+    const a = nearestIdx(...stops[k - 1]), b = nearestIdx(...stops[k]);
+    const cells = astar(a, b);
+    for (let j = 1; j < cells.length; j++) {
+      const p = cellCentre(cells[j]), q = lv[lv.length - 1];
+      km += Math.hypot(p[0] - q[0], p[1] - q[1]) / 1000; lv.push(p);
+    }
+    if (k < stops.length - 1) hopAt.push({ key: hops[k - 1], at: lv.length - 1 });
+  }
+  const pts = lv.map(p => LW(p[0], p[1]));
+  const r = { pts, cum: polyCum(pts), km, hops: hopAt };
+  routeCache.set(key, r);
+  return r;
+}
+
+function buildModel() {
+  const P = PROVIDERS[state.provider], pl = currentPlace();
+  const observed = state.conn === "wifi" && pl.id === "ecal" && P.hubObserved;
+  const cell = cellAt(pl.E, pl.N);
+  const fibreFirst = !cell || cell.fibre >= cell.copper;
+  const lastMile = { km: LOCAL_KM, type: fibreFirst ? "fibre" : "copper" };
+  const swiss = GRID ? swissRoute(pl, P, observed) : { pts: [LW(pl.E, pl.N), posOf(P.hub)], cum: [0, 1], km: 0, hops: [] };
+  const hubLL = PT[P.hub].ll;
+  const paths = P.dcs.map(d => {
+    const keys = [P.hub, ...d.via, d.to];
+    const segs = []; let land = 0, sea = 0;
+    for (let i = 1; i < keys.length; i++) {
+      const kind = keys[i] === "vabeach" ? "sea" : "land";
+      const km = haversine(PT[keys[i - 1]].ll, PT[keys[i]].ll) * (kind === "sea" ? SEA_FACTOR : LAND_FACTOR);
+      segs.push({ a: keys[i - 1], b: keys[i], kind, km });
+      if (kind === "sea") sea += km; else land += km;
+    }
+    const pts = keys.map(posOf);
+    return { id: d.to, def: !!d.def, st: d.st, why: d.why, name: PT[d.to].name, via: d.via.map(v => PT[v].name), segs, land, sea, pts, cum: polyCum(pts) };
+  });
+  return { P, pl, observed, cell, lastMile, swiss, paths, home: LW(pl.E, pl.N), hub: posOf(P.hub), hubLL };
+}
+function selPath() { return model.paths.find(p => p.id === state.selected) || model.paths.find(p => p.def); }
+
+// ================= camera =================
+const cv = document.getElementById("map");
+let VW = 0, VH = 0, ctx = null, cam = { x: 0, y: 0, s: 1 }, rejoin = null;
+function resize() {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  VW = r.width; VH = r.height; cv.width = Math.max(1, Math.round(VW * dpr)); cv.height = Math.max(1, Math.round(VH * dpr));
+  ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function fit(pts, padT = 70, padB = 80, padL = 40, padR = 220, minKm = 2) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of pts) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
+  const bw = Math.max(x1 - x0, minKm), bh = Math.max(y1 - y0, minKm * 0.6);
+  const s = Math.min((VW - padL - padR) / bw, (VH - padT - padB) / bh);
+  return { x: (x0 + x1) / 2 - ((padL - padR) / 2) / s, y: (y0 + y1) / 2 - ((padT - padB) / 2) / s, s };
+}
+function chFit() { return GRID ? fit([LW(GRID.left, GRID.top), LW(GRID.left + GRID.w * GRID.res, GRID.top - GRID.h * GRID.res)], 60, 70, 20, 20) : { x: 0, y: -46.8 * KY, s: VW / 400 }; }
+function diveTarget() { const s = Math.min(VW, VH) * 0.5 / 0.25; return { x: model.home[0] + 40 / s, y: model.home[1], s }; }
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const clamp01 = t => Math.max(0, Math.min(1, t));
+function lerpCam(a, b, t, tc) {
+  tc = tc === undefined ? t : tc;
+  return { x: a.x + (b.x - a.x) * tc, y: a.y + (b.y - a.y) * tc, s: Math.exp(Math.log(a.s) + (Math.log(b.s) - Math.log(a.s)) * t) };
+}
+let sceneStart = null;
+function sceneCam(k, t) {
+  if (k === 0) {
+    const a = chFit(), b = diveTarget(), z = ease(clamp01((t - 2) / 12));
+    // centre arrives before the zoom does, so the dive stays on your square
+    const zc = ease(clamp01((t - 2) / 7));
+    return lerpCam(a, b, z, zc);
+  }
+  const target = k === 1 ? fit([model.home, ...model.swiss.pts, model.hub], 80, 90, 40, 240, 3)
+                         : fit([model.home, model.hub, ...model.paths.flatMap(p => p.pts)], 70, 90, 40, 250, 6);
+  const from = sceneStart || target;
+  return lerpCam(from, target, ease(clamp01(t / 2.5)));
+}
+function sceneTarget(k) { return k === 0 ? diveTarget() : sceneCam(k, 99); }
+const toS = p => [(p[0] - cam.x) * cam.s + VW / 2, (p[1] - cam.y) * cam.s + VH / 2];
+const toW = (x, y) => [(x - VW / 2) / cam.s + cam.x, (y - VH / 2) / cam.s + cam.y];
+
+// ================= drawing =================
+let FONT = "11px monospace";
+function strokePoly(pts, st, width, dash, alpha) {
+  if (pts.length < 2) return;
+  ctx.save(); ctx.globalAlpha = alpha === undefined ? 1 : alpha;
+  ctx.lineWidth = width; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  const col = COL[st] || COL.u; ctx.strokeStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 8;
+  ctx.setLineDash(st === "r" ? [0.1, width * 3.2] : st === "u" ? [width * 3, width * 2.6] : []); ctx.lineDashOffset = -(dash || 0);
+  if (st === "r") { ctx.strokeStyle = ctx.shadowColor = COL.u; }
+  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
+  ctx.restore();
+}
+function partial(pts, cum, f) {
+  const L = cum[cum.length - 1] * f; const out = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
+    if (cum[i] <= L) { out.push(pts[i]); continue; }
+    const seg = cum[i] - cum[i - 1], u = seg ? (L - cum[i - 1]) / seg : 0;
+    out.push([pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * u, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * u]); break;
+  }
+  return out;
+}
+function label(text, x, y, color, align, size) {
+  ctx.save(); ctx.font = (size || 11) + "px " + FONT; ctx.textAlign = align || "left";
+  ctx.lineWidth = 3; ctx.strokeStyle = "rgba(37,37,37,0.85)"; ctx.strokeText(text, x, y);
+  ctx.fillStyle = color; ctx.fillText(text, x, y); ctx.restore();
+}
+function dot(x, y, r, color) { ctx.save(); ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 8; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+
+let gridImg = null;
+function renderGridImage() {
+  const off = document.createElement("canvas"); off.width = GRID.w; off.height = GRID.h;
+  const c = off.getContext("2d"), img = c.createImageData(GRID.w, GRID.h);
+  for (let i = 0; i < GRID.data.length; i++) {
+    const v = GRID.data[i]; if (v === 255) continue;
+    const a = [34, 62, 100, 150, 215][Math.floor(v / 25)];
+    img.data[i * 4] = 255; img.data[i * 4 + 1] = 255; img.data[i * 4 + 2] = 255; img.data[i * 4 + 3] = a;
+  }
+  c.putImageData(img, 0, 0); gridImg = off;
+}
+function drawLand() {
+  if (!LAND) return;
+  ctx.save(); ctx.fillStyle = "#2e2e2e"; ctx.strokeStyle = "#434343"; ctx.lineWidth = 0.6;
+  for (const ring of LAND.land) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+  ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8;
+  for (const ring of LAND.ch) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.stroke(); }
+  ctx.restore();
+}
+function drawGrid(alpha) {
+  if (!gridImg || alpha <= 0) return;
+  const dpr = window.devicePixelRatio || 1, r = GRID.res, o = LW(GRID.left, GRID.top);
+  ctx.save(); ctx.globalAlpha = alpha; ctx.imageSmoothingEnabled = false;
+  // camera then LV95 affine, applied to pixel (col,row)
+  ctx.setTransform(dpr * cam.s, 0, 0, dpr * cam.s, dpr * (VW / 2 - cam.x * cam.s), dpr * (VH / 2 - cam.y * cam.s));
+  ctx.transform(r * aE[0], r * aE[1], -r * aN[0], -r * aN[1], o[0], o[1]);
+  ctx.drawImage(gridImg, 0, 0);
+  ctx.restore();
+}
+// close-up: outline each 250 m square with three bars (fibre, coax, copper)
+function drawCells() {
+  const cellPx = 0.25 * cam.s; if (cellPx < 40 || !GRID) return;
+  const a = toW(0, 0), b = toW(VW, VH);
+  const lvA = wgsToLv95(a[0] / KX, -a[1] / KY), lvB = wgsToLv95(b[0] / KX, -b[1] / KY);
+  const E0 = Math.min(lvA[0], lvB[0]) - 500, E1 = Math.max(lvA[0], lvB[0]) + 500, N0 = Math.min(lvA[1], lvB[1]) - 500, N1 = Math.max(lvA[1], lvB[1]) + 500;
+  const alpha = clamp01((cellPx - 40) / 80);
+  ctx.save(); ctx.globalAlpha = alpha;
+  for (let E = Math.floor((E0 - GRID.left) / 250) * 250 + GRID.left; E < E1; E += 250) for (let N = GRID.top - Math.floor((GRID.top - N1) / 250) * 250; N > N0; N -= 250) {
+    const c = cellAt(E + 125, N - 125);
+    const q = [LW(E, N), LW(E + 250, N), LW(E + 250, N - 250), LW(E, N - 250)].map(toS);
+    ctx.beginPath(); q.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1; ctx.stroke();
+    if (!c || cellPx < 90) continue;
+    const cx = (q[0][0] + q[2][0]) / 2, cy = (q[0][1] + q[2][1]) / 2, bw = cellPx * 0.5;
+    [c.fibre, c.coax, c.copper].forEach((cls, k) => {
+      const y = cy + cellPx * 0.22 + k * 7;
+      ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(cx - bw / 2, y, bw, 3);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(cx - bw / 2, y, bw * [0, 0.08, 0.3, 0.7, 1][cls], 3);
+    });
+    if (cellPx > 160) label("fibre · coax · copper", cx - bw / 2, cy + cellPx * 0.22 - 5, "rgba(255,255,255,0.45)", "left", 10);
+  }
+  ctx.restore();
+}
+
+function drawScene1(t, dash) {
+  const m = model, h = toS(m.home), cellPx = 0.25 * cam.s;
+  // your square
+  const E = GRID ? GRID.left + Math.floor((m.pl.E - GRID.left) / 250) * 250 : m.pl.E, N = GRID ? GRID.top - Math.floor((GRID.top - m.pl.N) / 250) * 250 : m.pl.N;
+  const q = [LW(E, N), LW(E + 250, N), LW(E + 250, N - 250), LW(E, N - 250)].map(toS);
+  const pulse = reduce ? 1 : 0.6 + 0.4 * Math.sin(performance.now() / 300);
+  if (cellPx > 6) {
+    ctx.save(); ctx.strokeStyle = "#ffffff"; ctx.shadowColor = "#ffffff"; ctx.shadowBlur = 12; ctx.lineWidth = 2; ctx.globalAlpha = pulse;
+    ctx.beginPath(); q.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.stroke(); ctx.restore();
+  } else {
+    ctx.save(); ctx.strokeStyle = "#ffffff"; ctx.shadowColor = "#ffffff"; ctx.shadowBlur = 10; ctx.lineWidth = 1.5; ctx.globalAlpha = pulse;
+    ctx.strokeRect(h[0] - 6, h[1] - 6, 12, 12); ctx.restore();
+  }
+  if (cellPx < 60) label(m.pl.name, h[0] + 12, h[1] + 4, "#ffffff");
+  // close-up schematic: device → (antenna) → building entry → street → towards the exchange
+  const f = clamp01((t - 14) / 5);
+  if (f > 0 && cellPx > 120) {
+    const toHub = [m.hub[0] - m.home[0], m.hub[1] - m.home[1]], L = Math.hypot(...toHub) || 1, u = [toHub[0] / L, toHub[1] / L];
+    const at = (d, side) => toS([m.home[0] + u[0] * d - u[1] * side, m.home[1] + u[1] * d + u[0] * side]);
+    const dev = h, entry = at(0.03, 0.02), street = at(0.06, 0.04), out = at(0.2, 0.04);
+    const side = u[0] < 0 ? 1 : -1, al = side > 0 ? "left" : "right", ar = side > 0 ? "right" : "left";
+    dot(dev[0], dev[1], 4, "#ffffff"); label("Your device (not counted)", dev[0] + side * 12, dev[1] - 8, "#ffffff", al);
+    const pts = [];
+    if (state.conn === "mobile") {
+      const ant = at(-0.07, 0.09);
+      // radio waves to the antenna
+      ctx.save(); ctx.strokeStyle = COL.u; ctx.globalAlpha = 0.8 * f; ctx.setLineDash([2, 4]);
+      for (let k = 1; k <= 3; k++) { ctx.beginPath(); ctx.arc(dev[0], dev[1], k * 12 + ((performance.now() / 40) % 12) * (reduce ? 0 : 1), 0, Math.PI * 2); ctx.stroke(); }
+      ctx.restore();
+      strokePoly(partial([dev, ant], [0, 1], f), "r", 2.4, dash);
+      dot(ant[0], ant[1], 4, COL.u); label("Nearest antenna site: position estimated", ant[0] + 8, ant[1] - 8, COL.u);
+      label("your sector: 1–3 antennas, 12–57 kg each", ant[0] + 8, ant[1] + 6, COL.u);
+      label("then fibre in the ground to the exchange", ant[0] + 8, ant[1] + 20, COL.u);
+      pts.push(ant, street, out);
+    } else {
+      label("by radio to the Wi-Fi router", dev[0] + side * 12, dev[1] + 8, "#efefeb", al);
+      strokePoly(partial([dev, entry], [0, 1], Math.min(1, f * 4)), "r", 2.4, dash);
+      pts.push(entry, street, out);
+      dot(entry[0], entry[1], 3, COL.u);
+    }
+    const cum = polyCum(pts);
+    strokePoly(partial(pts, cum, f), "u", 2, dash);
+    if (f > 0.25) { const e = state.conn === "mobile" ? at(-0.07, 0.09) : entry; label("Here your prompt enters the ground", e[0] - side * 12, e[1] + 18, COL.u, ar); }
+    if (f > 0.9) { label("to the local exchange, ~" + LOCAL_KM + " km", out[0], out[1] + 18, COL.u, "center"); label("its location is not published", out[0], out[1] + 32, COL.n, "center"); }
+  }
+}
+
+function drawScene2(f, dash) {
+  const m = model, s = m.swiss;
+  const st = m.observed ? "c" : "u";
+  const pts = s.pts.map(toS);
+  strokePoly(pts, st, 1, 0, 0.18);
+  strokePoly(partial(pts, s.cum, f), st, 2.4, dash);
+  // the parcel
+  if (f > 0 && f < 1) { const p = partial(pts, s.cum, f); const e = p[p.length - 1]; dot(e[0], e[1], 4, COL[st]); }
+  const near = cam.s > 2.5;
+  s.hops.forEach(hp => {
+    if (!near || s.cum[hp.at] / s.cum[s.cum.length - 1] > f) return;
+    const p = pts[hp.at], hs = toS(m.hub); dot(p[0], p[1], 3.5, "#ffffff"); if (Math.hypot(p[0] - hs[0], p[1] - hs[1]) < 40) return; label(PT[hp.key].name + " · traceroute hop", p[0] + 9, p[1] - 7, "#ffffff");
+  });
+  const hp = toS(m.hub);
+  dot(hp[0], hp[1], 4, m.P.hubObserved ? "#ffffff" : COL.u);
+  if (near && f > 0.97) {
+    label("Hub: " + PT[m.P.hub].name, hp[0] + 10, hp[1] - 8, m.P.hubObserved ? "#ffffff" : COL.u);
+    label("Edge node: " + m.P.edge + " · last visible hop", hp[0] + 10, hp[1] + 7, m.P.hubObserved ? "#ffffff" : COL.u);
+  }
+}
+
+let screenPaths = [];
+function drawScene3(f, dash) {
+  const m = model, sel = selPath().id;
+  screenPaths = [];
+  const order = m.paths.slice().sort((a, b) => (a.id === sel) - (b.id === sel));
+  const seen = new Set();
+  for (const p of order) {
+    const isSel = p.id === sel, isHover = state.hover === p.id;
+    const sp = p.pts.map(toS);
+    screenPaths.push({ id: p.id, pts: sp });
+    strokePoly(partial(sp, p.cum, f), p.st, isSel ? 3.2 : (isHover ? 2.2 : 1.4), dash, isSel || isHover ? 1 : 0.6);
+    p.via.forEach((v, i) => { const key = v; if (seen.has(key)) return; seen.add(key); const q = sp[i + 1]; if (p.cum[i + 1] / p.cum[p.cum.length - 1] <= f) { dot(q[0], q[1], 2.2, COL.u); label(v, q[0], q[1] + 18, COL.u, "center"); } });
+    if (f >= 1) { const e = sp[sp.length - 1]; dot(e[0], e[1], isSel ? 5 : 3.5, COL[p.st]); label(p.name + (p.def && m.paths.length > 1 ? "  · default guess" : ""), e[0] + 9, e[1] + 4, COL[p.st]); }
+  }
+  const hp = toS(m.hub); dot(hp[0], hp[1], 3.5, m.P.hubObserved ? "#ffffff" : COL.u);
+  if (cam.s <= 2.5) label("Edge node: last visible hop", hp[0] + 9, hp[1] - 8, m.P.hubObserved ? "#ffffff" : COL.u);
+}
+
+function sceneProgress(k) {
+  // drawing fraction of scene k at the current time
+  if (k < state.scene) return 1; if (k > state.scene) return 0;
+  const t = state.t;
+  return k === 0 ? clamp01((t - 14) / 5) : k === 1 ? clamp01((t - 2.5) / 11) : clamp01((t - 3) / 9);
+}
+
+function draw() {
+  if (!ctx || !model) return;
+  ctx.clearRect(0, 0, VW, VH);
+  const dash = reduce ? 0 : performance.now() / 60;
+  drawLand();
+  const cellPx = 0.25 * cam.s;
+  const gridAlpha = (state.scene === 2 ? clamp01((cam.s - 0.6) / 2) : 1) * (cellPx < 25 ? 1 : Math.max(0.12, 1 - (cellPx - 25) / 120));
+  drawGrid(gridAlpha);
+  drawCells();
+  const f1 = sceneProgress(1), f2 = sceneProgress(2);
+  if (state.scene >= 1) drawScene2(f1, dash);
+  if (state.scene === 2) drawScene3(f2, dash);
+  if (state.scene === 0 || cam.s > 200) drawScene1(state.scene === 0 ? state.t : 99, dash);
+  else { const h = toS(model.home); dot(h[0], h[1], 3.5, "#ffffff"); }
+  drawScaleBar();
+}
+function drawScaleBar() {
+  const target = 120 / cam.s; const pow = Math.pow(10, Math.floor(Math.log10(target))); const n = [1, 2, 5, 10].find(k => k * pow >= target) * pow;
+  document.getElementById("scale").innerHTML = `${n >= 1 ? fmtNum(n) + " km" : Math.round(n * 1000) + " m"}<i style="width:${n * cam.s}px"></i>`;
+}
+
+// ================= captions =================
+function caption() {
+  const m = model, t = state.t, P = m.P, c = m.cell;
+  if (state.scene === 0) {
+    if (t < 3) return "Switzerland in 250 m squares. The brighter a square, the more of its buildings are connected by glass fibre (BAKOM broadband atlas).";
+    if (t < 12) return `Diving to ${m.pl.name}…`;
+    if (t < 15) return c ? `Your square, 250 × 250 m. Glass fibre ${CLASS[c.fibre]}, coaxial cable ${CLASS[c.coax]}, copper wire ${CLASS[c.copper]} of buildings.` : "No buildings are recorded in this square. Pick another point.";
+    return state.conn === "mobile"
+      ? "Your prompt leaves your phone as radio waves to the nearest antenna, then goes into the ground as light in a fibre."
+      : `Your prompt leaves your device as radio waves to the router, then goes into the ground: most likely by ${m.lastMile.type === "fibre" ? "glass fibre" : "copper wire"} in this square.`;
+  }
+  if (state.scene === 1) {
+    if (sceneProgress(1) < 1) return m.observed
+      ? `The line follows the squares with the most fibre between the hops our traceroute saw. The real trenches are not published, so the line is schematic.`
+      : `The line follows the squares with the most fibre from your square to the hub. It is our estimate: the real route and trenches are not published.`;
+    return `At ${PT[P.hub].name} the prompt is handed to ${P.edge}. After this hop the path is private and invisible to us.`;
+  }
+  if (sceneProgress(2) < 1) return `Possible data centres for ${P.label} (${P.company}). ${P.dcNote}`;
+  const p = selPath();
+  return `${p.name}: ${p.why}`;
+}
+
+// ================= tally =================
+function fmtNum(k) { return k < 10 ? (Math.round(k * 10) / 10).toString() : Math.round(k).toLocaleString("en-GB").replace(/,/g, "'"); }
+function fmtKg(kg) { return kg >= 1000 ? fmtNum(kg / 1000) + " t" : Math.round(kg) + " kg"; }
+function stCls(code) { return code === "?" ? "nod" : (code === "SR" ? "cert" : "unc"); }
+function val([v, c]) { return `<span class="${stCls(c)}">${v} <span class="code ${c === "?" ? "n" : c === "SR" ? "c" : ""}">${c}</span></span>`; }
+function renderTally() {
+  const m = model, P = m.P, p = selPath(), c = m.cell;
+  const lmKg = m.lastMile.type === "fibre" ? DUCT.kg : COPPER.kg;
+  let html = `<section><h2>Your prompt to ${P.label} (${P.company})</h2>
+    <div class="row"><span>One way, so far</span><span class="v unc"><span id="c-one">0</span> km <span class="code">EST</span></span></div>
+    <div class="row" id="c-backrow"><span>And back to your device</span><span class="v unc">× 2</span></div>
+    <div class="row"><span>Total distance</span><span class="v big unc"><span id="c-tot">–</span></span></div>
+    <div class="row"><span>Cable passed</span><span class="v unc"><span id="c-kg">0 kg</span> <span class="code">EST</span></span></div>
+    <div class="note">Counts the infrastructure your prompt passes through, not what one prompt uses up.</div></section>`;
+  html += `<section data-s="0"><h2>1 · Dive in: your square</h2>`;
+  if (c) {
+    [["Glass fibre", c.fibre], ["Coaxial cable", c.coax], ["Copper wire", c.copper]].forEach(([n, k]) => {
+      html += `<div class="row"><span>${n}</span><span class="v cert">${CLASS[k]}</span></div><div class="meter"><i style="width:${[0, 8, 30, 70, 100][k]}%"></i></div>`;
+    });
+    html += `<div class="note">Share of buildings in the square per connection type. BAKOM, observed.</div>`;
+  } else html += `<div class="note">No buildings recorded in this square.</div>`;
+  html += `<div class="row"><span>Last mile to the exchange</span><span class="v unc">~${LOCAL_KM} km <span class="code">EST</span></span></div>
+    <div class="row"><span>${m.lastMile.type === "fibre" ? "Fibre in HDPE duct, 485 kg/km" : "Copper cable, 2 pairs, ~40 kg/km"}</span><span class="v unc">${fmtKg(lmKg * LOCAL_KM)} <span class="code">EST</span></span></div>
+    ${m.lastMile.type === "copper" ? `<div class="row"><span>Copper per pair, 0.5 mm average</span><span class="v unc">3.5 kg/km <span class="code">EST</span></span></div>
+    <div class="note">Swisscom's wires are 0.4–1.0 mm (2.3–14.1 kg copper per pair-km); the share of each in Switzerland is not published. Swisscom has already replaced copper up to the distribution points, so copper is only on the last stretch to the building.</div>` : ""}`;
+  if (state.conn === "mobile") {
+    html += `<h2 style="margin-top:8px">Your antenna site</h2>` + MOBILE.map(([n, v, cd]) => `<div class="row"><span>${n}</span><span class="v">${val([v, cd])}</span></div>`).join("") +
+      `<div class="note">A Swisscom site points 3 directions × 2–3 bands = 6–9 antennas; your prompt uses one direction. Aluminium reflector, fibreglass radome, tin-plated zinc or PCB radiators, brass and copper connectors. The return comes through the same antenna: distance × 2, antenna counted once. From the site, fibre in the ground (485 kg/km) to the exchange.</div>`;
+    if (["ecal", "lausanne", "geneve", "bern", "zurich", "basel"].includes(m.pl.id)) html += `<div class="note">In cities the antennas are the same size, just closer together, plus small cells in manholes, on façades and lamps. How many in Lausanne: no data.</div>`;
+  }
+  html += `</section>`;
+  const swKg = m.swiss.km * DUCT.kg;
+  html += `<section data-s="1"><h2>2 · Through Switzerland</h2>
+    <div class="row"><span>To the hub, along fibre squares</span><span class="v ${m.observed ? "cert" : "unc"}">${fmtNum(m.swiss.km)} km <span class="code ${m.observed ? "c" : ""}">${m.observed ? "hops observed" : "EST"}</span></span></div>
+    <div class="row"><span>Fibre in duct, 485 kg/km</span><span class="v unc">${fmtKg(swKg)} <span class="code">EST</span></span></div>
+    <div class="split">${DUCT.split.map(([n, kg]) => `<span>${n}</span><span>${fmtKg(kg * m.swiss.km)}</span>`).join("")}</div>
+    <div class="note">A 144-fibre cable is shared: your connection uses one fibre pair, ~0.05 kg of glass per km. Here we count the whole cable (decision open). Of ~485 kg per km, the glass that carries the light is ~4 kg, under 1%. About 85–90% is polyethylene. Weights from datasheets; split derived from cable geometry. Ducts per trench: no data.</div></section>`;
+  html += `<section data-s="2"><h2>3 · Out of Switzerland</h2>
+    <div class="row"><span>On land, one way</span><span class="v unc">${fmtNum(p.land)} km <span class="code">EST</span></span></div>
+    <div class="row"><span>Fibre in duct</span><span class="v unc">${fmtKg(p.land * DUCT.kg)} <span class="code">EST</span></span></div>`;
+  if (p.sea) html += `<div class="row"><span>Under the sea</span><span class="v unc">${fmtNum(p.sea)} km <span class="code">EST</span></span></div>
+    <div class="row"><span>Submarine cable, 650–1'700 kg/km</span><span class="v unc">${fmtKg(p.sea * SEA.min)}–${fmtKg(p.sea * SEA.max)} <span class="code">EST</span></span></div>
+    <div class="note">${SEA.mats}. The mix along a real route is unknown.</div>
+    <div class="row"><span>Repeaters on the sea floor</span><span class="v nod">No data provided <span class="code n">?</span></span></div>`;
+  html += `<div class="row"><span>Data centre</span><span class="v" style="color:${COL[p.st]}">${p.name}</span></div>
+    <div class="row"><span>Does ${P.label} use it?</span><span class="v" style="color:${COL[p.st]}">${{ c: "Certain", u: "Uncertain", n: "No data" }[p.st]}</span></div>
+    <div class="row"><span>Power of the site</span><span class="v">${val(DC[p.id].power)}</span></div>
+    <div class="row"><span>Chips</span><span class="v">${val(DC[p.id].chips)}</span></div>
+    <div class="note">${DC[p.id].src}</div>
+    <div class="row"><span>Energy per prompt</span><span class="v">${val(P.energy)}</span></div>
+    ${P.energyExt ? `<div class="row"><span class="note">third-party estimate</span><span class="v">${val(P.energyExt)}</span></div>` : ""}
+    <div class="row"><span>Water per prompt</span><span class="v">${val(P.water)}</span></div>
+    ${P.waterExt ? `<div class="row"><span class="note">third-party estimate</span><span class="v">${val(P.waterExt)}</span></div>` : ""}
+    <div class="row"><span>Materials per prompt</span><span class="v">${val(P.material)}</span></div>
+    ${(P.extra || []).map(([n, v, cd]) => `<div class="row"><span>${n}</span><span class="v">${val([v, cd])}</span></div>`).join("")}
+    <div class="row"><span>Training share</span><span class="v unc">Decision pending</span></div>
+    <div class="note">${P.dcNote}</div></section>`;
+  html += `<section><div class="note">Prototype, 17 Nov 2026. Hubs, landings and data centres are placed approximately. Land routes outside Switzerland: straight line × ${LAND_FACTOR}; sea × ${SEA_FACTOR}.</div>
+    <details><summary>Sources</summary><ul>
+    <li><a href="https://map.geo.admin.ch">BAKOM broadband atlas (fibre, coax, copper)</a></li>
+    <li><a href="https://ecatalog.corning.com">Corning duct and armoured cables</a>, <a href="https://efobasen.efo.no">Emtelle HDPE ducts</a>, <a href="https://fiber-optic-catalog.ofsoptics.com">OFS</a></li>
+    <li><a href="https://www.aenor.com/documents/d/guest/globalepd-en15804-209-cunext-opgw-a003a-260119">CUNEXT OPGW EPD</a>, <a href="https://assets.legrand.com/pim/DOCUMENT/LGRP-02008-V01.01-EN.pdf">Legrand PEP</a></li>
+    <li><a href="https://www.nexans.no/en/products/Fiberoptic-Cables-and-Components/Submarine-Fiber-Cables/URC-1-Ligh10763.html">Nexans URC-1</a> and <a href="https://www.hexatronic.com/hubfs/datasheets/28701-10_ton_SA_en_Hexatronic.pdf">Hexatronic</a> submarine cables (650–1,700 kg/km)</li>
+    <li><a href="https://www.swisscom.ch/content/dam/swisscom/de/ws/documents/D_FMG-Dokumente/TAL/D_TAL_HB_Technik_V2-0.pdf">Swisscom, Handbuch Teilnehmeranschlussleitung</a>; <a href="https://www.swisscom.ch/de/about/netz/kupferanschluss.html">Swisscom, copper switch-off</a></li>
+    <li><a href="https://www.analysysmason.com/research/content/articles/recovering-copper-emissions-rma08-rdfi0/">Analysys Mason, Recovering copper (BT figures)</a></li>
+    <li><a href="https://www.bafu.admin.ch/de/mobil-telefonieren-wie-funktioniert-das">BAFU, how mobile phones work</a>; <a href="https://www.swisscom.ch/de/about/news/2023/11/29-standorte.html">Swisscom, antenna sites need fibre</a></li>
+    <li><a href="https://www.stadt.sg.ch/content/dam/dokument_library/dpb/abb/baubewilligungen/63023-lukasstrasse-30/01%20Standortdatenbl%C3%A4tter.pdf">Standortdatenblatt St. Gallen</a>, <a href="https://www.baden.ch/public/upload/assets/217851/AA20211213_Standortdatenblatt.pdf?fp=1">Baden</a> (site layouts)</li>
+    <li><a href="https://www.ericsson.com/en/news/2021/9/ericsson-launches-ultra-lightweight-air-3268-radio">Ericsson AIR 3268</a>; CommScope/Andrew, Kathrein, Huawei, FiberHome antenna datasheets</li>
+    <li><a href="https://www.ericsson.com/en/news/2016/3/swisscom-and-ericsson-plant-lte-small-cells-underground">Swisscom and Ericsson, small cells in manholes</a></li>
+    <li><a href="https://epoch.ai/data/ai-data-centers">Epoch AI, AI data centers</a> (CC BY 4.0)</li>
+    <li><a href="https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference">Google, Gemini per-prompt figures</a></li>
+    <li><a href="https://projetcelsius.com/en/blog/claude-carbon-footprint/">Projet Celsius, Claude estimate</a></li>
+    <li><a href="https://mistral.ai/news/our-contribution-to-a-global-environmental-standard-for-ai">Mistral life-cycle analysis</a></li>
+    <li><a href="https://news.infomaniak.com/en/infomaniak-inaugurates-a-revolutionary-data-center-that-recovers-100-of-its-energy-for-building-heating">Infomaniak D4</a></li>
+    <li><a href="https://proton.me/blog/lumo-ai">Proton, Lumo</a>, <a href="https://heise.de/-10538664">heise on Proton moving servers</a></li>
+    <li><a href="https://www.submarinecablemap.com">TeleGeography Submarine Cable Map</a></li>
+    <li>Traceroutes from ÉCAL Wi-Fi and Sunrise mobile, 17 Nov 2026, 11:00–16:02, 4 runs each; same path every run (own measurement)</li>
+    <li>Coastlines: Natural Earth (public domain)</li>
+    </ul></details></section>`;
+  document.getElementById("tally").innerHTML = html;
+}
+let lastCount = "";
+function updateCounts() {
+  const m = model, p = selPath();
+  const f0 = sceneProgress(0), f1 = sceneProgress(1), f2 = sceneProgress(2);
+  const lmKg = m.lastMile.type === "fibre" ? DUCT.kg : COPPER.kg;
+  const km = LOCAL_KM * f0 + m.swiss.km * f1 + p.total() * f2;
+  const kg = lmKg * LOCAL_KM * f0 + DUCT.kg * m.swiss.km * f1 + DUCT.kg * p.land * f2;
+  const done = f2 >= 1;
+  const key = [Math.round(km * 10), Math.round(kg), done, state.scene].join();
+  if (key === lastCount) return; lastCount = key;
+  const one = document.getElementById("c-one"); if (!one) return;
+  one.textContent = fmtNum(km);
+  document.getElementById("c-tot").textContent = done ? fmtNum(km * 2) + " km" : "–";
+  document.getElementById("c-backrow").style.opacity = done ? 1 : 0.35;
+  document.getElementById("c-kg").textContent = fmtKg(kg) + (done && p.sea ? " + sea cable" : "");
+  document.querySelectorAll("#tally section[data-s]").forEach(s => s.classList.toggle("dim", +s.dataset.s > state.scene));
+}
+
+// ================= scene control =================
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function goScene(k, play) {
+  state.scene = k; state.free = false; rejoin = null;
+  sceneStart = { ...cam };
+  if (reduce || !play) { state.t = DUR[k]; state.playing = false; } else { state.t = 0; state.playing = true; }
+  if (k === 0 && state.t === 0) cam = chFit();
+  cam = sceneCam(k, state.t);
+  lastCount = ""; syncUI();
+}
+function syncUI() {
+  document.querySelectorAll(".scene").forEach(b => b.setAttribute("aria-current", +b.dataset.scene === state.scene));
+  const end = state.scene === 2 && state.t >= DUR[2];
+  document.getElementById("play").textContent = state.playing ? "Pause" : (end ? "Replay" : "Play");
+  document.getElementById("play").setAttribute("aria-label", document.getElementById("play").textContent);
+}
+let lastNow = performance.now(), lastCap = "";
+function frame(now) {
+  const dt = Math.min(0.1, (now - lastNow) / 1000); lastNow = now;
+  if (model && ctx) {
+    if (state.playing) {
+      state.t += dt;
+      if (state.t >= DUR[state.scene]) {
+        if (state.scene < 2) { sceneStart = { ...cam }; state.scene++; state.t = 0; lastCount = ""; }
+        else { state.t = DUR[2]; state.playing = false; }
+        syncUI();
+      }
+    }
+    if (!state.free) {
+      const target = sceneCam(state.scene, state.t);
+      if (rejoin) { const u = clamp01((now - rejoin.start) / 900); cam = lerpCam(rejoin.from, target, ease(u)); if (u >= 1) rejoin = null; }
+      else cam = target;
+    }
+    draw();
+    document.querySelectorAll(".scene .prog").forEach((el, k) => el.style.width = (k < state.scene ? 100 : k > state.scene ? 0 : 100 * clamp01(state.t / DUR[k])) + "%");
+    const cap = caption(); if (cap !== lastCap) { document.getElementById("caption").textContent = cap; lastCap = cap; }
+    updateCounts();
+  }
+  requestAnimationFrame(frame);
+}
+function update(restartAt) {
+  model = buildModel();
+  model.paths.forEach(p => p.total = () => p.land + p.sea);
+  renderTally(); lastCount = "";
+  if (restartAt !== undefined) goScene(restartAt, !reduce);
+}
+
+// ================= interaction =================
+function initUI() {
+  const sel = document.getElementById("place");
+  PLACES.forEach(p => { const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; sel.appendChild(o); });
+  sel.addEventListener("change", () => { state.place = PLACES.find(p => p.id === sel.value); state.custom = null; state.selected = null; update(0); });
+  const pv = document.getElementById("providers");
+  Object.entries(PROVIDERS).forEach(([id, p]) => {
+    const b = document.createElement("button"); b.className = "chip"; b.textContent = p.label; b.dataset.p = id; b.setAttribute("aria-pressed", id === state.provider);
+    b.addEventListener("click", () => { state.provider = id; state.selected = null; pv.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.p === id)); update(state.scene === 0 ? undefined : 1); });
+    pv.appendChild(b);
+  });
+  document.querySelectorAll("#conn .chip").forEach(b => b.addEventListener("click", () => {
+    state.conn = b.dataset.conn; document.querySelectorAll("#conn .chip").forEach(x => x.setAttribute("aria-pressed", x === b)); update(0);
+  }));
+  document.querySelectorAll(".scene").forEach(b => b.addEventListener("click", () => goScene(+b.dataset.scene, true)));
+  document.getElementById("play").addEventListener("click", () => {
+    if (state.playing) { state.playing = false; }
+    else if (state.scene === 2 && state.t >= DUR[2]) { goScene(0, true); return; }
+    else { state.playing = true; if (state.free) { rejoin = { from: { ...cam }, start: performance.now() }; state.free = false; } }
+    syncUI();
+  });
+  const zoomBy = (k, x = VW / 2, y = VH / 2) => {
+    const before = toW(x, y); cam.s = Math.max(0.02, Math.min(20000, cam.s * k)); const after = toW(x, y);
+    cam.x += before[0] - after[0]; cam.y += before[1] - after[1];
+    state.free = true; state.playing = false; syncUI();
+  };
+  document.getElementById("zoomIn").addEventListener("click", () => zoomBy(1.6));
+  document.getElementById("zoomOut").addEventListener("click", () => zoomBy(1 / 1.6));
+  document.getElementById("fit").addEventListener("click", () => { rejoin = { from: { ...cam }, start: performance.now() }; state.free = false; });
+  cv.addEventListener("wheel", e => { e.preventDefault(); const r = cv.getBoundingClientRect(); zoomBy(Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+  cv.addEventListener("keydown", e => {
+    const step = 60 / cam.s, mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+    if (mv) { e.preventDefault(); cam.x += mv[0]; cam.y += mv[1]; state.free = true; state.playing = false; syncUI(); }
+    if (e.key === "+" || e.key === "=") zoomBy(1.4); if (e.key === "-") zoomBy(1 / 1.4);
+    if (e.key === " ") { e.preventDefault(); document.getElementById("play").click(); }
+  });
+  let drag = null;
+  cv.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener("pointermove", e => {
+    if (drag) {
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.moved && Math.hypot(dx, dy) > 4) { drag.moved = true; state.free = true; state.playing = false; cv.classList.add("dragging"); syncUI(); }
+      if (drag.moved) { cam.x = drag.cx - dx / cam.s; cam.y = drag.cy - dy / cam.s; }
+      return;
+    }
+    hover(e);
+  });
+  cv.addEventListener("pointerup", e => {
+    cv.classList.remove("dragging");
+    const d = drag; drag = null; if (!d || d.moved) return;
+    const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    if (state.scene === 2) { const id = hit(x, y); if (id) { state.selected = id; renderTally(); lastCount = ""; } return; }
+    if (!GRID) return;
+    const w = toW(x, y), lv = wgsToLv95(w[0] / KX, -w[1] / KY), i = nearestIdx(lv[0], lv[1]); if (i < 0) return;
+    const [E, N] = cellCentre(i), [lon, lat] = lv95ToWgs(E, N);
+    state.custom = { id: "custom", name: `Your point (${lat.toFixed(3)}° N, ${lon.toFixed(3)}° E)`, E, N }; state.selected = null;
+    update(); goScene(0, false);
+  });
+  cv.addEventListener("pointerleave", () => { state.hover = null; tip.style.display = "none"; });
+  window.addEventListener("resize", () => { resize(); if (!state.free) cam = sceneCam(state.scene, state.t); });
+}
+const tip = document.getElementById("tip");
+function hit(x, y) {
+  let best = null, bd = 10;
+  for (const sp of screenPaths) for (let i = 1; i < sp.pts.length; i++) {
+    const [ax, ay] = sp.pts[i - 1], [bx, by] = sp.pts[i];
+    const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy || 1;
+    const u = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L));
+    const d = Math.hypot(x - (ax + u * dx), y - (ay + u * dy));
+    if (d < bd) { bd = d; best = sp.id; }
+  }
+  return best;
+}
+function hover(e) {
+  if (state.scene !== 2) { tip.style.display = "none"; cv.style.cursor = ""; return; }
+  const r = cv.getBoundingClientRect(), id = hit(e.clientX - r.left, e.clientY - r.top);
+  state.hover = id; cv.style.cursor = id ? "pointer" : "";
+  if (!id) { tip.style.display = "none"; return; }
+  const p = model.paths.find(x => x.id === id), tot = model.swiss.km + LOCAL_KM + p.land + p.sea;
+  tip.innerHTML = `<div style="color:${COL[p.st]}">${p.name}</div><div class="note">${p.why}</div>
+    <div>Power: ${val(DC[p.id].power)}<br>${fmtNum(tot)} km one way <span class="code">EST</span><br>${fmtNum(tot * 2)} km with the return<br>
+    ${fmtKg(p.land * DUCT.kg)} of land cable outside Switzerland <span class="code">EST</span>${p.sea ? `<br>${fmtNum(p.sea)} km under the sea: ${fmtKg(p.sea * SEA.min)}–${fmtKg(p.sea * SEA.max)} <span class="code">EST</span>` : ""}</div>`;
+  tip.style.display = "block"; tip.style.left = Math.min(e.clientX + 14, innerWidth - 320) + "px"; tip.style.top = (e.clientY + 14) + "px";
+}
+
+(async function main() {
+  FONT = getComputedStyle(document.body).fontFamily;
+  initUI(); resize();
+  update();
+  try {
+    const [g, l] = await Promise.all([loadGrid(), fetch("land.json").then(r => r.json())]);
+    GRID = g; LAND = l; renderGridImage();
+  } catch (err) { document.getElementById("caption").textContent = "Could not load the map data: " + err.message; }
+  update(0);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
