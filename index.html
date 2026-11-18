@@ -8,154 +8,256 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Single dark theme by design (style guide). Layout: title + choices on top, one map stage with three scenes, tally right, legend bottom. */
-@font-face { font-family: "Banana Mono"; src: local("MNKY Banana Grotesk Mono TRIAL Regular"), local("MNKY Banana Grotesk Mono TRIAL"), local("MNKYBananaGroteskMonoTRIAL-Regular"); }
+/* Layout = Figma frame "Design2" (1512 × 982), drawn as one artboard scaled to the window: 1 Figma px = var(--u). */
+@font-face { font-family: "MonkeyMono"; src: url("MonkeyMono.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
 :root {
-  --bg: #252525;
-  --panel: #2c2c2c;
-  --line: #3a3a3a;
-  --certain: #ffffff;
-  --text: #efefeb;
-  --unknown: #7ef6fd;
-  --nodata: #f2508c;
-  --muted: #9a9a96;
-  --font: "Banana Mono", "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --ux: calc(100vw / 1512); --uy: calc(100vh / 982); --u: min(var(--ux), var(--uy)); /* positions stretch to the window, type and glyphs scale with the smaller axis */
+  --bg: #252525; --line: #3a3a3a; --certain: #ffffff; --text: #efefeb;
+  --unknown: #3ff9ff; --nodata: #ff3f88; --grey: #6e6e6e; --grey2: #6f6f6f; --tab: #cbcbcb; --muted: #9a9a96;
+  --font: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --display: "MonkeyMono", "DM Mono", ui-monospace, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
-body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 12px; line-height: 1.45; letter-spacing: 0.02em; }
+body { background: var(--bg); color: var(--text); font-family: var(--display); overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: geometricPrecision; }
 a { color: var(--unknown); }
 button, select { font: inherit; color: inherit; }
-.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto auto minmax(0, 1fr) auto; height: 100%; gap: 0 28px; padding: 24px 32px 18px; }
-header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 40px; padding-bottom: 14px; }
-h1 { margin: 0; font-weight: 400; font-size: clamp(28px, 3.4vw, 50px); letter-spacing: 0.08em; color: var(--unknown); text-shadow: 0 0 14px rgba(126,246,253,0.25); }
-header p { margin: 0; color: var(--unknown); max-width: 58ch; }
-h2 { margin: 0 0 8px; font-weight: 400; font-size: 13px; color: var(--unknown); letter-spacing: 0.06em; }
-.choices { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr) auto; gap: 14px 32px; padding: 12px 0 14px; border-top: 1px solid var(--line); }
-.step { display: flex; flex-direction: column; gap: 7px; }
-.step-label { color: var(--muted); }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip, .tool { background: transparent; border: 1px solid var(--line); padding: 5px 9px; cursor: pointer; border-radius: 2px; }
-.chip:hover, .tool:hover { border-color: var(--muted); }
-.chip[aria-pressed="true"] { border-color: var(--certain); color: var(--certain); box-shadow: 0 0 10px rgba(255,255,255,0.15); }
-.chip:focus-visible, .tool:focus-visible, select:focus-visible, canvas:focus-visible { outline: 1px solid var(--unknown); outline-offset: 2px; }
-select { background: var(--panel); border: 1px solid var(--line); padding: 5px 8px; border-radius: 2px; width: 100%; }
-.hint { color: var(--muted); font-size: 11px; }
-.stage { position: relative; min-height: 0; border-top: 1px solid var(--line); overflow: hidden; }
-.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.app { position: relative; width: calc(1512 * var(--ux)); height: calc(982 * var(--uy)); margin: 0 auto; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; }
+.app > * { position: absolute; }
+.title-art { left: 0; top: 0; width: calc(1512 * var(--ux)); height: calc(421 * var(--uy)); z-index: 0; pointer-events: none; overflow: visible; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+h1 { left: calc(10 * var(--ux)); top: calc(0 * var(--uy)); margin: 0; font-family: var(--display); font-weight: 500; font-size: calc(120.377 * var(--u)); line-height: calc(153.816 * var(--u)); letter-spacing: -0.07em; white-space: nowrap; pointer-events: none;
+  /* Figma 27:355536 drop shadows: #FFFFFF blur 53.72 · #7EF6FD x 25.26 y 15.42 blur 24.60 · #3FF9FF x 2.95 y −35.43 blur 57.08 (spread not applied to text) */
+  color: var(--bg); text-shadow: 0 0 calc(53.719 * var(--u)) #ffffff, calc(25.263 * var(--u)) calc(15.421 * var(--u)) calc(24.6 * var(--u)) #7ef6fd, calc(2.952 * var(--u)) calc(-35.429 * var(--u)) calc(57.079 * var(--u)) #3ff9ff; }
+#caption { left: calc(21 * var(--ux)); top: calc(134 * var(--uy)); width: calc(721 * var(--ux)); margin: 0; color: var(--certain); z-index: 4; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; pointer-events: none; }
+body.choose .choices { width: calc(654 * var(--ux)); flex-wrap: wrap; row-gap: calc(18 * var(--u)); }
+.choices { transition: top 1s cubic-bezier(.65,0,.35,1); z-index: 5; left: calc(20 * var(--ux)); top: calc(7 * var(--uy)); display: flex; gap: calc(32 * var(--u)); align-items: flex-start; }
+.step { display: flex; flex-direction: column; gap: calc(5.975 * var(--u)); }
+.step-label { color: var(--unknown); white-space: pre; }
+.place { display: flex; align-items: center; gap: calc(5.975 * var(--u)); width: calc(190 * var(--ux)); height: calc(25 * var(--u)); border-bottom: calc(0.747 * var(--u)) solid var(--certain); padding-bottom: calc(5.975 * var(--u)); }
+.place svg { width: calc(13.44 * var(--u)); height: calc(13.44 * var(--u)); flex: none; }
+.place select { appearance: none; background: transparent; border: 0; padding: 0; width: 100%; color: var(--certain); cursor: pointer; font-family: var(--display); }
+.place select option { background: var(--bg); }
+.chips { display: flex; flex-wrap: wrap; gap: calc(4.481 * var(--u)) calc(11.95 * var(--u)); }
+.cap-u { color: var(--unknown); } .cap-n { color: var(--nodata); }
+#caption { transition: top 1.2s cubic-bezier(.65,0,.35,1), width 1.2s cubic-bezier(.65,0,.35,1), font-size 1.2s cubic-bezier(.65,0,.35,1), line-height 1.2s cubic-bezier(.65,0,.35,1); }
+body.intro #caption { width: calc(654 * var(--ux)); font-size: calc(34.544 * var(--u)); line-height: calc(34.1 * var(--u)); }
+.stage { transition: clip-path 1.4s cubic-bezier(.65,0,.35,1); clip-path: inset(0 0 0 0); }
+body.intro .stage { clip-path: inset(0 0 0 56.9%); } /* Design4: map visible from x 690 */
+.intro-nav { display: none; left: 0; top: 0; z-index: 5; }
+body.intro .intro-nav { display: block; }
+.intro-nav button { padding: 0; position: absolute; transition: top 1s cubic-bezier(.65,0,.35,1); top: calc(593 * var(--uy)); width: calc(122 * var(--ux)); height: calc(32 * var(--u)); background: #262626; border: calc(1.247 * var(--u)) solid #262626; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
+.intro-nav button svg { width: calc(20 * var(--u)); height: calc(20 * var(--u)); }
+#introPrev { left: calc(27 * var(--ux)); justify-content: flex-start; } #introNext { left: calc(544 * var(--ux)); justify-content: flex-end; } /* Design4: triangles flush with the text edges */
+.intro-nav button:disabled { opacity: .3; cursor: default; }
+.capnav { position: absolute; left: calc(729 * var(--ux)); top: calc(37.5 * var(--uy)); display: flex; gap: calc(8.1 * var(--ux)); pointer-events: auto; } /* Design3: sits on the image edge (y 171.5–186), ends at the text edge x 742 */
+.capnav button { width: calc(23 * var(--ux)); height: calc(14.5 * var(--u)); padding: 0; border: 0; background: #262626; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.capnav svg { width: calc(9 * var(--u)); height: calc(9 * var(--u)); fill: #ffffff; }
+.capnav button:disabled { opacity: .3; cursor: default; }
+.cap-chip { border: calc(0.747 * var(--u)) solid #ffffff; padding: 0 calc(4 * var(--u)); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.chip { background: transparent; border: calc(0.747 * var(--u)) solid var(--grey); color: #000000; border-color: #000000; padding: calc(1.494 * var(--u)) calc(5.975 * var(--u)); cursor: pointer; border-radius: 0; font-family: var(--display); font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); }
+.chip:hover { border-color: var(--certain); color: var(--certain); }
+body.choose .chip:not([aria-pressed="true"]) { color: #9a9a9a; border-color: #6f6f6f; } body.choose .chip:not([aria-pressed="true"]):hover { color: var(--certain); border-color: var(--certain); }
+.chip[aria-pressed="true"] { border-color: var(--certain); color: var(--certain); box-shadow: 0 0 calc(7.469 * var(--u)) rgba(255,255,255,0.15); }
+.chip:focus-visible, .tool:focus-visible, select:focus-visible, canvas:focus-visible, .scene:focus-visible, .more:focus-visible { outline: 1px solid var(--unknown); outline-offset: 2px; }
+.stage { z-index: 1; left: calc(22 * var(--ux)); top: calc(186 * var(--uy)); width: calc(1174 * var(--ux)); height: calc(684 * var(--uy)); overflow: hidden; background: #262626; /* Figma variable Dark */ }
+.stage > * { position: absolute; }
+.stage canvas { inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
 .stage canvas.dragging { cursor: grabbing; }
-.bar-top { position: absolute; left: 0; right: 0; top: 8px; z-index: 2; display: flex; justify-content: space-between; gap: 12px; pointer-events: none; }
-.bar-top > * { pointer-events: auto; }
-.scenes { display: flex; gap: 6px; flex-wrap: wrap; }
-.scene { position: relative; background: rgba(37,37,37,0.85); border: 1px solid var(--line); padding: 5px 9px 7px; cursor: pointer; border-radius: 2px; min-width: 150px; text-align: left; }
-.scene[aria-current="true"] { border-color: var(--certain); color: var(--certain); }
-.scene .prog { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--certain); width: 0; box-shadow: 0 0 6px rgba(255,255,255,0.5); }
-.tools { display: flex; gap: 6px; }
-.tool { background: rgba(37,37,37,0.85); min-width: 30px; }
-.caption { position: absolute; left: 0; bottom: 10px; z-index: 2; max-width: 62ch; background: rgba(37,37,37,0.88); padding: 8px 10px; border-left: 2px solid var(--unknown); color: var(--text); pointer-events: none; }
-.scale { position: absolute; right: 0; bottom: 12px; z-index: 2; color: var(--muted); font-size: 11px; text-align: right; pointer-events: none; }
-.scale i { display: block; height: 0; border-top: 1px solid var(--muted); margin: 3px 0 0 auto; }
-#tip { position: fixed; z-index: 10; pointer-events: none; background: rgba(30,30,30,0.96); border: 1px solid var(--unknown); padding: 8px 10px; max-width: 300px; display: none; }
-.right { overflow-y: auto; min-height: 0; padding-right: 4px; display: flex; flex-direction: column; gap: 20px; border-top: 1px solid var(--line); padding-top: 12px; }
-.right section { display: flex; flex-direction: column; gap: 6px; transition: opacity 0.4s; }
-.right section.dim { opacity: 0.45; }
+.scenes { left: calc(807 * var(--ux)); top: calc(137 * var(--uy)); height: calc(49 * var(--uy)); z-index: 4; display: flex; gap: calc(6.433 * var(--u)); }
+.scene { position: relative; display: flex; gap: calc(1.608 * var(--u)); align-items: stretch; background: transparent; border: 0; padding: 0 calc(6.433 * var(--u)) 0 0; cursor: pointer; font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); height: 100%; align-items: stretch; line-height: calc(17 * var(--u)); letter-spacing: 0; text-align: left; color: var(--certain); width: calc(127 * var(--ux)); }
+.scene .num { background: #ffffff; color: #262626; width: calc(15 * var(--u)); flex: none; text-align: center; font-size: calc(14 * var(--u)); }
+.scene .lab { padding: calc(2 * var(--u)) calc(6.433 * var(--u)) 0; white-space: pre; }
+/* progress = the white fill of the block, growing left to right */
+.scene .prog { position: absolute; inset: 0; display: flex; gap: inherit; padding: inherit; background: #ffffff; color: #262626; pointer-events: none; clip-path: inset(0 100% 0 0); }
+.tools { left: calc(809 * var(--ux)); top: calc(215 * var(--uy)); width: calc(381 * var(--ux)); z-index: 4; display: flex; gap: calc(7.479 * var(--u)); }
+.tool { flex: 1 0 0; min-width: calc(37.4 * var(--u)); height: calc(32 * var(--u)); display: flex; align-items: center; justify-content: center; background: var(--bg); border: calc(1.247 * var(--u)) solid var(--bg); border-radius: 0; color: var(--certain); font-family: var(--font); font-size: calc(32 * var(--u)); line-height: 1; font-weight: 300; cursor: pointer; padding: 0 calc(12.95 * var(--u)); }
+.tool:hover { border-color: var(--grey); }
+.trace-toggle { left: calc(809 * var(--ux)); top: calc(255 * var(--uy)); z-index: 4; background: transparent; border: calc(0.747 * var(--u)) solid #6f6f6f; color: #9a9a9a; font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); padding: calc(1.494 * var(--u)) calc(5.975 * var(--u)); cursor: pointer; border-radius: 0; }
+.trace-toggle:hover { color: var(--text); border-color: var(--muted); }
+.trace-toggle[aria-pressed="true"] { color: var(--unknown); border-color: var(--unknown); }
+.tool svg { width: calc(20.165 * var(--u)); height: calc(20.165 * var(--u)); display: block; }
+#play { padding: 0 calc(11.2 * var(--u)); }
+.sqlegend { left: 0; top: 0; z-index: 2; display: grid; grid-template-columns: calc(34 * var(--u)) auto; gap: calc(6 * var(--u)) calc(6 * var(--u)); align-items: center; pointer-events: none; font-family: var(--display); font-weight: 500; transition: opacity 0.3s; }
+.sqlegend.hide { opacity: 0; }
+.sqlegend svg { width: calc(28 * var(--u)); height: calc(28 * var(--u)); }
+.sqlegend .nm { font-size: calc(16.82 * var(--u)); line-height: 1.1; color: var(--certain); white-space: pre; }
+.sqlegend .vl { grid-column: 1 / span 2; background: var(--bg); color: var(--certain); font-size: calc(16.65 * var(--u)); line-height: calc(24 * var(--u)); width: calc(97 * var(--u)); padding: 0 calc(6 * var(--u)); text-align: right; margin-bottom: calc(10 * var(--u)); justify-self: start; }
+.scale { right: calc(16 * var(--ux)); bottom: calc(14 * var(--uy)); z-index: 2; color: var(--grey); font-family: var(--font); font-size: calc(10 * var(--u)); text-align: right; pointer-events: none; }
+.scale i { display: block; height: 0; border-top: 1px solid var(--grey); margin: 3px 0 0 auto; }
+#tip { position: fixed; z-index: 10; pointer-events: none; background: rgba(30,30,30,0.96); border: 1px solid var(--grey); padding: 8px 10px; max-width: 300px; display: none; font-family: var(--font); font-size: 11px; line-height: 1.45; }
+#counter { left: calc(1210 * var(--ux)); top: calc(190 * var(--uy)); width: calc(275 * var(--ux)); height: calc(502 * var(--uy)); overflow: hidden; display: flex; flex-wrap: wrap; align-content: flex-start; gap: calc(14.842 * var(--u)); }
+.cg { display: flex; flex-wrap: wrap; gap: calc(1.484 * var(--u)); align-items: center; }
+.cg i { --a: var(--unknown); width: var(--sq, 22px); height: var(--sq, 22px); display: block;
+  --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='%23252525' stroke-width='1.6'%3E%3Ccircle cx='7.4' cy='10' r='4.6'/%3E%3Ccircle cx='12.6' cy='10' r='4.6'/%3E%3C/g%3E%3C/svg%3E"); }
+.cg i.c { --a: var(--certain); } .cg i.u { --a: var(--unknown); } .cg i.n { --a: var(--nodata); }
+.cg i.pub { background: var(--a); }
+.cg i.sh { background: var(--a) var(--ico) center / 78% no-repeat; }
+.cg i.pr { background: var(--a) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect x='5' y='9' width='10' height='7' fill='%23252525'/%3E%3Cpath d='M7 9.2V7.4a3 3 0 0 1 6 0v1.8' fill='none' stroke='%23252525' stroke-width='1.7'/%3E%3C/svg%3E") center / 82% no-repeat; }
+.cg svg { display: block; margin-right: calc(var(--sq, 22px) * -0.19); height: calc(var(--sq, 22px) * 1.05); width: auto; }
+#tally { left: calc(1210 * var(--ux)); bottom: calc(112 * var(--uy)); /* ends with the map at 870 */ width: calc(275 * var(--ux)); display: flex; flex-direction: column; gap: calc(10 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: -0.005em; }
+#tally h2 { margin: 0 0 calc(6 * var(--u)); width: calc(190 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); color: var(--unknown); }
+#tally .more { align-self: flex-end; margin: calc(2 * var(--u)) 0 0; }
+#tally .unit { position: absolute; right: 0; top: 0; color: var(--grey2); font-size: calc(8.5 * var(--u)); }
 .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline; font-variant-numeric: tabular-nums; }
 .row .v { text-align: right; }
-.cert { color: var(--certain); }
-.unc { color: var(--unknown); }
-.nod { color: var(--nodata); }
-.big { font-size: 26px; letter-spacing: 0.04em; }
+#tally .row > span:first-child { white-space: nowrap; }
+#tally .big { font-size: calc(34.544 * var(--u)); line-height: calc(24.1 * var(--u)); white-space: nowrap; }
+#tally .row:has(#c-tot) { grid-template-columns: 1fr; gap: 0; }
+#tally .row:has(#c-kg) { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: calc(10 * var(--u)); }
+#tally .row:has(#c-kg) .v { margin-left: auto; }
+#tally .unc { color: var(--unknown); }
+#tally .gry { color: var(--grey2); }
+.more { align-self: flex-end; background: transparent; border: calc(0.747 * var(--u)) solid var(--grey); color: var(--grey); padding: calc(1.494 * var(--u)) calc(5.975 * var(--u)); cursor: pointer; font-family: var(--display); font-size: calc(8.562 * var(--u)); margin-top: calc(6 * var(--u)); }
+.more[aria-expanded="true"] { border-color: var(--certain); color: var(--certain); }
+.cert { color: var(--certain); } .unc { color: var(--unknown); } .nod { color: var(--nodata); }
+.dccard { right: calc(14 * var(--u)); bottom: calc(14 * var(--u)); width: calc(380 * var(--u)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: rgba(38,38,38,0.94); border: calc(0.75 * var(--u)) solid #6f6f6f; padding: calc(12 * var(--u)) calc(14 * var(--u)); font-size: calc(12 * var(--u)); line-height: calc(15 * var(--u)); color: var(--text); }
+.dccard[hidden] { display: none; }
+.dccard h3 { margin: 0 calc(22 * var(--u)) calc(2 * var(--u)) 0; font: inherit; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); }
+.dccard .src { color: var(--grey2); margin-bottom: calc(8 * var(--u)); }
+.dccard dl { display: grid; grid-template-columns: calc(110 * var(--u)) 1fr; gap: calc(3 * var(--u)) calc(10 * var(--u)); margin: 0; }
+.dccard dt { color: var(--muted); } .dccard dd { margin: 0; }
+.dccard .nod { color: var(--nodata); } .dccard .unc { color: var(--unknown); }
+.dccard .note { margin-top: calc(8 * var(--u)); color: var(--muted); font-size: calc(12 * var(--u)); line-height: calc(15 * var(--u)); letter-spacing: 0; }
+.dccard a { color: inherit; }
+.dccard .x { position: absolute; top: calc(6 * var(--u)); right: calc(8 * var(--u)); background: none; border: 0; color: var(--text); font: inherit; font-size: calc(18 * var(--u)); cursor: pointer; }
+.details { top: calc(52 * var(--uy)); right: calc(16 * var(--ux)); bottom: calc(40 * var(--uy)); width: min(380px, 40%); z-index: 3; overflow-y: auto; background: rgba(37,37,37,0.96); border: 1px solid var(--line); padding: 14px; display: none; flex-direction: column; gap: 18px; font-family: var(--font); font-size: 12px; line-height: 1.45; }
+.details.open { display: flex; }
+.details h2 { margin: 0 0 8px; font-weight: 400; font-size: 13px; letter-spacing: 0.06em; }
+.details section { display: flex; flex-direction: column; gap: 6px; }
+.details .row { font-size: 12px; }
 .meter { height: 6px; background: var(--line); position: relative; }
-.meter i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--certain); box-shadow: 0 0 6px rgba(255,255,255,0.4); }
-.split { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; color: var(--unknown); font-size: 11px; font-variant-numeric: tabular-nums; }
+.meter i { position: absolute; top: 0; bottom: 0; background: var(--certain); }
+.split { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .note { color: var(--muted); font-size: 11px; }
 details summary { cursor: pointer; color: var(--unknown); }
 details ul { padding-left: 16px; margin: 8px 0 0; display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
-footer { grid-column: 1 / -1; display: grid; grid-template-columns: auto auto 1fr; gap: 10px 40px; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--line); align-items: start; }
-.legend { display: grid; grid-template-columns: 34px auto; gap: 4px 10px; align-items: center; }
-.legend.codes { grid-template-columns: 34px auto; }
-.sw { height: 0; border-top: 2px solid var(--certain); box-shadow: 0 0 6px rgba(255,255,255,0.5); }
-.sw.u { border-top: 2px dashed var(--unknown); box-shadow: 0 0 6px rgba(126,246,253,0.5); }
-.sw.r { border-top: 3px dotted var(--unknown); }
-.sw.n { border-top: 2px solid var(--nodata); box-shadow: 0 0 6px rgba(242,80,140,0.5); }
-.code { color: var(--unknown); }
-.code.n { color: var(--nodata); }
-.code.c { color: var(--certain); }
-@media (max-width: 1050px) {
-  .app { grid-template-columns: 1fr; grid-template-rows: auto auto 620px auto auto; height: auto; }
-  .choices { grid-template-columns: 1fr; }
-  footer { grid-template-columns: 1fr; }
-  .right { overflow: visible; }
-}
+footer { left: calc(19 * var(--ux)); top: calc(891 * var(--uy)); width: calc(1466 * var(--ux)); display: grid; grid-template-columns: calc(586 * var(--ux)) calc(586 * var(--ux)); gap: 0; align-items: start; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; }
+footer .s2 { grid-column: span 2; }
+footer .fh { color: var(--grey2); margin-bottom: calc(5 * var(--u)); }
+.legend { display: grid; grid-template-columns: calc(25.92 * var(--u)) auto; gap: 0 calc(7.625 * var(--u)); align-items: center; }
+.legend > span { line-height: calc(17 * var(--u)); white-space: nowrap; }
+.legend.lines { grid-template-columns: calc(25.92 * var(--u)) calc(10 * var(--u)) auto; }
+.sq { width: calc(7.625 * var(--u)); height: calc(7.625 * var(--u)); background: var(--certain); }
+.sq.sh { background: var(--unknown); } .sq.pr { background: var(--nodata); }
+.ln { display: block; width: calc(22 * var(--u)); height: 0; border-top: calc(1.5 * var(--u)) solid var(--certain); }
+.ln.sh { position: relative; overflow: visible; }
+.ln.sh::after { content: ""; position: absolute; left: 50%; top: 50%; width: calc(11 * var(--u)); height: calc(11 * var(--u)); transform: translate(-50%, -50%); border-radius: 50%; background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.8'%3E%3Ccircle cx='7.4' cy='10' r='4.6'/%3E%3Ccircle cx='12.6' cy='10' r='4.6'/%3E%3C/g%3E%3C/svg%3E") center / 100% no-repeat; }
+.ln.pr { position: relative; overflow: visible; }
+.ln.pr::after { content: ""; position: absolute; left: 50%; top: 50%; width: calc(11 * var(--u)); height: calc(11 * var(--u)); transform: translate(-50%, -50%); border-radius: 50%; background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect x='5' y='9' width='10' height='7' fill='%23ffffff'/%3E%3Cpath d='M7 9.2V7.4a3 3 0 0 1 6 0v1.8' fill='none' stroke='%23ffffff' stroke-width='1.7'/%3E%3C/svg%3E") center / 100% no-repeat; }
+.sqf { width: calc(7.625 * var(--u)); height: calc(7.625 * var(--u)); background: var(--certain); }
+.sqf.sh { background: var(--certain) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='%23252525' stroke-width='2.2'%3E%3Ccircle cx='7.4' cy='10' r='4.6'/%3E%3Ccircle cx='12.6' cy='10' r='4.6'/%3E%3C/g%3E%3C/svg%3E") center / 90% no-repeat; }
+.sqf.pr { background: var(--certain) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect x='5' y='9' width='10' height='7' fill='%23252525'/%3E%3Cpath d='M7 9.2V7.4a3 3 0 0 1 6 0v1.8' fill='none' stroke='%23252525' stroke-width='1.7'/%3E%3C/svg%3E") center / 95% no-repeat; }
+.code { color: var(--unknown); } .code.n { color: var(--nodata); } .code.c { color: var(--certain); }
+footer .hint { color: var(--grey2); padding-right: calc(19 * var(--u)); }
+footer .keys { display: flex; gap: calc(16 * var(--u)); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <h1>Materiality of a Prompt</h1>
-    <p>How many kilometres of cable, of what material, does one prompt need from your device to the answer and back? Solid white is what we can measure. Blue dashed is estimated. Pink is where nothing is published.</p>
-  </header>
+  <h1 class="vh">Materiality of a Prompt</h1>
+  <svg class="title-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1512 421" preserveAspectRatio="xMinYMin meet" fill="none" aria-hidden="true" focusable="false">
+<defs>
+<filter id="tglow" x="-219.49" y="-213.383" width="1983.82" height="634.217" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="26.8597"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="e1"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="25.2625" dy="15.4213"/>
+<feGaussianBlur stdDeviation="12.3002"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.494118 0 0 0 0 0.964706 0 0 0 0 0.992157 0 0 0 1 0"/>
+<feBlend mode="normal" in2="e1" result="e2"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="2.95238" dy="-35.4286"/>
+<feGaussianBlur stdDeviation="28.5397"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.245925 0 0 0 0 0.974864 0 0 0 0 1 0 0 0 1 0"/>
+<feBlend mode="normal" in2="e2" result="e3"/>
+<feBlend mode="normal" in="SourceGraphic" in2="e3" result="shape"/>
+</filter>
+</defs>
+<g filter="url(#tglow)">
+<path d="M17.5838 119V34.7358H32.3902L45.9929 83.0071L59.8363 34.7358H74.7631V119H64.7718V47.255L50.4468 94.9245H41.4185L27.5751 47.4958V119H17.5838ZM125.034 119V108.527C120.941 115.991 113.718 120.204 104.088 120.204C92.0504 120.204 83.624 113.463 83.624 102.869C83.624 93.3596 90.1244 87.3407 106.255 84.572L124.312 81.5626C123.95 72.6547 117.57 67.2377 108.061 67.2377C98.6712 67.2377 93.2542 71.812 90.7263 80.3588L80.9757 77.5901C83.5036 65.432 94.2172 57.0056 108.903 57.0056C125.034 57.0056 135.627 66.8765 135.627 81.4422V119H125.034ZM95.3006 103.11C95.3006 108.648 99.9953 111.777 106.255 111.777C116.728 111.777 124.312 103.471 124.312 92.1558V90.3502L110.468 92.6373C99.9953 94.443 95.3006 97.2117 95.3006 103.11ZM180.962 120.204C168.563 120.204 161.822 112.379 161.822 99.3785V68.3211H145.571V58.5705H161.822V45.329L173.379 40.2731V58.5705H198.297V68.3211H173.379V99.2581C173.379 106.12 176.388 110.574 182.768 110.574C187.824 110.574 190.954 107.564 193.241 101.786L201.667 105.157C197.695 115.509 190.713 120.204 180.962 120.204ZM239.178 120.204C222.686 120.204 209.445 108.046 209.445 88.9056C209.445 70.1267 221.723 57.0056 238.576 57.0056C256.753 57.0056 267.106 72.6547 265.059 91.4336H220.76C221.242 103.953 229.668 110.694 239.419 110.694C247.003 110.694 252.901 106.601 256.512 100.462L264.096 105.638C259.401 114.185 250.614 120.204 239.178 120.204ZM221.121 82.5256H254.225C253.383 72.8954 247.364 66.2747 238.335 66.2747C229.187 66.2747 222.084 72.775 221.121 82.5256ZM278.133 119V58.5705H289.81V70.6083C294.264 61.3392 301.487 57.3667 309.793 57.3667C318.821 57.3667 325.803 62.0614 329.173 72.4139L318.46 77.1086C316.534 71.4509 312.2 67.8396 306.181 67.8396C296.671 67.8396 289.81 76.0252 289.81 96.369V119H278.133ZM372.342 120.204C360.184 120.204 353.443 112.379 353.443 99.3785V67.4784H337.432V58.5705H364.999V99.2581C364.999 106.12 367.888 110.574 373.786 110.574C378.601 110.574 381.611 107.564 383.778 102.027L392.686 105.277C388.834 115.268 381.972 120.204 372.342 120.204ZM353.081 50.0237V37.5044H365.24V50.0237H353.081ZM443.799 119V108.527C439.706 115.991 432.484 120.204 422.853 120.204C410.816 120.204 402.389 113.463 402.389 102.869C402.389 93.3596 408.89 87.3407 425.02 84.572L443.077 81.5626C442.716 72.6547 436.336 67.2377 426.826 67.2377C417.436 67.2377 412.019 71.812 409.491 80.3588L399.741 77.5901C402.269 65.432 412.982 57.0056 427.668 57.0056C443.799 57.0056 454.392 66.8765 454.392 81.4422V119H443.799ZM414.066 103.11C414.066 108.648 418.761 111.777 425.02 111.777C435.493 111.777 443.077 103.471 443.077 92.1558V90.3502L429.233 92.6373C418.761 94.443 414.066 97.2117 414.066 103.11ZM493.709 120.204C481.189 120.204 473.245 112.018 473.245 98.5358V43.6437H457.114V34.7358H484.801V98.5358C484.801 105.758 488.292 110.574 495.274 110.574C500.931 110.574 504.302 107.323 506.83 101.064L515.858 104.675C511.645 114.787 504.302 120.204 493.709 120.204ZM563.601 120.204C551.443 120.204 544.702 112.379 544.702 99.3785V67.4784H528.692V58.5705H556.258V99.2581C556.258 106.12 559.147 110.574 565.046 110.574C569.861 110.574 572.87 107.564 575.037 102.027L583.945 105.277C580.093 115.268 573.231 120.204 563.601 120.204ZM544.341 50.0237V37.5044H556.499V50.0237H544.341ZM627.234 120.204C614.835 120.204 608.094 112.379 608.094 99.3785V68.3211H591.843V58.5705H608.094V45.329L619.65 40.2731V58.5705H644.568V68.3211H619.65V99.2581C619.65 106.12 622.659 110.574 629.039 110.574C634.095 110.574 637.225 107.564 639.512 101.786L647.939 105.157C643.966 115.509 636.984 120.204 627.234 120.204ZM668.717 143.075L678.708 118.759L654.512 58.5705H666.55L684.366 105.277L701.098 58.5705H713.016L680.514 143.075H668.717ZM811.15 120.204C794.297 120.204 781.657 107.323 781.657 88.7853C781.657 70.2471 794.297 57.0056 811.15 57.0056C828.123 57.0056 840.642 70.0064 840.642 88.5445C840.642 107.083 828.123 120.204 811.15 120.204ZM811.27 110.333C821.743 110.333 829.086 101.545 829.086 88.6649C829.086 75.6641 821.502 66.8765 811.15 66.8765C800.677 66.8765 793.213 75.6641 793.213 88.5445C793.213 101.545 800.797 110.333 811.27 110.333ZM865.393 53.8758C865.393 41.7177 874.421 33.532 888.505 33.532C897.413 33.532 903.914 36.6618 907.164 42.1992L899.46 47.6161C897.052 44.8475 893.682 43.1622 888.867 43.1622C881.524 43.1622 876.949 47.1346 876.949 53.2739V58.5705H900.664V68.3211H876.949V119H865.393V68.3211H849.262V58.5705H865.393V53.8758ZM1017.58 119V108.527C1013.48 115.991 1006.26 120.204 996.631 120.204C984.593 120.204 976.167 113.463 976.167 102.869C976.167 93.3596 982.667 87.3407 998.798 84.572L1016.85 81.5626C1016.49 72.6547 1010.11 67.2377 1000.6 67.2377C991.214 67.2377 985.797 71.812 983.269 80.3588L973.518 77.5901C976.046 65.432 986.76 57.0056 1001.45 57.0056C1017.58 57.0056 1028.17 66.8765 1028.17 81.4422V119H1017.58ZM987.843 103.11C987.843 108.648 992.538 111.777 998.798 111.777C1009.27 111.777 1016.85 103.471 1016.85 92.1558V90.3502L1003.01 92.6373C992.538 94.443 987.843 97.2117 987.843 103.11ZM1104.52 119V34.7358H1131.12C1149.06 34.7358 1159.530 44.4863 1159.53 60.2558C1159.53 76.3864 1148.81 86.4981 1130.64 86.4981H1116.67V119H1104.52ZM1116.67 75.9049H1131C1141.59 75.9049 1147.49 70.1267 1147.49 60.6169C1147.49 51.1071 1141.47 45.329 1130.4 45.329H1116.67V75.9049ZM1170.68 119V58.5705H1182.35V70.6083C1186.81 61.3392 1194.03 57.3667 1202.34 57.3667C1211.36 57.3667 1218.35 62.0614 1221.72 72.4139L1211 77.1086C1209.08 71.4509 1204.74 67.8396 1198.72 67.8396C1189.21 67.8396 1182.35 76.0252 1182.35 96.369V119H1170.68ZM1257.42 120.204C1240.57 120.204 1227.93 107.323 1227.93 88.7853C1227.93 70.2471 1240.57 57.0056 1257.42 57.0056C1274.39 57.0056 1286.91 70.0064 1286.91 88.5445C1286.91 107.083 1274.39 120.204 1257.42 120.204ZM1257.54 110.333C1268.01 110.333 1275.36 101.545 1275.36 88.6649C1275.36 75.6641 1267.77 66.8765 1257.42 66.8765C1246.95 66.8765 1239.48 75.6641 1239.48 88.5445C1239.48 101.545 1247.07 110.333 1257.54 110.333ZM1341.4 78.0717C1341.52 69.1637 1338.87 65.7932 1334.9 65.7932C1330.56 65.7932 1326.59 70.2471 1326.59 84.2109V119H1316.48V78.0717C1316.48 69.1637 1313.83 65.7932 1309.86 65.7932C1305.65 65.7932 1301.55 70.2471 1301.55 84.2109V119H1291.44V58.5705H1301.55V65.6728C1304.08 59.7743 1308.17 57.2464 1313.23 57.2464C1318.65 57.2464 1322.86 60.1354 1325.03 66.0339C1327.790 59.8947 1332.25 57.2464 1337.42 57.2464C1346.09 57.2464 1351.51 63.506 1351.51 76.8679V119H1341.4V78.0717ZM1358.32 143.075V58.5705H1369.88V67.4784C1373.97 60.7373 1380.35 57.0056 1388.78 57.0056C1404.31 57.0056 1414.78 70.0064 1414.78 88.6649C1414.78 107.323 1404.19 120.204 1388.78 120.204C1380.35 120.204 1373.97 116.352 1369.88 109.731V143.075H1358.32ZM1386.61 110.333C1396.6 110.333 1403.22 101.545 1403.22 88.6649C1403.22 75.7845 1396.6 66.8765 1386.61 66.8765C1376.5 66.8765 1369.88 75.7845 1369.88 88.6649C1369.88 101.545 1376.5 110.333 1386.61 110.333ZM1456.02 120.204C1443.620 120.204 1436.88 112.379 1436.88 99.3785V68.3211H1420.63V58.5705H1436.88V45.329L1448.44 40.2731V58.5705H1473.36V68.3211H1448.44V99.2581C1448.44 106.12 1451.45 110.574 1457.83 110.574C1462.88 110.574 1466.01 107.564 1468.3 101.786L1476.73 105.157C1472.76 115.509 1465.77 120.204 1456.02 120.204Z" fill="#262626"/>
+</g>
+</svg>
+  <p id="caption" aria-live="polite"></p>
 
   <div class="choices">
     <div class="step">
-      <span class="step-label">1 &nbsp;Where are you?</span>
-      <select id="place" aria-label="Choose a place in Switzerland"></select>
-      <span class="hint">Or click a point on the map of Switzerland.</span>
+      <span class="step-label">1  Where are you?</span>
+      <label class="place"><svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3.75 15.75V3H10.5L10.8 4.5H15V12H9.75L9.45 10.5H5.25V15.75H3.75Z" fill="white"/></svg>
+        <select id="place" aria-label="Choose a place in Switzerland, or click on the map"></select></label>
     </div>
     <div class="step">
-      <span class="step-label">2 &nbsp;Whom do you send your prompt to?</span>
-      <div class="chips" id="providers"></div>
-    </div>
-    <div class="step">
-      <span class="step-label">3 &nbsp;How are you connected?</span>
+      <span class="step-label">3  How are you connected?</span>
       <div class="chips" id="conn">
         <button class="chip" data-conn="wifi" aria-pressed="true">Wi-Fi</button>
         <button class="chip" data-conn="mobile" aria-pressed="false">Mobile</button>
       </div>
     </div>
+    <div class="step">
+      <span class="step-label">2  Whom do you send your prompt to?</span>
+      <div class="chips" id="providers"></div>
+    </div>
   </div>
 
   <main class="stage" id="stage">
     <canvas id="map" tabindex="0" aria-label="Map of the route of your prompt. Drag to move, scroll or use the plus and minus buttons to zoom."></canvas>
-    <div class="bar-top">
-      <div class="scenes" role="tablist" aria-label="Map scenes">
-        <button class="scene" data-scene="0"><span>1 &nbsp;Dive in</span><span class="prog"></span></button>
-        <button class="scene" data-scene="1"><span>2 &nbsp;Through Switzerland</span><span class="prog"></span></button>
-        <button class="scene" data-scene="2"><span>3 &nbsp;Out of Switzerland</span><span class="prog"></span></button>
-      </div>
-      <div class="tools">
-        <button class="tool" id="play" aria-label="Pause">Pause</button>
-        <button class="tool" id="zoomOut" aria-label="Zoom out">−</button>
-        <button class="tool" id="zoomIn" aria-label="Zoom in">+</button>
-        <button class="tool" id="fit" aria-label="Back to the scene view">Fit</button>
-      </div>
-    </div>
-    <div class="caption" id="caption" aria-live="polite"></div>
+    <div class="sqlegend hide" id="sqlegend" aria-label="Connection types in your square"></div>
+    <div class="details" id="details" aria-label="Details and sources"></div>
+    <div class="dccard" id="dccard" role="dialog" aria-label="Data center facts" hidden></div>
     <div class="scale" id="scale"></div>
   </main>
+  <div class="scenes" role="tablist" aria-label="Map scenes">
+    <button class="scene" data-scene="0"><span class="num">1</span><span class="lab">Public
+Enter</span><span class="prog" aria-hidden="true"><span class="num">1</span><span class="lab">Public
+Enter</span></span></button>
+    <button class="scene" data-scene="1"><span class="num">2</span><span class="lab">Shared
+Exchange</span><span class="prog" aria-hidden="true"><span class="num">2</span><span class="lab">Shared
+Exchange</span></span></button>
+    <button class="scene" data-scene="2"><span class="num">3</span><span class="lab">Private
+Enclosure</span><span class="prog" aria-hidden="true"><span class="num">3</span><span class="lab">Private
+Enclosure</span></span></button>
+  </div>
+  <div class="intro-nav" aria-label="Intro"><button id="introPrev" aria-label="Previous text"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15 2.6L2.4 10 15 17.4Z" fill="white"/></svg></button><button id="introNext" aria-label="Next text"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.6L17.6 10 5 17.4Z" fill="white"/></svg></button></div>
+  <div class="tools">
+    <button class="tool" id="play" aria-label="Pause"></button>
+    <button class="tool" id="zoomOut" aria-label="Zoom out">−</button>
+    <button class="tool" id="zoomIn" aria-label="Zoom in">+</button>
+  </div>
+  <button class="trace-toggle" id="trace" aria-pressed="false">Show trace of uncertainty</button>
 
-  <aside class="right" id="tally" aria-live="off"></aside>
+  <div id="counter" aria-label="Cable passed, one square per 25 km"></div>
+  <div id="tally" aria-live="off"></div>
 
   <footer>
-    <div class="step">
-      <span class="step-label">Reading the lines</span>
+    <div class="keys">
+    <div>
+      <div class="fh">Reading the data</div>
       <div class="legend">
-        <span class="sw"></span><span class="cert">Certain: measured or observed</span>
-        <span class="sw u"></span><span class="unc">Uncertain: estimated, or likely but not confirmed</span>
-        <span class="sw n"></span><span class="nod">No data: nothing is published</span>
-        <span class="sw r"></span><span class="unc">Radio hop: device to router or antenna</span>
+        <span class="sq"></span><span style="color:#fff">Certain: measured or observed</span>
+        <span class="sq sh"></span><span style="color:var(--unknown)">Uncertain: estimated, or likely but not confirmed</span>
+        <span class="sq pr"></span><span style="color:var(--nodata)">No data: nothing is published</span>
       </div>
     </div>
-    <div class="legend codes">
-      <span class="code c">SR</span><span>Self-reported by the company</span>
-      <span class="code">EXT</span><span>External estimate</span>
-      <span class="code">EST</span><span>Our estimate</span>
-      <span class="code n">?</span><span>No data provided</span>
+    <div>
+      <div class="fh">Who owns it</div>
+      <div class="legend lines">
+        <span class="ln"></span><span class="sqf"></span><span>Public</span>
+        <span class="ln sh"></span><span class="sqf sh"></span><span>Shared</span>
+        <span class="ln pr"></span><span class="sqf pr"></span><span>Private</span>
+      </div>
     </div>
-    <span class="hint">Hover or click a path to see its kilometres and materials. The thicker one is our default guess. The colour of each data centre says how sure we are that the service uses it. Pause any scene to drag and zoom the map.</span>
-  </footer>
+    </div>
+    <span class="hint">Hover or click a path to see its kilometres and materials. The thicker one is our default guess. The colour of each data centre says how sure we are that the service uses it. Pause any scene to drag and zoom the map; click on Switzerland to pick your own point.</span>
+</footer>
 </div>
 <div id="tip" role="tooltip"></div>
 
@@ -187,6 +289,8 @@ const A0 = W(lv95ToWgs(2600000, 1200000)), AE = W(lv95ToWgs(2700000, 1200000)), 
 const aE = [(AE[0] - A0[0]) / 1e5, (AE[1] - A0[1]) / 1e5], aN = [(AN[0] - A0[0]) / 1e5, (AN[1] - A0[1]) / 1e5];
 const LW = (E, N) => [A0[0] + (E - 2.6e6) * aE[0] + (N - 1.2e6) * aN[0], A0[1] + (E - 2.6e6) * aE[1] + (N - 1.2e6) * aN[1]];
 const SW = ll => LW(...wgsToLv95(ll[0], ll[1]));
+const LWdet = aE[0] * aN[1] - aE[1] * aN[0];
+const invLW = w => { const x = w[0] - A0[0], y = w[1] - A0[1]; return [2.6e6 + (x * aN[1] - y * aN[0]) / LWdet, 1.2e6 + (y * aE[0] - x * aE[1]) / LWdet]; };
 
 // ================= data =================
 const PLACES = [
@@ -211,6 +315,7 @@ const PT = {
   bernSwitch: { ll: [7.44, 46.95], ch: true, name: "SWITCH, Bern" },
   baselSwitch: { ll: [7.59, 47.56], ch: true, name: "SWITCH, Basel" },
   cixp: { ll: [6.056, 46.234], ch: true, name: "CIXP at CERN, Geneva" },
+  swissixcrn: { ll: [6.058, 46.232], ch: true, name: "SwissIX at CERN, Geneva" },
   swissix: { ll: [8.55, 47.40], ch: true, name: "SwissIX, Zurich" },
   equinixzh: { ll: [8.46, 47.39], ch: true, name: "Equinix ZH4, Zurich" },
   d4: { ll: [6.118, 46.168], ch: true, name: "Infomaniak D4, Plan-les-Ouates" },
@@ -242,6 +347,24 @@ const DC = {
   d4: { power: ["1.25 MW IT · PUE 1.09", "SR"], chips: ["Nvidia L4, A100, H100", "SR"], src: "Infomaniak; DatacenterDynamics. Exact address not public." },
   paris: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
   germany: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Proton names only the country." }
+};
+// who owns the building (Epoch AI / company pages); empty = not public
+const DC_OWNER = { memphis: "SpaceXAI", newcarlisle: "Amazon", ashburn: "Amazon (AWS)", frankfurt: "Amazon (AWS)", waltham: "Google", stghislain: "Google", eemshaven: "Google", hamina: "Google", d4: "Infomaniak", paris: "", germany: "" };
+// Epoch AI, "AI data centers" (Nov 2026, CC BY 4.0): latest record up to today for the sites on our map
+const EPOCH = {"memphis": {"name": "Colossus 1", "owner": "SpaceXAI", "users": "Anthropic", "address": "3231 Riverport Rd, Memphis, TN 38109", "country": "United States", "energy": "MLGW", "builder": "", "power": 425.0, "itpower": 340.0, "h100e": 275795.85649317835, "buildings": 1.0, "water": null, "capex": 12.87988, "build": 4.001460000000001, "chips": [["H200", 50000], ["B200", 30000], ["H100", 150000]], "status": "No major changes to the data center since February. Solar panels have been placed next to the facility.", "statusDate": "2026-06-15", "sources": [["May 2025 Electricity Provider Disclosure", "https://drive.google.com/file/d/17WAFThn95X85ebzA_e19R1zYycwFzAl2/view?usp=sharing"], ["July 2025 Permit for Gas Turbines", "https://www.scribd.com/document/883601734/01156-01PC-070225-Permit"], ["Southern Environmental Law Center Gas Permit Appeal, with additional satellite images", "https://cdn.arstechnica.net/wp-content/uploads/2025/07/NAACP-and-YGGs-xAI-Air-Permit-Appeal-7-15-2025.pdf"], ["Disclosure on X (formerly Twitter) by Elon Musk of the breakdown of GPUs", "https://archive.is/oHQSA"]]}, "newcarlisle": {"name": "Anthropic-Amazon New Carlisle", "owner": "Amazon", "users": "Anthropic", "address": "55001 Larrison Blvd, New Carlisle, IN 46552", "country": "United States", "energy": "", "builder": "", "power": 1244.0, "itpower": 1037.0, "h100e": 818428.4992420415, "buildings": 18.0, "water": 21.0, "capex": 39.283634, "build": 12.204452999999999, "chips": [["Trainium2", 1044980]], "status": "Buildings 17-18 are operational. This is an estimate based on a rule of thumb of \"operational 5 months after roof is complete\", assuming the roofs took one more month after 2025-12-23. Also added four more months to account for commissioning and adjacent cooling units not being complete yet.", "statusDate": "2026-10-19", "sources": [["Air Construction Permit application for the northern portion", "https://drive.google.com/file/d/1BKiTFNUk2KDaUaiHG7fz0KlkNSBTHzbb/view?usp=sharing"], ["Backup diesel generator referenced in the permit", "https://www.cat.com/en_US/products/new/power-systems/electric-power/diesel-generator-sets/117341.html"], ["Announcement of Project Rainier coming online", "https://www.aboutamazon.com/news/aws/aws-project-rainier-ai-trainium-chips-compute-cluster"], ["Air permit for Buildings 19-32, suggesting expansion to 2.3 GW total facility power", "https://t.co/HsAO7oyKa2"]]}, "waltham": {"name": "Google Waltham Cross", "owner": "Google", "users": "Google DeepMind", "address": "Land at Maxwell's Farm West, Great Cambridge Road, Cheshunt, EN8 8XH", "country": "United Kingdom", "energy": "Shell Energy Europe,Engie", "builder": "", "power": 124.0, "itpower": 88.0, "h100e": 123799.89893885801, "buildings": 1.0, "water": null, "capex": 3.3336159999999997, "build": 1.035672, "chips": [["TPU v6e", 133385]], "status": "Full buildout reconfirmed via high-resolution Pléiades-Neo satellite image; no capacity change since September 2025.", "statusDate": "2026-04-23", "sources": [["Google — Waltham Cross data centre page", "https://datacenters.google/locations/waltham-cross/"], ["Google opening announcement (Sept 2025)", "https://www.googlecloudpresscorner.com/2025-09-16-Google-Opens-Waltham-Cross-Data-Centre-as-Part-of-Two-year-GBP5-Billion-Investment-in-the-UK-to-Help-Power-its-AI-Economy"], ["Project Saracen scoping report (Broxbourne planning application ref 07/18/1181/O) ", "https://www.broxbourne.gov.uk/downloads/file/51/project-saracen-scoping-report-for-submission-full-13-08-18-compressed-v2"], ["Planning application description (CPRE Hertfordshire)", "https://www.cpreherts.org.uk/resources/land-at-maxwells-farm-west-great-cambridge-road-cheshunt-hertfordshire/"]]}};
+// sea cable most likely used between two landings (TeleGeography)
+const SEA_CABLE = { "bilbao-vabeach": { name: "MAREA", owners: "Microsoft, Meta and Telxius" } };
+// Traceroutes from Lausanne centre, home Wi-Fi, 18 Nov 2026 23:01 (own measurement). The line leaves the home router over
+// Swisscom's infrastructure (138.187.x, Swisscom-Infra) into the green.ch backbone (146.228.x). Those routers give no place
+// names, so the Swiss line stays an estimate; where the trace names the exchange, the hub counts as measured.
+const MEASURED = {
+  "lausanne:wifi": {
+    claude: { hub: "swissix", hubObserved: true, edge: "Cloudflare's edge for claude.ai", trace: "partial" },
+    perplexity: { hub: "swissix", hubObserved: true, edge: "Cloudflare's edge, reached at SwissIX", trace: "partial" },
+    euria: { hub: "swissixcrn", hubObserved: true, edge: "Infomaniak's network, Geneva", trace: "partial" },
+    gemini: { hub: "swissix", hubObserved: false, edge: "Google's network", trace: "partial" },
+    mistral: { hub: "swissix", hubObserved: false, edge: "Cloudflare's edge for chat.mistral.ai", trace: "partial" }
+  }
 };
 // state of a data centre: "c" certain, "u" uncertain, "n" no data
 const PROVIDERS = {
@@ -314,7 +437,31 @@ const MOBILE = [
 ];
 const LAND_FACTOR = 1.3, SEA_FACTOR = 1.1, LOCAL_KM = 1.5;
 const CLASS = ["none", ">0–10%", ">10–50%", ">50–90%", ">90–100%"];
-const COL = { c: "#ffffff", u: "#7ef6fd", n: "#f2508c" };
+// Colour = who owns the infrastructure (access). Line form / square fill = how sure we are (certainty).
+// Colour = how sure we are (certainty). Line form = who owns it: public single line, shared double line, private line in a casing.
+const CCOL = { c: "#ffffff", u: "#3ff9ff", n: "#ff3f88" };
+const ACOL = { pub: "#ffffff", sh: "#3ff9ff", pr: "#ff3f88" }; // only for the legend of the three scenes
+const UF = () => Math.min(innerWidth / 1512, innerHeight / 982); // 1 Figma px in screen px
+const ACC_NAME = { pub: "Public", sh: "Shared", pr: "Private" };
+const CERT_WORD = { c: "confirmed", u: "likely, not confirmed", n: "not disclosed" };
+const COL = CCOL;
+const RADIO_KM = 0.3; // phone to the nearest antenna, city; our estimate
+const SHARE = [0, 0.05, 0.3, 0.7, 0.95]; // class midpoints, BAKOM classes none / >0–10 / >10–50 / >50–90 / >90–100 %
+const TYPE_NAME = { fibre: "Glass fibre", coax: "Coaxial cable", copper: "Copper wire", sea: "Submarine cable", radio: "Radio" };
+// Cable symbols from the Figma file (Copper / Fibre / Coaxial Cable); sea and radio drawn in the same style.
+const CAP = "M5.38379 0.0507812C3.73767 0.441036 0.5392 3.11534 0.539062 8.0752C0.539062 13.5311 3.73758 15.7869 5.38379 16.1084V16.1514H0V0H5.38379V0.0507812Z";
+const SYM = {
+  copper: '<circle cx="10.2293" cy="8.07547" r="8.07547" fill="white"/>',
+  fibre: [[4.67739, 8.07546], [7.70523, 2.52358], [14.2667, 2.52358], [10.7335, 8.07546], [7.70523, 13.6273], [14.2667, 13.6273], [17.2951, 8.07546]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.52358" fill="white"/>`).join(""),
+  coax: '<circle cx="10.2288" cy="8.07558" r="3.35818" fill="white"/><circle cx="10.2288" cy="8.07547" r="7.61837" stroke="white" stroke-width="0.914204"/>',
+  sea: '<circle cx="10.23" cy="8.08" r="2.6" fill="white"/>' + Array.from({ length: 9 }, (_, i) => { const a = i / 9 * Math.PI * 2; return `<circle cx="${(10.23 + 6.4 * Math.cos(a)).toFixed(2)}" cy="${(8.08 + 6.4 * Math.sin(a)).toFixed(2)}" r="1.45" fill="white"/>`; }).join(""),
+  radio: '<circle cx="8.6" cy="8.08" r="2.6" fill="white"/><path d="M12.2 4.2a5.6 5.6 0 0 1 0 7.76M14.9 1.6a9.4 9.4 0 0 1 0 12.96" stroke="white" stroke-width="1.2" stroke-linecap="round"/>'
+};
+function symSvg(type, cap, size) {
+  const w = type === "fibre" ? 20 : 19;
+  if (!cap) return `<svg width="${size || 26}" height="${size || 26}" viewBox="2 -0.5 18 17" fill="none" aria-hidden="true">${SYM[type]}</svg>`;
+  return `<svg width="${w}" height="17" viewBox="0 0 ${w} 17" fill="none" aria-hidden="true"><path d="${CAP}" fill="${cap}"/>${SYM[type]}</svg>`;
+}
 
 // ================= grid =================
 let GRID = null, LAND = null;
@@ -368,8 +515,12 @@ function astar(s, g) {
 
 // ================= model =================
 const state = { place: PLACES[0], custom: null, provider: "claude", conn: "wifi", selected: null, hover: null,
-  scene: 0, t: 0, playing: true, free: false };
-const DUR = [20, 16, 16];
+  scene: 0, t: 0, playing: true, free: false, back: false, trace: false };
+const BSTART = [2.6, 1.4]; // way back: camera arrives first, then the ghost leaves
+let BDUR = [6, 6];
+let DUR = [9.5, 8, 8];
+const START = [6, 1.2, 1.3]; // when the ghost leaves, per scene (scene 1 waits for the dive)
+const HOLD = 0.8; // seconds the finished map stays before the next scene starts
 let model = null;
 const routeCache = new Map();
 
@@ -402,11 +553,11 @@ function swissRoute(pl, P, observed) {
 }
 
 function buildModel() {
-  const P = PROVIDERS[state.provider], pl = currentPlace();
+  const pl = currentPlace(), P = { ...PROVIDERS[state.provider], ...((MEASURED[pl.id + ":" + state.conn] || {})[state.provider] || {}) };
   const observed = state.conn === "wifi" && pl.id === "ecal" && P.hubObserved;
   const cell = cellAt(pl.E, pl.N);
-  const fibreFirst = !cell || cell.fibre >= cell.copper;
-  const lastMile = { km: LOCAL_KM, type: fibreFirst ? "fibre" : "copper" };
+  const lmType = !cell ? "fibre" : (cell.fibre >= cell.copper && cell.fibre >= cell.coax) ? "fibre" : (cell.copper >= cell.coax ? "copper" : "coax");
+  const lastMile = { km: LOCAL_KM, type: lmType, kg: lmType === "fibre" ? DUCT.kg : lmType === "copper" ? COPPER.kg : null };
   const swiss = GRID ? swissRoute(pl, P, observed) : { pts: [LW(pl.E, pl.N), posOf(P.hub)], cum: [0, 1], km: 0, hops: [] };
   const hubLL = PT[P.hub].ll;
   const paths = P.dcs.map(d => {
@@ -421,9 +572,148 @@ function buildModel() {
     const pts = keys.map(posOf);
     return { id: d.to, def: !!d.def, st: d.st, why: d.why, name: PT[d.to].name, via: d.via.map(v => PT[v].name), segs, land, sea, pts, cum: polyCum(pts) };
   });
-  return { P, pl, observed, cell, lastMile, swiss, paths, home: LW(pl.E, pl.N), hub: posOf(P.hub), hubLL };
+  // hops of the Swiss route: your square → traceroute hops → hub
+  const sKeys = [0, ...swiss.hops.map(h => h.at).filter((v, i, a) => v > 0 && v < swiss.pts.length - 1 && a.indexOf(v) === i), swiss.pts.length - 1];
+  swiss.keys = sKeys; swiss.sched = schedule(legKm(swiss.pts, sKeys, swiss.km), !observed, false, false, true);
+  swiss.schedB = schedule(legKm(swiss.pts, sKeys, swiss.km), !observed, false, true, true);
+  paths.forEach(p => { p.keys = p.pts.map((_, i) => i); p.sched = schedule(p.segs.map(g => g.km), p.st !== "c", true); });
+  // scene 1: device → (antenna | building entry) → street → towards the exchange
+  const s1km = state.conn === "mobile" ? [RADIO_KM, 0.15, LOCAL_KM] : [0.02, 0.06, LOCAL_KM];
+  const s1 = schedule(s1km, true, false), s1b = schedule(s1km, true, false, true);
+  BDUR = [BSTART[0] + s1b.total + 0.6, BSTART[1] + swiss.schedB.total + 0.3];
+  const def = paths.find(p => p.def) || paths[0];
+  DUR = [START[0] + s1.total + 0.4, START[1] + swiss.sched.total + 0.4, START[2] + def.sched.total + 0.4];
+  return { P, pl, observed, cell, lastMile, swiss, paths, s1, s1b, home: LW(pl.E, pl.N), hub: posOf(P.hub), hubLL };
 }
 function selPath() { return model.paths.find(p => p.id === state.selected) || model.paths.find(p => p.def); }
+
+
+// ================= ghost =================
+// The prompt is a ghost of light: it jumps from hop to hop, fast at the start and slowing down at the end,
+// fades out on arrival, and the next jump starts from there. After the last hop it jumps the same way back.
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const easeMove = t => t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2; // easeInOutQuint, for every jump
+const GAP = 0.14; // pause on each hop
+function hopDur(km) { return 0.55 + 0.32 * Math.log10(1 + Math.max(0, km)); }
+// keys: indices into pts where hops are; km: length of each leg
+// uncertain and no-data stretches move like slow starlight; certain stretches are drawn as a solid line
+const SLOW = 1.7;
+function schedule(km, slow, back, backOnly, linear) {
+  const f = SLOW; // every stretch moves at the ghost's pace
+  if (linear) { // one steady speed over the whole route, no pauses on the hops
+    const T = km.reduce((a, k) => a + hopDur(k) * f, 0), K = km.reduce((a, b) => a + b, 0) || 1;
+    const legs = []; let t = 0; const order = backOnly ? km.map((_, i) => km.length - 1 - i) : km.map((_, i) => i);
+    for (const i of order) { const d = Math.max(0.05, T * km[i] / K); legs.push({ i, back: !!backOnly, t0: t, d, km: km[i] }); t += d; }
+    return { legs, total: t, outKm: backOnly ? 0 : K, backOnly: !!backOnly, linear: true };
+  }
+  const fm = f * 1.35; // the comet stages move slower than the sober stage 2
+  if (backOnly) { const legs = []; let t = 0; km.slice().reverse().forEach((k, j) => { const i = km.length - 1 - j, d = hopDur(k) * fm; legs.push({ i, back: true, t0: t, d, km: k }); t += d + GAP; }); return { legs, total: t, outKm: 0, backOnly: true }; }
+  const legs = []; let t = 0;
+  km.forEach((k, i) => { const d = hopDur(k) * fm; legs.push({ i, back: false, t0: t, d, km: k }); t += d + GAP; });
+  if (back) t += 0.35;
+  if (back) km.slice().reverse().forEach((k, j) => { const i = km.length - 1 - j, d = hopDur(k) * fm; legs.push({ i, back: true, t0: t, d, km: k }); t += d + GAP; });
+  return { legs, total: t, outKm: km.reduce((a, b) => a + b, 0) };
+}
+// where is the ghost at time tau? returns leg, eased local fraction, outbound km fraction
+function ghostState(sc, tau) {
+  let leg = null, l = 0;
+  for (const g of sc.legs) { if (tau >= g.t0 && tau < g.t0 + g.d) { leg = g; l = (tau - g.t0) / g.d; break; } }
+  let done = 0;
+  for (const g of sc.legs) { if (g.back) break; if (tau >= g.t0 + g.d) done += g.km; else if (tau > g.t0) done += g.km * (sc.linear ? (tau - g.t0) / g.d : easeMove((tau - g.t0) / g.d)); }
+  return { leg, l, out: sc.outKm ? done / sc.outKm : clamp01(tau / sc.total), passed: sc.legs.filter(g => !g.back && tau >= g.t0 + g.d).length };
+}
+function legPts(pts, keys, i, back) { const a = keys[i], b = keys[i + 1], seg = pts.slice(a, b + 1); return back ? seg.reverse() : seg; }
+function along(seg, f) { const c = polyCum(seg); return partial(seg, c, f); }
+function posOn(seg, f) { const p = along(seg, f); return p[p.length - 1]; }
+// draw: trail of past positions inside the current leg, glow head, flash on the hop it reached
+function drawGhost(ptsS, keys, sc, tau, col, wid, alpha) {
+  if (tau < 0 || tau > sc.total) return;
+  alpha = alpha === undefined ? 1 : alpha;
+  ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round";
+  for (const g of sc.legs) { // flash where a jump lands
+    const since = tau - (g.t0 + g.d); if (since < 0 || since > 0.6) continue;
+    const seg = legPts(ptsS, keys, g.i, g.back), e = seg[seg.length - 1], k = since / 0.6;
+    ctx.globalAlpha = alpha * (1 - k) * 0.9; ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 10; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(e[0], e[1], 3 + 12 * easeOut(k), 0, Math.PI * 2); ctx.stroke();
+  }
+  const st = ghostState(sc, tau);
+  if (st.leg) {
+    const g = st.leg, seg = legPts(ptsS, keys, g.i, g.back), fade = st.l < 0.8 ? 1 : 1 - (st.l - 0.8) / 0.2;
+    const N = 22, trail = [];
+    // a wavering, mysterious drift: the head trembles sideways and the tail follows the same tremble a moment later
+    const wob = t => Math.sin(t * 5.3) + 0.6 * Math.sin(t * 11.7 + 1.3) + 0.35 * Math.sin(t * 23.1 + 2.1);
+    const A = (3 + wid * 1.2) * Math.sin(Math.PI * Math.min(1, st.l * 1.2)); // calm at the start and the landing
+    for (let j = 0; j <= N; j++) {
+      const lt = Math.max(0, st.l - j * 0.035 / g.d), p0 = posOn(seg, easeMove(lt)), p1 = posOn(seg, Math.min(1, easeMove(lt) + 0.01));
+      const dx = p1[0] - p0[0], dy = p1[1] - p0[1], L = Math.hypot(dx, dy) || 1, w = A * wob(tau - j * 0.03) * 0.55;
+      trail.push([p0[0] - dy / L * w, p0[1] + dx / L * w]);
+    }
+    // comet: a diffuse tail that widens and fades behind the head
+    ctx.strokeStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 0; ctx.lineCap = "round";
+    for (let j = N - 1; j >= 0; j--) {
+      const a = trail[j], b = trail[j + 1], k = j / N;
+      ctx.filter = "blur(" + (2 + 6 * k).toFixed(1) + "px)";
+      ctx.globalAlpha = alpha * fade * 0.55 * Math.pow(1 - k, 1.4); ctx.lineWidth = wid * (2 + 6 * k);
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    }
+    const h = trail[0];
+    // the brightest point is the defined colour itself
+    ctx.filter = "blur(7px)"; ctx.globalAlpha = alpha * fade * 0.6; ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(h[0], h[1], wid * 5 + 7, 0, Math.PI * 2); ctx.fill();
+    ctx.filter = "blur(2px)"; ctx.globalAlpha = alpha * fade * (0.78 + 0.22 * Math.sin(tau * 17.3) * Math.sin(tau * 6.1)); ctx.shadowColor = col; ctx.shadowBlur = 24; // a slight flicker
+    ctx.beginPath(); ctx.arc(h[0], h[1], wid * 2.4 + 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.filter = "none";
+  }
+  ctx.restore();
+}
+// certain: the part of the line reached so far, growing hop by hop with the same easing; it stays
+function traced(pts, keys, sc, tau) {
+  if (sc.backOnly) return pts;
+  if (tau <= 0) return [];
+  const out = [pts[0]];
+  for (const g of sc.legs) {
+    if (g.back) return out;
+    const seg = legPts(pts, keys, g.i, false);
+    if (tau >= g.t0 + g.d) { out.push(...seg.slice(1)); continue; }
+    if (tau > g.t0) { const u = (tau - g.t0) / g.d; out.push(...along(seg, sc.linear ? u : easeMove(u)).slice(1)); }
+    return out;
+  }
+  return out;
+}
+function drawTravel(ptsS, keys, sc, tau, cert, wid, alpha, acc) {
+  // no data moves like the others: the comet in pink, leaving a thin soft line
+  { const tr = sc.backOnly ? ptsS : traced(ptsS, keys, sc, tau); if (tr.length > 1) softLine(tr, CCOL[cert] || CCOL.u, alpha, acc); }
+  drawGhost(ptsS, keys, sc, tau, CCOL[cert] || CCOL.u, wid, alpha);
+}
+// the line a ghost leaves behind: thin and blurred; the access icons stay sharp on top
+function softLine(pts, col, alpha, acc) {
+  ctx.save(); ctx.globalAlpha = 0.28 * (alpha === undefined ? 1 : alpha); ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 14;
+  ctx.filter = "blur(2.6px)"; ctx.lineWidth = 0.5; ctx.lineCap = ctx.lineJoin = "round";
+  ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.stroke(); ctx.restore();
+  for (let i = 1; i < pts.length; i++) LSEG.push([pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]]);
+  if (acc === "pr") pathIcons(pts, col, lockIcon); else if (acc === "sh") pathIcons(pts, col, sharedIcon);
+}
+// stage 2: sober. One steady speed, a plain line and a small plain dot, no glow.
+function drawPlain(ptsS, keys, sc, tau, cert, wid) {
+  const col = CCOL[cert] || CCOL.u, tr = traced(ptsS, keys, sc, tau);
+  ctx.save(); ctx.strokeStyle = ctx.fillStyle = col; ctx.lineWidth = wid; ctx.lineJoin = "round"; ctx.lineCap = "butt";
+  if (tr.length > 1) { ctx.beginPath(); tr.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.stroke(); }
+  const st = ghostState(sc, tau);
+  if (st.leg) { const h = posOn(legPts(ptsS, keys, st.leg.i, st.leg.back), st.l); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(h[0], h[1], wid * 0.9, 0, Math.PI * 2); ctx.fill(); }
+  ctx.restore();
+}
+// the ghost running in scene k right now, forwards or on the way back
+function ghostFor(k) {
+  if (state.scene !== k) return null;
+  if (state.back) return { sc: k === 0 ? model.s1b : model.swiss.schedB, tau: state.t - BSTART[k] };
+  return { sc: k === 0 ? model.s1 : k === 1 ? model.swiss.sched : selPath().sched, tau: state.t - START[k] };
+}
+// uncertain traces are nearly invisible unless "Show trace of uncertainty" is on
+const traceA = (on, off) => state.trace ? on : off;
+function legKm(pts, keys, totalKm) {
+  const c = polyCum(pts), L = c[c.length - 1] || 1;
+  return keys.slice(1).map((k, i) => (c[k] - c[keys[i]]) / L * totalKm);
+}
 
 // ================= camera =================
 const cv = document.getElementById("map");
@@ -434,6 +724,7 @@ function resize() {
   ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 function fit(pts, padT = 70, padB = 80, padL = 40, padR = 220, minKm = 2) {
+  const U = UF(); padT = Math.max(padT, 90 * U); padB *= U; padL *= U; padR *= U;
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const p of pts) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
   const bw = Math.max(x1 - x0, minKm), bh = Math.max(y1 - y0, minKm * 0.6);
@@ -441,6 +732,7 @@ function fit(pts, padT = 70, padB = 80, padL = 40, padR = 220, minKm = 2) {
   return { x: (x0 + x1) / 2 - ((padL - padR) / 2) / s, y: (y0 + y1) / 2 - ((padT - padB) / 2) / s, s };
 }
 function chFit() { return GRID ? fit([LW(GRID.left, GRID.top), LW(GRID.left + GRID.w * GRID.res, GRID.top - GRID.h * GRID.res)], 60, 70, 20, 20) : { x: 0, y: -46.8 * KY, s: VW / 400 }; }
+function introFit() { const U = UF(); return GRID ? fit([LW(GRID.left, GRID.top), LW(GRID.left + GRID.w * GRID.res, GRID.top - GRID.h * GRID.res)], 60, 70, (0.64 * VW) / U + 20, 20) : chFit(); }
 function diveTarget() { const s = Math.min(VW, VH) * 0.5 / 0.25; return { x: model.home[0] + 40 / s, y: model.home[1], s }; }
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const clamp01 = t => Math.max(0, Math.min(1, t));
@@ -450,16 +742,33 @@ function lerpCam(a, b, t, tc) {
 }
 let sceneStart = null;
 function sceneCam(k, t) {
+  if (state.back) {
+    const target = k === 0 ? diveTarget() : fit([model.home, ...model.swiss.pts, model.hub], 80, 90, 40, 240, 3);
+    return lerpCam(sceneStart || target, target, ease(clamp01(t / (k === 0 ? 2.4 : 1.3))));
+  }
   if (k === 0) {
-    const a = chFit(), b = diveTarget(), z = ease(clamp01((t - 2) / 12));
+    const a = chFit(), b = diveTarget(), z = ease(clamp01(t / 6));
     // centre arrives before the zoom does, so the dive stays on your square
-    const zc = ease(clamp01((t - 2) / 7));
+    const zc = ease(clamp01(t / 3.5));
     return lerpCam(a, b, z, zc);
   }
-  const target = k === 1 ? fit([model.home, ...model.swiss.pts, model.hub], 80, 90, 40, 240, 3)
-                         : fit([model.home, model.hub, ...model.paths.flatMap(p => p.pts)], 70, 90, 40, 250, 6);
-  const from = sceneStart || target;
-  return lerpCam(from, target, ease(clamp01(t / 2.5)));
+  if (k === 1) {
+    const target = fit([model.home, ...model.swiss.pts, model.hub], 80, 90, 40, 240, 3);
+    return lerpCam(sceneStart || target, target, ease(clamp01(t / 1.2)));
+  }
+  // scene 3: start on the Swiss view and widen the frame as the ghosts travel; the same map stays underneath
+  const tau = t - START[2], seen = [model.home, model.hub, ...model.swiss.pts];
+  for (const p of model.paths) {
+    const lastOut = p.sched.legs.filter(g => !g.back).pop(), selOut = selPath().sched.legs.filter(g => !g.back).pop();
+    if (p.id !== selPath().id) { if (tau >= selOut.t0 + selOut.d) seen.push(...p.pts); continue; } // other possibilities appear once the default has arrived
+    if (tau >= lastOut.t0 + lastOut.d) { seen.push(...p.pts); continue; }
+    const st = ghostState(p.sched, Math.max(0, tau));
+    for (let i = 0; i <= st.passed; i++) seen.push(p.pts[i]);
+    // the frame runs a little ahead of the ghost, so it always moves inside the zoom area
+    if (st.leg && !st.leg.back) seen.push(posOn(legPts(p.pts, p.keys, st.leg.i, false), easeMove(clamp01(st.l * 1.6))));
+  }
+  const target = fit(seen, 90, 110, 90, 260, 6);
+  return lerpCam(sceneStart || target, target, ease(clamp01(t / 1.0)));
 }
 function sceneTarget(k) { return k === 0 ? diveTarget() : sceneCam(k, 99); }
 const toS = p => [(p[0] - cam.x) * cam.s + VW / 2, (p[1] - cam.y) * cam.s + VH / 2];
@@ -467,14 +776,54 @@ const toW = (x, y) => [(x - VW / 2) / cam.s + cam.x, (y - VH / 2) / cam.s + cam.
 
 // ================= drawing =================
 let FONT = "11px monospace";
-function strokePoly(pts, st, width, dash, alpha) {
+// cert: colour (c white, u blue, n red) · acc: form ("pub" single line, "sh" double line, "pr" line inside a casing, "r" radio dots)
+const HOLLOW = "#2b2b2b";
+// "Shared" icon: two overlapping rings (networks meeting), placed along the path every SHARED_STEP screen px
+const SHARED_STEP = 150;
+function sharedIcon(x, y, r, col) {
+  ctx.save(); ctx.shadowBlur = 0;
+  ctx.fillStyle = HOLLOW; ctx.beginPath(); ctx.arc(x, y, r * 1.9, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, r * 0.32);
+  ctx.beginPath(); ctx.arc(x - r * 0.55, y, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x + r * 0.55, y, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+// "Private" icon: a lock
+function lockIcon(x, y, r, col) {
+  ctx.save(); ctx.shadowBlur = 0;
+  ctx.fillStyle = HOLLOW; ctx.beginPath(); ctx.arc(x, y, r * 1.9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = col; ctx.fillRect(x - r * 0.95, y - r * 0.2, r * 1.9, r * 1.35);
+  ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, r * 0.32);
+  ctx.beginPath(); ctx.arc(x, y - r * 0.2, r * 0.6, Math.PI, 0); ctx.stroke();
+  ctx.restore();
+}
+function pathIcons(pts, col, icon) {
+  const u = UF(), step = SHARED_STEP * u, r = 4.2 * u;
+  let carry = step * 0.5;
+  for (let i = 1; i < pts.length; i++) {
+    const [ax, ay] = pts[i - 1], [bx, by] = pts[i], L = Math.hypot(bx - ax, by - ay);
+    let d = carry;
+    while (d <= L) { const t = d / L, X = ax + (bx - ax) * t, Y = ay + (by - ay) * t; icon(X, Y, r, col); reserve(X - r * 2, Y - r * 2, r * 4, r * 4); d += step; }
+    carry = d - L;
+  }
+}
+function strokePoly(pts, cert, width, dash, alpha, acc) {
   if (pts.length < 2) return;
-  ctx.save(); ctx.globalAlpha = alpha === undefined ? 1 : alpha;
-  ctx.lineWidth = width; ctx.lineCap = "round"; ctx.lineJoin = "round";
-  const col = COL[st] || COL.u; ctx.strokeStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 8;
-  ctx.setLineDash(st === "r" ? [0.1, width * 3.2] : st === "u" ? [width * 3, width * 2.6] : []); ctx.lineDashOffset = -(dash || 0);
-  if (st === "r") { ctx.strokeStyle = ctx.shadowColor = COL.u; }
-  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
+  const col = CCOL[cert] || CCOL.u;
+  if ((alpha === undefined ? 1 : alpha) > 0.3) { const pad = width + 2; for (let i = 1; i < pts.length; i++) LSEG.push([pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]]); }
+  const path = () => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+  ctx.save(); ctx.globalAlpha = alpha === undefined ? 1 : alpha; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  if (acc === "r") {
+    ctx.setLineDash([0.1, width * 3.2]); ctx.lineDashOffset = -(dash || 0); ctx.lineWidth = width; ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 8; path(); ctx.stroke();
+  } else if (acc === "sh") {
+    ctx.lineWidth = width; ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 8; path(); ctx.stroke();
+    if ((alpha === undefined ? 1 : alpha) > 0.15) pathIcons(pts, col, sharedIcon);
+  } else if (acc === "pr") {
+    ctx.lineWidth = width; ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 8; path(); ctx.stroke();
+    if ((alpha === undefined ? 1 : alpha) > 0.15) pathIcons(pts, col, lockIcon);
+  } else {
+    ctx.lineWidth = width; ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 8; path(); ctx.stroke();
+  }
   ctx.restore();
 }
 function partial(pts, cum, f) {
@@ -486,12 +835,81 @@ function partial(pts, cum, f) {
   }
   return out;
 }
-function label(text, x, y, color, align, size) {
-  ctx.save(); ctx.font = (size || 11) + "px " + FONT; ctx.textAlign = align || "left";
-  ctx.lineWidth = 3; ctx.strokeStyle = "rgba(37,37,37,0.85)"; ctx.strokeText(text, x, y);
-  ctx.fillStyle = color; ctx.fillText(text, x, y); ctx.restore();
+// Labels never overlap: each label tries a few positions and is left out if none is free
+// of other labels, the elements over the map (caption, tabs, buttons, legend, scale) and your square.
+let LBOX = [], LSEG = [], LATER = []; // LATER: low-priority labels, placed after all others
+function segHits(b, ax, ay, bx, by) { // Liang–Barsky: does the segment cross the box?
+  let t0 = 0, t1 = 1; const dx = bx - ax, dy = by - ay;
+  for (const [p, q] of [[-dx, ax - b.x], [dx, b.x + b.w - ax], [-dy, ay - b.y], [dy, b.y + b.h - ay]]) {
+    if (p === 0) { if (q < 0) return false; continue; }
+    const r = q / p; if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+  }
+  return true;
 }
-function dot(x, y, r, color) { ctx.save(); ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 8; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+function overlaps(b) { return LBOX.some(o => b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y) || LSEG.some(s => segHits(b, s[0], s[1], s[2], s[3])); }
+function reserve(x, y, w, h) { LBOX.push({ x, y, w, h }); }
+function reserveUI() {
+  LBOX = []; LSEG = [];
+  const c = cv.getBoundingClientRect();
+  const els = [document.getElementById("caption"), document.querySelector(".scenes"), document.querySelector(".tools"), document.getElementById("scale"), document.getElementById("trace")];
+  const lg = document.getElementById("sqlegend"); if (parseFloat(getComputedStyle(lg).opacity) > 0.05) els.push(lg);
+  const dt = document.getElementById("details"); if (dt.classList.contains("open")) els.push(dt);
+  const dc = document.getElementById("dccard"); if (!dc.hidden) els.push(dc);
+  for (const el of els) { const r = el.getBoundingClientRect(); if (r.width && r.height) reserve(r.left - c.left - 4, r.top - c.top - 4, r.width + 8, r.height + 8); }
+}
+// several lines that belong together, kept in their order: [[text, colour], ...]
+const DC_L = [], VIA_L = [];
+function labelStack(lines, x, y, align, size) {
+  const fs = Math.max(9, (size ? size * 14 / 11 : 14) * UF());
+  ctx.save(); ctx.font = "500 " + fs + "px " + FONT;
+  const h = fs * 1.15, pad = 3, w = Math.max(...lines.map(l => ctx.measureText(l[0]).width)), H = h * lines.length;
+  const dys = [0, h, -h, 2 * h, -2 * h, -H - h, 3 * h];
+  for (let k = 0; k <= dys.length; k++) {
+    const last = k === dys.length, dy = last ? 0 : dys[k]; // nothing free: stay at the point anyway
+    const X = x, Y = y + dy, x0 = align === "left" ? X : align === "right" ? X - w : X - w / 2;
+    const box = { x: x0 - pad, y: Y - h * 0.8 - pad, w: w + pad * 2, h: H + pad * 2 };
+    if (!last && (box.x < 0 || box.y < 0 || box.x + box.w > VW || box.y + box.h > VH || overlaps(box))) continue;
+    ctx.textAlign = align; ctx.lineWidth = 3; ctx.strokeStyle = "rgba(37,37,37,0.85)";
+    lines.forEach(([t, c], i) => { ctx.strokeText(t, X, Y + i * h); ctx.fillStyle = c; ctx.fillText(t, X, Y + i * h); });
+    ctx.restore(); LBOX.push(box); return true;
+  }
+  ctx.restore(); return false;
+}
+function label(text, x, y, color, align, size, nearOnly) {
+  const fs = Math.max(9, (size ? size * 14 / 11 : 14) * UF());
+  ctx.save(); ctx.font = "500 " + fs + "px " + FONT;
+  const w = ctx.measureText(text).width, h = fs * 1.05, pad = 3;
+  const tries = [[0, 0, align], [0, h * 1.1, align], [0, -h * 1.1, align], [0, h * 2.2, align], [0, -h * 2.2, align], [0, h * 3.3, align], [0, -h * 3.3, align]];
+  if (align !== "center") tries.push([0, 0, align === "right" ? "left" : "right"], [0, h * 1.1, align === "right" ? "left" : "right"]);
+  // sideways: beside the anchor, on either side
+  for (const dy of [0, h * 1.1, -h * 1.1, h * 2.2]) tries.push([7, dy, "left"], [-7, dy, "right"]);
+  for (const [dx, dy, al] of tries) {
+    const a = al || "left", X = x + dx, Y = y + dy;
+    const x0 = a === "left" ? X : a === "right" ? X - w : X - w / 2;
+    const box = { x: x0 - pad, y: Y - h * 0.85 - pad, w: w + pad * 2, h: h + pad * 2 };
+    if (box.x < 0 || box.y < 0 || box.x + box.w > VW || box.y + box.h > VH || overlaps(box)) continue;
+    ctx.textAlign = a; ctx.lineWidth = 3; ctx.strokeStyle = "rgba(37,37,37,0.85)"; ctx.strokeText(text, X, Y);
+    ctx.fillStyle = color; ctx.fillText(text, X, Y); ctx.restore();
+    LBOX.push(box); return true;
+  }
+  // wider search: further away in 8 directions, joined to its point by a thin leader line
+  if (nearOnly) { ctx.restore(); return false; }
+  const U = UF();
+  for (const r of [40, 70, 110, 160, 230].map(v => v * U)) for (let k = 0; k < 8; k++) {
+    const ang = k * Math.PI / 4, ex = x + Math.cos(ang) * r, ey = y + Math.sin(ang) * r;
+    const a = Math.cos(ang) < -0.3 ? "right" : Math.cos(ang) > 0.3 ? "left" : "center";
+    const x0 = a === "left" ? ex : a === "right" ? ex - w : ex - w / 2;
+    const box = { x: x0 - pad, y: ey - h * 0.85 - pad, w: w + pad * 2, h: h + pad * 2 };
+    if (box.x < 0 || box.y < 0 || box.x + box.w > VW || box.y + box.h > VH || overlaps(box)) continue;
+    const lx = Math.max(box.x, Math.min(x, box.x + box.w)), ly = Math.max(box.y, Math.min(y, box.y + box.h));
+    ctx.globalAlpha *= 0.6; ctx.strokeStyle = color; ctx.lineWidth = 0.8; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(lx, ly); ctx.stroke(); ctx.globalAlpha /= 0.6; ctx.setLineDash([]);
+    ctx.textAlign = a; ctx.lineWidth = 3; ctx.strokeStyle = "rgba(37,37,37,0.85)"; ctx.strokeText(text, ex, ey);
+    ctx.fillStyle = color; ctx.fillText(text, ex, ey); ctx.restore();
+    LBOX.push(box); return true;
+  }
+  ctx.restore(); return false;
+}
+function dot(x, y, r, color) { reserve(x - r - 2, y - r - 2, r * 2 + 4, r * 2 + 4); ctx.save(); ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 8; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
 
 let gridImg = null;
 function renderGridImage() {
@@ -506,7 +924,7 @@ function renderGridImage() {
 }
 function drawLand() {
   if (!LAND) return;
-  ctx.save(); ctx.fillStyle = "#2e2e2e"; ctx.strokeStyle = "#434343"; ctx.lineWidth = 0.6;
+  ctx.save(); ctx.fillStyle = state.scene < 2 ? "#262626" : "#3a3a3a"; ctx.strokeStyle = "#4e4e4e"; // stages 1 and 2: land in Figma's Dark ctx.lineWidth = 0.6; // land brighter than the Dark sea
   for (const ring of LAND.land) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8;
   for (const ring of LAND.ch) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.stroke(); }
@@ -526,23 +944,24 @@ function drawGrid(alpha) {
 function drawCells() {
   const cellPx = 0.25 * cam.s; if (cellPx < 40 || !GRID) return;
   const a = toW(0, 0), b = toW(VW, VH);
-  const lvA = wgsToLv95(a[0] / KX, -a[1] / KY), lvB = wgsToLv95(b[0] / KX, -b[1] / KY);
+  // invert the same affine the grid image is drawn with, so every visible square is reached
+  const det = aE[0] * aN[1] - aE[1] * aN[0];
+  const inv = w => { const x = w[0] - A0[0], y = w[1] - A0[1]; return [2.6e6 + (x * aN[1] - y * aN[0]) / det, 1.2e6 + (y * aE[0] - x * aE[1]) / det]; };
+  const lvA = inv(a), lvB = inv(b);
   const E0 = Math.min(lvA[0], lvB[0]) - 500, E1 = Math.max(lvA[0], lvB[0]) + 500, N0 = Math.min(lvA[1], lvB[1]) - 500, N1 = Math.max(lvA[1], lvB[1]) + 500;
   const alpha = clamp01((cellPx - 40) / 80);
+  const ownE = model ? GRID.left + Math.floor((model.pl.E - GRID.left) / 250) * 250 : 0, ownN = model ? GRID.top - Math.floor((GRID.top - model.pl.N) / 250) * 250 : 0;
   ctx.save(); ctx.globalAlpha = alpha;
   for (let E = Math.floor((E0 - GRID.left) / 250) * 250 + GRID.left; E < E1; E += 250) for (let N = GRID.top - Math.floor((GRID.top - N1) / 250) * 250; N > N0; N -= 250) {
     const c = cellAt(E + 125, N - 125);
     const q = [LW(E, N), LW(E + 250, N), LW(E + 250, N - 250), LW(E, N - 250)].map(toS);
     ctx.beginPath(); q.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
     ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1; ctx.stroke();
-    if (!c || cellPx < 90) continue;
-    const cx = (q[0][0] + q[2][0]) / 2, cy = (q[0][1] + q[2][1]) / 2, bw = cellPx * 0.5;
-    [c.fibre, c.coax, c.copper].forEach((cls, k) => {
-      const y = cy + cellPx * 0.22 + k * 7;
-      ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(cx - bw / 2, y, bw, 3);
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(cx - bw / 2, y, bw * [0, 0.08, 0.3, 0.7, 1][cls], 3);
-    });
-    if (cellPx > 160) label("fibre · coax · copper", cx - bw / 2, cy + cellPx * 0.22 - 5, "rgba(255,255,255,0.45)", "left", 10);
+    if (!c || (model && Math.abs(E - ownE) < 1 && Math.abs(N - ownN) < 1)) continue;
+    // the neighbours show the same pattern as your square, faint; under the pointer a little brighter
+    const xs = q.map(p => p[0]), ys = q.map(p => p[1]);
+    const over = mouseAt && mouseAt[0] >= Math.min(...xs) && mouseAt[0] <= Math.max(...xs) && mouseAt[1] >= Math.min(...ys) && mouseAt[1] <= Math.max(...ys);
+    drawSquarePattern(q, c, (over ? 0.6 : 0.05) * alpha, true);
   }
   ctx.restore();
 }
@@ -560,62 +979,107 @@ function drawScene1(t, dash) {
     ctx.save(); ctx.strokeStyle = "#ffffff"; ctx.shadowColor = "#ffffff"; ctx.shadowBlur = 10; ctx.lineWidth = 1.5; ctx.globalAlpha = pulse;
     ctx.strokeRect(h[0] - 6, h[1] - 6, 12, 12); ctx.restore();
   }
+  if (cellPx > 40 && m.cell) drawSquarePattern(q, m.cell, clamp01((cellPx - 40) / 80));
+  sqRect = { x: Math.max(...q.map(p => p[0])), y: Math.min(...q.map(p => p[1])) };
+  if (cellPx > 40 && m.cell) { const xs = q.map(p => p[0]), ys = q.map(p => p[1]); reserve(Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)); }
   if (cellPx < 60) label(m.pl.name, h[0] + 12, h[1] + 4, "#ffffff");
   // close-up schematic: device → (antenna) → building entry → street → towards the exchange
-  const f = clamp01((t - 14) / 5);
-  if (f > 0 && cellPx > 120) {
+  const f = sceneProgress(0), gh = ghostFor(0), tau = state.back ? 99 : t - START[0];
+  if (tau > 0 && cellPx > 120) {
     const toHub = [m.hub[0] - m.home[0], m.hub[1] - m.home[1]], L = Math.hypot(...toHub) || 1, u = [toHub[0] / L, toHub[1] / L];
     const at = (d, side) => toS([m.home[0] + u[0] * d - u[1] * side, m.home[1] + u[1] * d + u[0] * side]);
     const dev = h, entry = at(0.03, 0.02), street = at(0.06, 0.04), out = at(0.2, 0.04);
     const side = u[0] < 0 ? 1 : -1, al = side > 0 ? "left" : "right", ar = side > 0 ? "right" : "left";
-    dot(dev[0], dev[1], 4, "#ffffff"); label("Your device (not counted)", dev[0] + side * 12, dev[1] - 8, "#ffffff", al);
+    dot(dev[0], dev[1], 4, "#ffffff");
     const pts = [];
     if (state.conn === "mobile") {
       const ant = at(-0.07, 0.09);
       // radio waves to the antenna
-      ctx.save(); ctx.strokeStyle = COL.u; ctx.globalAlpha = 0.8 * f; ctx.setLineDash([2, 4]);
+      ctx.save(); ctx.strokeStyle = CCOL.u; ctx.globalAlpha = 0.7 * f; ctx.setLineDash([2, 4]);
       for (let k = 1; k <= 3; k++) { ctx.beginPath(); ctx.arc(dev[0], dev[1], k * 12 + ((performance.now() / 40) % 12) * (reduce ? 0 : 1), 0, Math.PI * 2); ctx.stroke(); }
       ctx.restore();
-      strokePoly(partial([dev, ant], [0, 1], f), "r", 2.4, dash);
-      dot(ant[0], ant[1], 4, COL.u); label("Nearest antenna site: position estimated", ant[0] + 8, ant[1] - 8, COL.u);
-      label("your sector: 1–3 antennas, 12–57 kg each", ant[0] + 8, ant[1] + 6, COL.u);
-      label("then fibre in the ground to the exchange", ant[0] + 8, ant[1] + 20, COL.u);
-      pts.push(ant, street, out);
+      strokePoly([dev, ant], "u", 1.6, dash, traceA(0.6, 0.04), "r");
+      dot(ant[0], ant[1], 4, CCOL.u); label("Mobile antenna 4G / 5G", ant[0] + 8, ant[1] - 8, CCOL.u, "left", 9);
+      label("your sector: 1–3 antennas, 12–57 kg each", ant[0] + 8, ant[1] + 6, CCOL.u, "left", 9);
+      label("then fibre in the ground to the exchange", ant[0] + 8, ant[1] + 20, CCOL.u, "left", 9);
+      pts.push(dev, ant, street, out);
     } else {
-      label("by radio to the Wi-Fi router", dev[0] + side * 12, dev[1] + 8, "#efefeb", al);
-      strokePoly(partial([dev, entry], [0, 1], Math.min(1, f * 4)), "r", 2.4, dash);
-      pts.push(entry, street, out);
-      dot(entry[0], entry[1], 3, COL.u);
+      strokePoly([dev, entry], "u", 1.6, dash, traceA(0.6, 0.04), "r");
+      pts.push(dev, entry, street, out);
+      dot(entry[0], entry[1], 3, CCOL.u);
     }
-    const cum = polyCum(pts);
-    strokePoly(partial(pts, cum, f), "u", 2, dash);
-    if (f > 0.25) { const e = state.conn === "mobile" ? at(-0.07, 0.09) : entry; label("Here your prompt enters the ground", e[0] - side * 12, e[1] + 18, COL.u, ar); }
-    if (f > 0.9) { label("to the local exchange, ~" + LOCAL_KM + " km", out[0], out[1] + 18, COL.u, "center"); label("its location is not published", out[0], out[1] + 32, COL.n, "center"); }
+    strokePoly(pts.slice(1), "u", 1.4, 0, traceA(0.6, 0.04), "pub");
+    if (gh) drawTravel(pts, [0, 1, 2, 3], gh.sc, gh.tau, "u", 2);
+    // "here your spell enters the ground" now lives in the caption above the map
+    if (f > 0.9) labelStack([["Local neighbourhood exchange in ~" + LOCAL_KM + " km.", CCOL.u], ["Secret location.", CCOL.n]], out[0], out[1] + 12, "center", 9);
   }
+}
+
+// Your square as in the Figma frame: one patch per connection type, area = share of buildings (class midpoint),
+// filled with that type's symbol. Coax top left, copper top right, fibre bottom left; they overlap.
+let mouseAt = null, hushAt = null, lastPtr = null;
+const PAT = new Map();
+function drawSquarePattern(q, c, alpha, light) {
+  const x0 = Math.min(...q.map(p => p[0])), x1 = Math.max(...q.map(p => p[0])), y0 = Math.min(...q.map(p => p[1])), y1 = Math.max(...q.map(p => p[1]));
+  const S = Math.min(x1 - x0, y1 - y0);
+  if (light) { // neighbours: cached tile, no background
+    const dpr = window.devicePixelRatio || 1, Si = Math.max(8, Math.round(S / 4) * 4), key = c.fibre + "" + c.coax + c.copper + ":" + Si;
+    let tile = PAT.get(key);
+    if (!tile) {
+      if (PAT.size > 400) PAT.clear();
+      tile = document.createElement("canvas"); tile.width = tile.height = Math.ceil(Si * dpr);
+      const keep = ctx; ctx = tile.getContext("2d"); ctx.scale(dpr, dpr);
+      patternInto(0, 0, Si, c); ctx = keep; PAT.set(key, tile);
+    }
+    ctx.save(); ctx.globalAlpha = alpha; ctx.drawImage(tile, x0, y0, S, S); ctx.restore();
+    return;
+  }
+  ctx.save(); ctx.globalAlpha = alpha;
+  ctx.fillStyle = "rgba(37,37,37,0.92)"; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+  patternInto(x0, y0, S, c);
+  ctx.restore();
+}
+function patternInto(x0, y0, S, c) {
+  ctx.save(); ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#ffffff";
+  const layers = [["coax", 0, 0], ["copper", 0.145, 0.021], ["fibre", 0.009, null]];
+  for (const [type, dx, dy] of layers) {
+    const side = S * Math.sqrt(SHARE[c[type]]); if (side < 2) continue;
+    let ox = x0 + S * dx; if (ox + side > x0 + S) ox = x0 + S - side;
+    const oy = dy === null ? y0 + S - side : y0 + S * dy;
+    ctx.save(); ctx.beginPath(); ctx.rect(ox, oy, side, side); ctx.clip();
+    const sp = type === "copper" ? S / 30.4 : type === "coax" ? S / 21.8 : S / 21;
+    for (let y = oy + sp / 2; y < oy + side + sp; y += sp) for (let x = ox + sp / 2; x < ox + side + sp; x += sp) {
+      if (type === "copper") { ctx.beginPath(); ctx.arc(x, y, sp * 0.31, 0, Math.PI * 2); ctx.fill(); }
+      else if (type === "coax") { ctx.beginPath(); ctx.arc(x, y, sp * 0.15, 0, Math.PI * 2); ctx.fill(); ctx.lineWidth = Math.max(0.5, sp * 0.04); ctx.beginPath(); ctx.arc(x, y, sp * 0.34, 0, Math.PI * 2); ctx.stroke(); }
+      else { const r = sp * 0.12, d = sp * 0.27; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; ctx.moveTo(x + d * Math.cos(a) + r, y + d * Math.sin(a)); ctx.arc(x + d * Math.cos(a), y + d * Math.sin(a), r, 0, Math.PI * 2); } ctx.fill(); }
+    }
+    ctx.restore();
+  }
+  ctx.restore();
 }
 
 function drawScene2(f, dash) {
   const m = model, s = m.swiss;
   const st = m.observed ? "c" : "u";
   const pts = s.pts.map(toS);
-  strokePoly(pts, st, 1, 0, 0.18);
-  strokePoly(partial(pts, s.cum, f), st, 2.4, dash);
-  // the parcel
-  if (f > 0 && f < 1) { const p = partial(pts, s.cum, f); const e = p[p.length - 1]; dot(e[0], e[1], 4, COL[st]); }
+  if (st !== "c" && state.trace) strokePoly(pts, st, 1.4, 0, 0.6, "sh");
+  const gh = ghostFor(1);
+  if (gh) { drawPlain(pts, s.keys, gh.sc, gh.tau, st, 8); if (gh.sc.backOnly || traced(pts, s.keys, gh.sc, gh.tau).length > 1) pathIcons(gh.sc.backOnly ? pts : traced(pts, s.keys, gh.sc, gh.tau), CCOL[st], sharedIcon); }
+  else drawPlain(pts, s.keys, s.sched, 1e9, st, 8), pathIcons(pts, CCOL[st], sharedIcon);
   const near = cam.s > 2.5;
   s.hops.forEach(hp => {
     if (!near || s.cum[hp.at] / s.cum[s.cum.length - 1] > f) return;
-    const p = pts[hp.at], hs = toS(m.hub); dot(p[0], p[1], 3.5, "#ffffff"); if (Math.hypot(p[0] - hs[0], p[1] - hs[1]) < 40) return; label(PT[hp.key].name + " · traceroute hop", p[0] + 9, p[1] - 7, "#ffffff");
+    const p = pts[hp.at], hs = toS(m.hub); dot(p[0], p[1], 3.5, CCOL.c); if (Math.hypot(p[0] - hs[0], p[1] - hs[1]) < 40) return; label(PT[hp.key].name + " · Traceroute hop", p[0] + 7, p[1] - 5, CCOL.c);
   });
   const hp = toS(m.hub);
-  dot(hp[0], hp[1], 4, m.P.hubObserved ? "#ffffff" : COL.u);
+  dot(hp[0], hp[1], 4, m.P.hubObserved ? CCOL.c : CCOL.u);
   if (near && f > 0.97) {
-    label("Hub: " + PT[m.P.hub].name, hp[0] + 10, hp[1] - 8, m.P.hubObserved ? "#ffffff" : COL.u);
-    label("Edge node: " + m.P.edge + " · last visible hop", hp[0] + 10, hp[1] + 7, m.P.hubObserved ? "#ffffff" : COL.u);
+    label("Internet Exchange Hub: " + PT[m.P.hub].name, hp[0] + 7, hp[1] - 6, m.P.hubObserved ? CCOL.c : CCOL.u);
+    label("Edge node: " + m.P.edge, hp[0] + 7, hp[1] + 7, m.P.hubObserved ? CCOL.c : CCOL.u);
   }
 }
 
-let screenPaths = [];
+let screenPaths = [], sqRect = null;
 function drawScene3(f, dash) {
   const m = model, sel = selPath().id;
   screenPaths = [];
@@ -625,35 +1089,54 @@ function drawScene3(f, dash) {
     const isSel = p.id === sel, isHover = state.hover === p.id;
     const sp = p.pts.map(toS);
     screenPaths.push({ id: p.id, pts: sp });
-    strokePoly(partial(sp, p.cum, f), p.st, isSel ? 3.2 : (isHover ? 2.2 : 1.4), dash, isSel || isHover ? 1 : 0.6);
-    p.via.forEach((v, i) => { const key = v; if (seen.has(key)) return; seen.add(key); const q = sp[i + 1]; if (p.cum[i + 1] / p.cum[p.cum.length - 1] <= f) { dot(q[0], q[1], 2.2, COL.u); label(v, q[0], q[1] + 18, COL.u, "center"); } });
-    if (f >= 1) { const e = sp[sp.length - 1]; dot(e[0], e[1], isSel ? 5 : 3.5, COL[p.st]); label(p.name + (p.def && m.paths.length > 1 ? "  · default guess" : ""), e[0] + 9, e[1] + 4, COL[p.st]); }
+    if (p.st !== "c" || !isSel) strokePoly(sp, p.st, isSel ? 1.4 : 1, 0, isHover ? 0.3 : traceA(isSel ? 0.6 : 0.3, 0.04), "pr");
+    const gh = ghostFor(2);
+    if (isSel && gh) drawTravel(sp, p.keys, gh.sc, gh.tau, p.st, 2.4, 1, "pr");
+    else if (isSel && (state.back || state.scene === 2) && p.st === "c") softLine(sp, CCOL.c, 1, "pr");
+    else if (isSel && (state.back || state.scene === 2) && p.st === "n") softLine(sp, CCOL.n, 1, "pr");
   }
-  const hp = toS(m.hub); dot(hp[0], hp[1], 3.5, m.P.hubObserved ? "#ffffff" : COL.u);
-  if (cam.s <= 2.5) label("Edge node: last visible hop", hp[0] + 9, hp[1] - 8, m.P.hubObserved ? "#ffffff" : COL.u);
+  const hp = toS(m.hub); dot(hp[0], hp[1], 3.5, m.P.hubObserved ? CCOL.c : CCOL.u);
+  for (const p of order.slice().reverse()) {
+    const isSel = p.id === sel, sp = screenPaths.find(x => x.id === p.id).pts;
+    const tau = state.t - START[2], ss = selPath().sched, selF = tau <= 0 ? 0 : tau >= ss.total ? 1 : ghostState(ss, tau).out;
+    f = isSel ? selF : (selF >= 1 ? 1 : 0);
+    p.via.forEach((v, i) => { const key = v; if (seen.has(key)) return; seen.add(key); const q = sp[i + 1]; if (p.cum[i + 1] / p.cum[p.cum.length - 1] <= f) { dot(q[0], q[1], 2.2, CCOL.u); VIA_L.push([v, q]); } });
+    if (f >= 1) { const e = sp[sp.length - 1]; dot(e[0], e[1], isSel ? 5 : 3.5, CCOL[p.st]); DC_L.push(["Data Center: " + p.name + (p.def && m.paths.length > 1 ? " · default guess" : ""), e, CCOL[p.st]]); }
+  }
+  // every point keeps its own spot free; data centres are named first, right next to their point, then the cable landings
+  [...DC_L.map(d => d[1]), ...VIA_L.map(v => v[1])].forEach(q => reserve(q[0] - 5, q[1] - 5, 10, 10));
+  DC_L.forEach(([t, e, c]) => label(t, e[0] + 7, e[1] + 4, c));
+  VIA_L.forEach(([v, q]) => label(v, q[0] + 7, q[1] + 4, CCOL.u));
+  DC_L.length = 0; VIA_L.length = 0;
+  if (cam.s <= 2.5) label("Edge node", hp[0] + 7, hp[1] - 6, m.P.hubObserved ? CCOL.c : CCOL.u);
 }
 
 function sceneProgress(k) {
+  if (state.back) return 1;
   // drawing fraction of scene k at the current time
   if (k < state.scene) return 1; if (k > state.scene) return 0;
-  const t = state.t;
-  return k === 0 ? clamp01((t - 14) / 5) : k === 1 ? clamp01((t - 2.5) / 11) : clamp01((t - 3) / 9);
+  const tau = state.t - START[k];
+  if (tau <= 0) return 0;
+  const sc = k === 0 ? model.s1 : k === 1 ? model.swiss.sched : selPath().sched;
+  return tau >= sc.total ? 1 : ghostState(sc, tau).out;
 }
 
 function draw() {
   if (!ctx || !model) return;
   ctx.clearRect(0, 0, VW, VH);
+  reserveUI(); LATER = [];
   const dash = reduce ? 0 : performance.now() / 60;
   drawLand();
   const cellPx = 0.25 * cam.s;
-  const gridAlpha = (state.scene === 2 ? clamp01((cam.s - 0.6) / 2) : 1) * (cellPx < 25 ? 1 : Math.max(0.12, 1 - (cellPx - 25) / 120));
+  const gridAlpha = cellPx < 25 ? 1 : Math.max(0.12, 1 - (cellPx - 25) / 120);
   drawGrid(gridAlpha);
   drawCells();
   const f1 = sceneProgress(1), f2 = sceneProgress(2);
-  if (state.scene >= 1) drawScene2(f1, dash);
-  if (state.scene === 2) drawScene3(f2, dash);
-  if (state.scene === 0 || cam.s > 200) drawScene1(state.scene === 0 ? state.t : 99, dash);
+  if (state.scene >= 1 || state.back) drawScene2(f1, dash);
+  if (state.scene === 2 || state.back) drawScene3(f2, dash);
+  if (state.scene === 0 || cam.s > 200) drawScene1(state.scene === 0 && !state.back ? state.t : 99, dash);
   else { const h = toS(model.home); dot(h[0], h[1], 3.5, "#ffffff"); }
+  ctx.save(); ctx.globalAlpha = clamp01((0.25 * cam.s - 40) / 80); LATER.forEach(args => label(...args)); ctx.restore();
   drawScaleBar();
 }
 function drawScaleBar() {
@@ -662,15 +1145,146 @@ function drawScaleBar() {
 }
 
 // ================= captions =================
+
+// ================= captions =================
+// Texts from the doc "Materiality of a Prompt: caption texts". ⟦u:…⟧ = uncertain (cyan), ⟦n:…⟧ = no data (pink),
+// [[…]] = outlined like the chip of the choice it belongs to.
+const plain = t => t.replace(/\[\[|\]\]|⟦[un]:|⟧/g, "");
+const READ_WPS = 4.6; // words per second a visitor reads
+const readTime = t => Math.max(2, 0.6 + plain(t).split(/\s+/).filter(Boolean).length / READ_WPS);
+const CAPTXT = {
+  i1: () => "The internet reaches everywhere, yet no one has ever seen it whole. A system so complex it feels like magic but is a physical net placed in the underworld: a prompt, our modern spell, leaves, an answer returns, and where and how it became an answer stays hidden. We only meet its traces in our realities: a cable in a trench, an antenna on a roof. Here we follow them into the invisible.",
+  i2: () => "Choose where you are, how you are connected and whom you wanna send a prompt to. We follow your spell as far as the light of the data reaches, and we show where it stops and what is the unknown.",
+  i3: () => "Switzerland as the network sees it, in 250×250 m squares. The brighter a square, the more of its buildings are woven in with glass fibre (BAKOM broadband atlas).",
+  s11: m => `Diving to ${m.pl.name}. Beneath these streets sleeps a web of cables, invisible to everyone who lives in the upper world.`,
+  s12: m => m.cell ? `Your square, 250 × 250 m. Glass fibre ${CLASS[m.cell.fibre]}, coaxial cable ${CLASS[m.cell.coax]}, copper wire ${CLASS[m.cell.copper]} of buildings. We know the mix in the square, but ⟦u:which thread leads into your building⟧ is a secret kept by the telecom operators.` : "No buildings are recorded in this square. Pick another point.",
+  s13: m => `Your spell leaves your [[device as invisible Wi-Fi radio waves to your router]], then enters the ground here, in your square: ⟦u:most likely as ${TYPE_NAME[m.lastMile.type].toLowerCase()}⟧, the most common thread around you.`,
+  s13m: () => "Your spell leaves your phone as [[invisible waves to the nearest antenna]]. ⟦u:Where it stands we can only guess⟧; there it enters the ground and travels on as light in a fibre.",
+  s14: () => `About ${LOCAL_KM} km to the local exchange. It is the operator's building where all the lines of your neighbourhood meet and travel further on the same cable. ⟦n:Its location is kept unpublished⟧.`,
+  s15: () => "Pause to drag and zoom the map. Click anywhere in Switzerland to send your spell from another square.",
+  s21: () => "From the exchange your spell joins the shared backbone: fibres many networks share, hidden along roads and railways, carrying a society's whispers.",
+  s22: () => "We sent a traceroute: a signal that every router on the way must answer. Each answer is a hop, a stop where your spell jumps to the next cable. These hops called back like echoes in a cave. ⟦n:The trenches themselves are not published⟧.",
+  s22e: () => "We never sent a traceroute from here, ⟦u:so the line is our estimate⟧: a path we can only imagine.",
+  s22p: () => "From here we sent a traceroute too. The routers on the way answered, ⟦u:but without names of places⟧: we know whose cables they are, not where they lie, so the line is our estimate.",
+  s23: m => m.P.hubObserved ? `${PT[m.P.hub].name} is an internet exchange: a room full of humming routers where networks are physically connected by cables and swap traffic. Our trace ends here, at ${m.P.label}'s doorstep.` : `${PT[m.P.hub].name} is an internet exchange: a room full of humming routers where networks are physically connected by cables and swap traffic. ⟦u:Whether your spell passes here, no trace has told us⟧.`,
+  s24: m => `Here the spell passes ${m.P.edge}, an edge node: the outer gate of a company's private network. ⟦n:Beyond this gate the route vanishes from every outside view⟧.`,
+  s25: () => "Hover the line to reveal the numbers of kilometres and cable material. The squares on the right count the cable your spell has touched: one square for ⟦u:about 25 km⟧.",
+  s31: m => `Past the border the route goes dark and private. ⟦n:${m.P.company} does not say in which data center a spell is received and answered⟧, so from here on ⟦u:we follow the most likely path⟧: one we cannot possibly measure.`,
+  s32: (m, p) => {
+    const land = p.via[0].replace(/^Cable landing, /, ""), sea = p.segs.find(x => x.kind === "sea"), c = sea && SEA_CABLE[sea.a + "-" + sea.b];
+    return `At ${land} the spell slips into a privately owned cable on the sea floor${c ? `, ⟦u:most likely ${c.name} of ${c.owners}⟧` : ""}: a few centimetres of steel and plastic around hair-thin fibres, crossing the dark ocean as flashes of laser light, together with billions of others every second.`;
+  },
+  s33: (m, p) => {
+    const own = DC_OWNER[p.id], rent = own && !own.startsWith(m.P.company) ? `, ⟦u:its computing power rented by ${m.P.company}⟧` : "";
+    return `Data Center: ${p.name}${own ? `, owned by ${own}` : ""}${rent}. ⟦u:Our default guess⟧: ${p.why} Somewhere in halls like this, thousands of chips turn your words into an answer.`;
+  },
+  s34: m => `The faint lines are the other data centres ${m.P.company} might use. We know they exist but ⟦u:not where exactly⟧; ⟦n:which one answered you remains unknown⟧.`,
+  s35: m => `The answer travels back through the same unseen cables, to ${PT[m.P.hub].name}, where it re-enters the shared network.`,
+  s36: () => "Click another data centre to make it the guess. Press “Show trace of uncertainty” to see ⟦u:every line we could not confirm⟧: the shape of what we do not know.",
+  b41: m => `The answer comes back the same way: from ${PT[m.P.hub].name} across Switzerland to your exchange. Every kilometre is travelled twice, unseen both times.`,
+  b42: m => `And from the exchange into your square, back to your device. A few seconds for you; ${document.getElementById("c-tot").textContent.replace(/^~\s*/, "")} of cable you will never see.`,
+  b43: () => "Everything you saw is a trace of something larger: what we could measure, ⟦u:what we had to guess⟧, and ⟦n:the gaps where nobody tells⟧. Press replay or choose another start."
+};
+// gates: at scene time t the caption appears and the animation waits until it has been read
+let gates = [], gateIdx = 0, holdLeft = 0, capNow = "", introOn = false;
+function buildGates() {
+  const m = model, k = state.scene, g = [], G = (t, id, intro) => g.push({ t, id, intro });
+  if (state.back) {
+    if (k === 1) G(0, "b41"); else { G(0, "b42"); G(BDUR[0] - 0.35, "b43"); }
+  } else if (k === 0) {
+    if (introOn) { G(0, "i1", 1); G(0, "i2", 1); }
+    G(0, "i3");
+    G(0.01, "s11"); G(5.2, "s12"); G(START[0], state.conn === "mobile" ? "s13m" : "s13");
+    G(START[0] + m.s1.total, "s14"); G(START[0] + m.s1.total + 0.01, "s15");
+  } else if (k === 1) {
+    const end = START[1] + m.swiss.sched.total;
+    G(0, "s21"); G(START[1], m.observed ? "s22" : m.P.trace === "partial" ? "s22p" : "s22e"); G(end, "s23"); G(end + 0.01, "s24"); G(end + 0.02, "s25");
+  } else {
+    const p = selPath(), legs = p.sched.legs, out = legs.filter(l => !l.back), lastOut = out[out.length - 1], oe = START[2] + lastOut.t0 + lastOut.d;
+    G(0, "s31");
+    if (p.via.length && p.via[0].startsWith("Cable landing")) G(START[2] + out[0].t0 + out[0].d, "s32");
+    G(oe, "s33"); if (m.paths.length > 1) G(oe + 0.01, "s34"); G(oe + 0.02, "s35"); G(START[2] + p.sched.total + 0.1, "s36");
+  }
+  gates = g; gateIdx = 0; holdLeft = 0;
+}
+function gateText(gt) { const m = model; return CAPTXT[gt.id](m, selPath()); }
+// a scene shown without playing gets its last caption
+function settleGates() { gateIdx = gates.length; holdLeft = 0; const last = gates.filter(x => !x.intro).pop(); if (last) capNow = gateText(last); }
+function stepGates(dt) { // returns true while the animation must wait
+  if (holdLeft > 0) { holdLeft -= dt; if (holdLeft <= 0) maybeEndIntro(); return true; }
+  const gt = gates[gateIdx];
+  if (gt && state.t >= gt.t) {
+    gateIdx++; capNow = gateText(gt); holdLeft = gt.intro ? (1.4 + plain(capNow).split(/\s+/).length / 3.3) * 2 + 8 : readTime(capNow); // intro slides wait longer, so the arrows get used
+    setIntro(!!gt.intro); syncIntroNav(); placeChoices(gt.id === "i2");
+    return true;
+  }
+  return false;
+}
+// back / forward through the captions: forward ends the reading pause, back replays the previous caption from its moment
+function navCaption(dir) {
+  if (dir > 0) { if (holdLeft > 0) holdLeft = 0.001; else { const g = gates[gateIdx]; if (g) state.t = Math.max(state.t, g.t); } }
+  else {
+    const target = gateIdx - 2;
+    if (target >= 0) { gateIdx = target; holdLeft = 0; state.t = Math.min(state.t, gates[target].t); if (gates[target].intro && !introOn) introOn = true; }
+    else if (!state.back && state.scene === 0) { // before the first small caption comes the intro
+      introOn = true; state.t = 0; buildGates(); gateIdx = gates.findIndex(g => g.id === "i2"); holdLeft = 0; rejoin = null;
+    } else if (!state.back && state.scene > 0) { goScene(state.scene - 1, true); }
+    else if (state.back) { goScene(2, true); }
+  }
+  state.playing = true; syncUI();
+}
+function placeChoices(under) {
+  const ch = document.querySelector(".choices"), cap = document.getElementById("caption");
+  document.body.classList.toggle("choose", under);
+  if (!under) ch.style.top = "";
+  requestAnimationFrame(() => {
+    setCaption(capNow); lastCap = capNow;
+    const a = document.querySelector(".app").getBoundingClientRect(), rg = document.createRange(); rg.selectNodeContents(cap); const tr = rg.getBoundingClientRect(), r = { bottom: tr.height ? tr.bottom : cap.getBoundingClientRect().bottom };
+    if (under) ch.style.top = (r.bottom - a.top + 28 * UF()) + "px";
+    // the big arrows sit underneath the text (and under the choices on 0.2)
+    const below = under ? r.bottom - a.top + 28 * UF() + ch.getBoundingClientRect().height : r.bottom - a.top;
+    document.querySelectorAll(".intro-nav button").forEach(btn => btn.style.top = (below + 15 * UF()) + "px");
+  });
+}
+function reNav() { if (document.body.classList.contains("intro")) placeChoices(document.body.classList.contains("choose")); }
+addEventListener("resize", reNav); document.fonts && document.fonts.ready.then(reNav); setTimeout(reNav, 300); setTimeout(reNav, 1400); document.getElementById("caption").addEventListener("transitionend", reNav);
+function syncIntroNav() { const b = document.getElementById("introPrev"); if (b) b.disabled = !(gateIdx >= 2 && gates[gateIdx - 2] && gates[gateIdx - 2].intro); }
+function maybeEndIntro() { const nx = gates[gateIdx]; if (introOn && !(nx && nx.intro)) setIntro(false); }
+function setIntro(on) {
+  const was = document.body.classList.contains("intro");
+  document.body.classList.toggle("intro", on);
+  if (was && !on) { placeChoices(false); introOn = false; rejoin = { from: { ...cam }, start: performance.now(), dur: 1400 }; }
+}
+function skipIntro() {
+  if (!introOn) return;
+  gates = gates.filter(x => !x.intro); gateIdx = 0; holdLeft = 0; setIntro(false); introOn = false;
+}
+
+// [[words]] in a caption are outlined like the chip of the choice they belong to
+function setCaption(text) {
+  const el = document.getElementById("caption"); el.textContent = "";
+  text.split(/(\[\[[^\]]+\]\]|⟦[un]:[^⟧]+⟧)/).forEach(part => {
+    if (part.startsWith("[[")) { const s = document.createElement("span"); s.className = "cap-chip"; s.textContent = part.slice(2, -2); el.appendChild(s); }
+    else if (part.startsWith("⟦")) { const s = document.createElement("span"); s.className = "cap-" + part[1]; s.textContent = part.slice(3, -1); el.appendChild(s); }
+    else if (part) el.appendChild(document.createTextNode(part));
+  });
+  if (!introOn && gates.length) {
+    const nav = document.createElement("div"); nav.className = "capnav";
+    const canBack = true;
+    nav.innerHTML = `<button data-dir="-1" aria-label="Previous text"${canBack ? "" : " disabled"}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15 2.6L2.4 10 15 17.4Z"/></svg></button><button data-dir="1" aria-label="Next"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.6L17.6 10 5 17.4Z"/></svg></button>`;
+    el.appendChild(nav);
+  }
+}
 function caption() {
   const m = model, t = state.t, P = m.P, c = m.cell;
+  if (state.back) return state.scene === 1 ? `The answer comes back the same way: from ${PT[P.hub].name} across Switzerland to your exchange.` : `And from the exchange into your square, back to your device.`;
   if (state.scene === 0) {
-    if (t < 3) return "Switzerland in 250 m squares. The brighter a square, the more of its buildings are connected by glass fibre (BAKOM broadband atlas).";
-    if (t < 12) return `Diving to ${m.pl.name}…`;
-    if (t < 15) return c ? `Your square, 250 × 250 m. Glass fibre ${CLASS[c.fibre]}, coaxial cable ${CLASS[c.coax]}, copper wire ${CLASS[c.copper]} of buildings.` : "No buildings are recorded in this square. Pick another point.";
+    if (t < 1.5) return "Switzerland in 250 m squares. The brighter a square, the more of its buildings are connected by glass fibre (BAKOM broadband atlas).";
+    if (t < 5) return `Diving to ${m.pl.name}…`;
+    if (t < 6.5) return c ? `Your square, 250 × 250 m. Glass fibre ${CLASS[c.fibre]}, coaxial cable ${CLASS[c.coax]}, copper wire ${CLASS[c.copper]} of buildings.` : "No buildings are recorded in this square. Pick another point.";
     return state.conn === "mobile"
-      ? "Your prompt leaves your phone as radio waves to the nearest antenna, then goes into the ground as light in a fibre."
-      : `Your prompt leaves your device as radio waves to the router, then goes into the ground: most likely by ${m.lastMile.type === "fibre" ? "glass fibre" : "copper wire"} in this square.`;
+      ? "Your prompt leaves your phone as [[invisible waves to the nearest antenna]]. Where it stands we can only guess; from there it travels on as light in a fibre."
+      : `Your prompt leaves your [[device as invisible Wi-Fi radio waves to your router]], then sinks into the ground: most likely as ${TYPE_NAME[m.lastMile.type].toLowerCase()}, the most common thread in this square.`;
   }
   if (state.scene === 1) {
     if (sceneProgress(1) < 1) return m.observed
@@ -688,24 +1302,31 @@ function fmtNum(k) { return k < 10 ? (Math.round(k * 10) / 10).toString() : Math
 function fmtKg(kg) { return kg >= 1000 ? fmtNum(kg / 1000) + " t" : Math.round(kg) + " kg"; }
 function stCls(code) { return code === "?" ? "nod" : (code === "SR" ? "cert" : "unc"); }
 function val([v, c]) { return `<span class="${stCls(c)}">${v} <span class="code ${c === "?" ? "n" : c === "SR" ? "c" : ""}">${c}</span></span>`; }
+let detailsOpen = false;
 function renderTally() {
   const m = model, P = m.P, p = selPath(), c = m.cell;
-  const lmKg = m.lastMile.type === "fibre" ? DUCT.kg : COPPER.kg;
-  let html = `<section><h2>Your prompt to ${P.label} (${P.company})</h2>
-    <div class="row"><span>One way, so far</span><span class="v unc"><span id="c-one">0</span> km <span class="code">EST</span></span></div>
-    <div class="row" id="c-backrow"><span>And back to your device</span><span class="v unc">× 2</span></div>
-    <div class="row"><span>Total distance</span><span class="v big unc"><span id="c-tot">–</span></span></div>
-    <div class="row"><span>Cable passed</span><span class="v unc"><span id="c-kg">0 kg</span> <span class="code">EST</span></span></div>
-    <div class="note">Counts the infrastructure your prompt passes through, not what one prompt uses up.</div></section>`;
-  html += `<section data-s="0"><h2>1 · Dive in: your square</h2>`;
+  const lmKg = m.lastMile.kg || 0;
+  document.getElementById("tally").innerHTML = `<h2>Your prompt<br>to ${P.label} (${P.company})</h2>
+    <span class="unit">■ = 25 km</span>
+    <div class="row"><span>One way, so far</span><span class="v unc">~ <span id="c-one">0</span> km</span></div>
+    <div class="row unc" id="c-backrow"><span>And back to your device</span><span class="v">× 2</span></div>
+    <div class="row" style="margin-top:calc(10 * var(--u))"><span>Total distance</span><span class="v big unc" id="c-tot">~ 0 km</span></div>
+    <div class="row"><span>Cable passed</span><span class="v big unc" id="c-kg">~ 0 kg</span></div>
+    <div class="row unc" id="c-sea" style="display:none"><span>plus sea cable</span><span class="v" id="c-seakg"></span></div>
+    <button class="more" id="more" aria-expanded="${detailsOpen}" aria-controls="details">Details and sources</button>`;
+  document.getElementById("more").addEventListener("click", () => { detailsOpen = !detailsOpen; document.getElementById("details").classList.toggle("open", detailsOpen); document.getElementById("more").setAttribute("aria-expanded", detailsOpen); });
+  document.getElementById("sqlegend").innerHTML = c ? [["fibre", "Glass\nfibre"], ["coax", "Coaxial\ncable"], ["copper", "Copper\nwire"]].map(([t, n]) =>
+    `${symSvg(t, null)}<span class="nm">${n}</span><span class="vl">${CLASS[c[t]]}</span>`).join("") : "";
+  let html = `<section><div class="note">Counts the infrastructure your prompt passes through, not what one prompt uses up. Codes: <span class="code c">SR</span> self-reported by the company · <span class="code">EXT</span> external estimate · <span class="code">EST</span> our estimate · <span class="code n">?</span> no data provided.</div></section>
+    <section data-s="0"><h2>1 · Public, Enter: your square (single line)</h2>`;
   if (c) {
     [["Glass fibre", c.fibre], ["Coaxial cable", c.coax], ["Copper wire", c.copper]].forEach(([n, k]) => {
-      html += `<div class="row"><span>${n}</span><span class="v cert">${CLASS[k]}</span></div><div class="meter"><i style="width:${[0, 8, 30, 70, 100][k]}%"></i></div>`;
+      html += `<div class="row"><span>${n}</span><span class="v cert">${CLASS[k]}</span></div><div class="meter"><i style="left:${[0, 0, 10, 50, 90][k]}%;width:${[0, 10, 40, 40, 10][k]}%"></i></div>`;
     });
     html += `<div class="note">Share of buildings in the square per connection type. BAKOM, observed.</div>`;
   } else html += `<div class="note">No buildings recorded in this square.</div>`;
   html += `<div class="row"><span>Last mile to the exchange</span><span class="v unc">~${LOCAL_KM} km <span class="code">EST</span></span></div>
-    <div class="row"><span>${m.lastMile.type === "fibre" ? "Fibre in HDPE duct, 485 kg/km" : "Copper cable, 2 pairs, ~40 kg/km"}</span><span class="v unc">${fmtKg(lmKg * LOCAL_KM)} <span class="code">EST</span></span></div>
+    <div class="row"><span>${{ fibre: "Fibre in HDPE duct, 485 kg/km", copper: "Copper cable, 2 pairs, ~40 kg/km", coax: "Coaxial cable" }[m.lastMile.type]}</span><span class="v">${m.lastMile.kg ? `<span class="unc">${fmtKg(lmKg * LOCAL_KM)} <span class="code">EST</span></span>` : `<span class="nod">No data provided <span class="code n">?</span></span>`}</span></div>
     ${m.lastMile.type === "copper" ? `<div class="row"><span>Copper per pair, 0.5 mm average</span><span class="v unc">3.5 kg/km <span class="code">EST</span></span></div>
     <div class="note">Swisscom's wires are 0.4–1.0 mm (2.3–14.1 kg copper per pair-km); the share of each in Switzerland is not published. Swisscom has already replaced copper up to the distribution points, so copper is only on the last stretch to the building.</div>` : ""}`;
   if (state.conn === "mobile") {
@@ -715,20 +1336,20 @@ function renderTally() {
   }
   html += `</section>`;
   const swKg = m.swiss.km * DUCT.kg;
-  html += `<section data-s="1"><h2>2 · Through Switzerland</h2>
+  html += `<section data-s="1"><h2>2 · Shared, Exchange: through Switzerland (line with the shared icon)</h2>
     <div class="row"><span>To the hub, along fibre squares</span><span class="v ${m.observed ? "cert" : "unc"}">${fmtNum(m.swiss.km)} km <span class="code ${m.observed ? "c" : ""}">${m.observed ? "hops observed" : "EST"}</span></span></div>
     <div class="row"><span>Fibre in duct, 485 kg/km</span><span class="v unc">${fmtKg(swKg)} <span class="code">EST</span></span></div>
     <div class="split">${DUCT.split.map(([n, kg]) => `<span>${n}</span><span>${fmtKg(kg * m.swiss.km)}</span>`).join("")}</div>
     <div class="note">A 144-fibre cable is shared: your connection uses one fibre pair, ~0.05 kg of glass per km. Here we count the whole cable (decision open). Of ~485 kg per km, the glass that carries the light is ~4 kg, under 1%. About 85–90% is polyethylene. Weights from datasheets; split derived from cable geometry. Ducts per trench: no data.</div></section>`;
-  html += `<section data-s="2"><h2>3 · Out of Switzerland</h2>
+  html += `<section data-s="2"><h2>3 · Private, Enclosure: out of Switzerland (line with the lock)</h2>
     <div class="row"><span>On land, one way</span><span class="v unc">${fmtNum(p.land)} km <span class="code">EST</span></span></div>
     <div class="row"><span>Fibre in duct</span><span class="v unc">${fmtKg(p.land * DUCT.kg)} <span class="code">EST</span></span></div>`;
   if (p.sea) html += `<div class="row"><span>Under the sea</span><span class="v unc">${fmtNum(p.sea)} km <span class="code">EST</span></span></div>
     <div class="row"><span>Submarine cable, 650–1'700 kg/km</span><span class="v unc">${fmtKg(p.sea * SEA.min)}–${fmtKg(p.sea * SEA.max)} <span class="code">EST</span></span></div>
     <div class="note">${SEA.mats}. The mix along a real route is unknown.</div>
     <div class="row"><span>Repeaters on the sea floor</span><span class="v nod">No data provided <span class="code n">?</span></span></div>`;
-  html += `<div class="row"><span>Data centre</span><span class="v" style="color:${COL[p.st]}">${p.name}</span></div>
-    <div class="row"><span>Does ${P.label} use it?</span><span class="v" style="color:${COL[p.st]}">${{ c: "Certain", u: "Uncertain", n: "No data" }[p.st]}</span></div>
+  html += `<div class="row"><span>Data centre</span><span class="v" style="color:${CCOL[p.st]}">${p.name}</span></div>
+    <div class="row"><span>Does ${P.label} use it?</span><span class="v" style="color:${CCOL[p.st]}">${{ c: "Certain", u: "Uncertain", n: "No data" }[p.st]}</span></div>
     <div class="row"><span>Power of the site</span><span class="v">${val(DC[p.id].power)}</span></div>
     <div class="row"><span>Chips</span><span class="v">${val(DC[p.id].chips)}</span></div>
     <div class="note">${DC[p.id].src}</div>
@@ -740,7 +1361,7 @@ function renderTally() {
     ${(P.extra || []).map(([n, v, cd]) => `<div class="row"><span>${n}</span><span class="v">${val([v, cd])}</span></div>`).join("")}
     <div class="row"><span>Training share</span><span class="v unc">Decision pending</span></div>
     <div class="note">${P.dcNote}</div></section>`;
-  html += `<section><div class="note">Prototype, 17 Nov 2026. Hubs, landings and data centres are placed approximately. Land routes outside Switzerland: straight line × ${LAND_FACTOR}; sea × ${SEA_FACTOR}.</div>
+  html += `<section><div class="note">Prototype, 18 Nov 2026. In the bar the meter shows the whole BAKOM class (e.g. 10–50%), not one value. Hubs, landings and data centres are placed approximately. Land routes outside Switzerland: straight line × ${LAND_FACTOR}; sea × ${SEA_FACTOR}.</div>
     <details><summary>Sources</summary><ul>
     <li><a href="https://map.geo.admin.ch">BAKOM broadband atlas (fibre, coax, copper)</a></li>
     <li><a href="https://ecatalog.corning.com">Corning duct and armoured cables</a>, <a href="https://efobasen.efo.no">Emtelle HDPE ducts</a>, <a href="https://fiber-optic-catalog.ofsoptics.com">OFS</a></li>
@@ -759,65 +1380,123 @@ function renderTally() {
     <li><a href="https://news.infomaniak.com/en/infomaniak-inaugurates-a-revolutionary-data-center-that-recovers-100-of-its-energy-for-building-heating">Infomaniak D4</a></li>
     <li><a href="https://proton.me/blog/lumo-ai">Proton, Lumo</a>, <a href="https://heise.de/-10538664">heise on Proton moving servers</a></li>
     <li><a href="https://www.submarinecablemap.com">TeleGeography Submarine Cable Map</a></li>
-    <li>Traceroutes from ÉCAL Wi-Fi and Sunrise mobile, 17 Nov 2026, 11:00–16:02, 4 runs each; same path every run (own measurement)</li>
+    <li>Traceroutes from ÉCAL Wi-Fi and Sunrise mobile, 17 Nov 2026, 11:00–16:02, and 18 Nov 2026, 17:11; same path every run (own measurement)</li><li>Traceroutes from Lausanne centre, home Wi-Fi and Sunrise mobile, 18 Nov 2026, 23:01 (own measurement)</li>
     <li>Coastlines: Natural Earth (public domain)</li>
     </ul></details></section>`;
-  document.getElementById("tally").innerHTML = html;
+  document.getElementById("details").innerHTML = html;
 }
 let lastCount = "";
+const UNIT = 25; // km per square, the same in all three scenes; squares add up from scene 1 to 3
+const SQ_SIZES = [22.263, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4];
+let lastGrid = "";
 function updateCounts() {
   const m = model, p = selPath();
   const f0 = sceneProgress(0), f1 = sceneProgress(1), f2 = sceneProgress(2);
-  const lmKg = m.lastMile.type === "fibre" ? DUCT.kg : COPPER.kg;
-  const km = LOCAL_KM * f0 + m.swiss.km * f1 + p.total() * f2;
-  const kg = lmKg * LOCAL_KM * f0 + DUCT.kg * m.swiss.km * f1 + DUCT.kg * p.land * f2;
-  const done = f2 >= 1;
-  const key = [Math.round(km * 10), Math.round(kg), done, state.scene].join();
-  if (key === lastCount) return; lastCount = key;
+  // parts in the order the prompt travels: [type, km done, state]
+  // parts in the order the prompt travels: [type, km done, certainty, access]
+  const parts = [];
+  if (state.conn === "mobile") parts.push(["radio", RADIO_KM * f0, "u", "pub"]);
+  parts.push([m.lastMile.type, LOCAL_KM * f0, "u", "pub"]);
+  parts.push(["fibre", m.swiss.km * f1, m.observed ? "c" : "u", "sh"]);
+  parts.push(["fibre", p.land * f2, p.st, "pr"]);
+  if (p.sea) parts.push(["sea", p.sea * f2, p.st, "pr"]);
+  const groups = new Map();
+  for (const [type, km, ce, ac] of parts) { if (km <= 0) continue; if (!groups.has(type)) groups.set(type, []); groups.get(type).push([km, ce, ac]); }
+  let html = "", key = "";
+  for (const [type, ps] of groups) {
+    const total = ps.reduce((s, x) => s + x[0], 0), units = total / UNIT;
+    const full = Math.min(900, Math.floor(units + 1e-9)), frac = units - full;
+    const at = km => { let acc = 0; for (const x of ps) { acc += x[0]; if (km <= acc + 1e-9) return x; } return ps[ps.length - 1]; };
+    let sq = "", last = ps[0];
+    for (let i = 0; i < full; i++) { last = at((i + 0.5) * UNIT); sq += `<i class="${last[2]} ${last[1]}"></i>`; key += last[2] + last[1]; }
+    if (frac > 0.001) { last = at(total); const w = Math.max(18, Math.round(frac * 100)); sq += `<i class="${last[2]} ${last[1]}" style="width:calc(var(--sq, 16px) * ${w / 100})"></i>`; key += "p" + last[2] + last[1] + w; }
+    key += type + ";";
+    html += `<div class="cg" title="${TYPE_NAME[type]} · ${fmtNum(total)} km">${sq}${symSvg(type, CCOL[last[1]])}</div>`;
+  }
+  { // the squares fill down to the tally; refit when the tally grows (e.g. the sea cable row appears)
+    const ct = document.getElementById("counter"), tl = document.getElementById("tally");
+    const hNeed = Math.max(40, tl.offsetTop - ct.offsetTop - 14 * UF());
+    if (Math.abs(ct.clientHeight - hNeed) > 1) { ct.style.height = hNeed + "px"; lastGrid = ""; }
+  }
+  if (key !== lastGrid) {
+    lastGrid = key;
+    // largest square size at which everything still fits above the tally: try each size and measure
+    const ct = document.getElementById("counter"), tl = document.getElementById("tally");
+    ct.innerHTML = html;
+    for (const z of SQ_SIZES) { ct.style.setProperty("--sq", (z * UF()).toFixed(2) + "px"); if (ct.scrollHeight <= ct.clientHeight + 1) break; }
+  }
+
+  const km = (state.conn === "mobile" ? RADIO_KM * f0 : 0) + LOCAL_KM * f0 + m.swiss.km * f1 + p.total() * f2;
+  const kg = (m.lastMile.kg || 0) * LOCAL_KM * f0 + DUCT.kg * m.swiss.km * f1 + DUCT.kg * p.land * f2;
+  const ckey = [Math.round(km * 10), Math.round(kg), Math.round(f2 * 100), state.scene].join();
+  if (ckey === lastCount) return; lastCount = ckey;
   const one = document.getElementById("c-one"); if (!one) return;
   one.textContent = fmtNum(km);
-  document.getElementById("c-tot").textContent = done ? fmtNum(km * 2) + " km" : "–";
-  document.getElementById("c-backrow").style.opacity = done ? 1 : 0.35;
-  document.getElementById("c-kg").textContent = fmtKg(kg) + (done && p.sea ? " + sea cable" : "");
-  document.querySelectorAll("#tally section[data-s]").forEach(s => s.classList.toggle("dim", +s.dataset.s > state.scene));
+  document.getElementById("c-tot").textContent = "~ " + fmtNum(km * 2) + " km";
+  document.getElementById("c-kg").textContent = "~ " + fmtKg(kg);
+  const seaRow = document.getElementById("c-sea");
+  if (p.sea && f2 > 0) { seaRow.style.display = ""; document.getElementById("c-seakg").textContent = "~ " + fmtKg(p.sea * f2 * SEA.min) + "–" + fmtKg(p.sea * f2 * SEA.max); } else seaRow.style.display = "none";
+  document.querySelectorAll("#details section[data-s]").forEach(s => s.style.opacity = +s.dataset.s > state.scene ? 0.45 : 1);
 }
 
 // ================= scene control =================
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 function goScene(k, play) {
-  state.scene = k; state.free = false; rejoin = null;
+  state.back = false; state.scene = k; state.free = false; rejoin = null;
   sceneStart = { ...cam };
   if (reduce || !play) { state.t = DUR[k]; state.playing = false; } else { state.t = 0; state.playing = true; }
+  if (k !== 0 || !play) skipIntro();
+  buildGates(); if (!state.playing) settleGates();
   if (k === 0 && state.t === 0) cam = chFit();
   cam = sceneCam(k, state.t);
-  lastCount = ""; syncUI();
+  lastCount = ""; lastGrid = ""; syncUI();
 }
 function syncUI() {
   document.querySelectorAll(".scene").forEach(b => b.setAttribute("aria-current", +b.dataset.scene === state.scene));
-  const end = state.scene === 2 && state.t >= DUR[2];
-  document.getElementById("play").textContent = state.playing ? "Pause" : (end ? "Replay" : "Play");
-  document.getElementById("play").setAttribute("aria-label", document.getElementById("play").textContent);
+  const end = (state.back && state.scene === 0 && state.t >= BDUR[0]) || (!state.playing && !state.back && state.scene === 2 && state.t >= DUR[2]);
+  const pb = document.getElementById("play"), mode = state.playing ? "Pause" : (end ? "Replay" : "Play");
+  if (pb.dataset.mode !== mode) {
+    pb.dataset.mode = mode; pb.setAttribute("aria-label", mode);
+    pb.innerHTML = mode === "Pause" ? '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="3" width="3.6" height="14" fill="white"/><rect x="11.9" y="3" width="3.6" height="14" fill="white"/></svg>'
+      : mode === "Replay" ? '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10a5.5 5.5 0 1 1-1.6-3.9" stroke="white" stroke-width="2"/><path d="M15.8 2.8v4.6h-4.6" stroke="white" stroke-width="2"/></svg>'
+      : '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.6L17.6 10 5 17.4Z" fill="white"/></svg>';
+  }
 }
 let lastNow = performance.now(), lastCap = "";
 function frame(now) {
   const dt = Math.min(0.1, (now - lastNow) / 1000); lastNow = now;
   if (model && ctx) {
+    DUR[2] = START[2] + selPath().sched.total + 0.4;
     if (state.playing) {
-      state.t += dt;
-      if (state.t >= DUR[state.scene]) {
-        if (state.scene < 2) { sceneStart = { ...cam }; state.scene++; state.t = 0; lastCount = ""; }
-        else { state.t = DUR[2]; state.playing = false; }
+      if (!stepGates(dt)) state.t += dt;
+      const gatesDone = gateIdx >= gates.length && holdLeft <= 0;
+      if (!gatesDone) { /* still reading */ }
+      else if (state.back) {
+        if (state.t >= BDUR[state.scene]) {
+          if (state.scene > 0) { sceneStart = { ...cam }; state.scene--; state.t = 0; buildGates(); }
+          else { state.t = BDUR[0]; state.playing = false; }
+          syncUI();
+        }
+      } else if (state.t >= DUR[state.scene] + (state.scene < 2 ? HOLD : 0)) {
+        sceneStart = { ...cam }; lastCount = ""; lastGrid = "";
+        if (state.scene < 2) { state.scene++; state.t = 0; }
+        else { state.back = true; state.scene = 1; state.t = 0; } // the answer comes back
+        buildGates();
         syncUI();
       }
     }
     if (!state.free) {
       const target = sceneCam(state.scene, state.t);
-      if (rejoin) { const u = clamp01((now - rejoin.start) / 900); cam = lerpCam(rejoin.from, target, ease(u)); if (u >= 1) rejoin = null; }
+      if (rejoin) { const u = clamp01((now - rejoin.start) / (rejoin.dur || 500)); cam = lerpCam(rejoin.from, target, ease(u)); if (u >= 1) rejoin = null; }
       else cam = target;
     }
     draw();
-    document.querySelectorAll(".scene .prog").forEach((el, k) => el.style.width = (k < state.scene ? 100 : k > state.scene ? 0 : 100 * clamp01(state.t / DUR[k])) + "%");
-    const cap = caption(); if (cap !== lastCap) { document.getElementById("caption").textContent = cap; lastCap = cap; }
+    document.querySelectorAll(".scene .prog").forEach((el, k) => { const f = state.back ? (k < state.scene ? 1 : k > state.scene ? 0 : 1 - clamp01(state.t / BDUR[k])) : k < state.scene ? 1 : k > state.scene ? 0 : clamp01(state.t / (DUR[k] + (k < 2 ? HOLD : 0))); el.style.clipPath = "inset(0 " + (100 - 100 * f).toFixed(2) + "% 0 0)"; });
+    const cap = capNow || caption(); if (cap !== lastCap) { setCaption(cap); lastCap = cap; }
+    const lg = document.getElementById("sqlegend"), showLg = state.scene === 0 && 0.25 * cam.s > 220 * UF() && model.cell && sqRect && !detailsOpen;
+    lg.classList.toggle("hide", !showLg);
+    if (showLg) { const u = UF(); lg.style.left = Math.min(VW - 120 * u, sqRect.x + 18 * u) + "px"; lg.style.top = Math.max(50 * u, sqRect.y - 5 * u) + "px"; }
+    if (state.scene !== 2 || state.back) document.getElementById("dccard").hidden = true;
     updateCounts();
   }
   requestAnimationFrame(frame);
@@ -825,8 +1504,10 @@ function frame(now) {
 function update(restartAt) {
   model = buildModel();
   model.paths.forEach(p => p.total = () => p.land + p.sea);
-  renderTally(); lastCount = "";
+  renderTally(); lastCount = ""; lastGrid = "";
+  const keep = introOn ? (gates[gateIdx - 1] || {}).id : null; // a choice made during the intro keeps its slide
   if (restartAt !== undefined) goScene(restartAt, !reduce);
+  if (keep) { const i = gates.findIndex(g => g.id === keep); if (i >= 0) { gateIdx = i; holdLeft = 0; } }
 }
 
 // ================= interaction =================
@@ -843,10 +1524,12 @@ function initUI() {
   document.querySelectorAll("#conn .chip").forEach(b => b.addEventListener("click", () => {
     state.conn = b.dataset.conn; document.querySelectorAll("#conn .chip").forEach(x => x.setAttribute("aria-pressed", x === b)); update(0);
   }));
-  document.querySelectorAll(".scene").forEach(b => b.addEventListener("click", () => goScene(+b.dataset.scene, true)));
+  document.querySelectorAll(".scene").forEach(b => b.addEventListener("click", () => { skipIntro(); goScene(+b.dataset.scene, true); }));
+  document.getElementById("trace").addEventListener("click", e => { state.trace = !state.trace; e.currentTarget.setAttribute("aria-pressed", state.trace); e.currentTarget.textContent = state.trace ? "Hide trace of uncertainty" : "Show trace of uncertainty"; });
   document.getElementById("play").addEventListener("click", () => {
     if (state.playing) { state.playing = false; }
-    else if (state.scene === 2 && state.t >= DUR[2]) { goScene(0, true); return; }
+    else if (state.back && state.scene === 0 && state.t >= BDUR[0]) { goScene(0, true); return; }
+    else if (!state.back && state.scene === 2 && state.t >= DUR[2]) { state.back = true; state.scene = 1; state.t = 0; sceneStart = { ...cam }; state.playing = true; buildGates(); }
     else { state.playing = true; if (state.free) { rejoin = { from: { ...cam }, start: performance.now() }; state.free = false; } }
     syncUI();
   });
@@ -857,7 +1540,6 @@ function initUI() {
   };
   document.getElementById("zoomIn").addEventListener("click", () => zoomBy(1.6));
   document.getElementById("zoomOut").addEventListener("click", () => zoomBy(1 / 1.6));
-  document.getElementById("fit").addEventListener("click", () => { rejoin = { from: { ...cam }, start: performance.now() }; state.free = false; });
   cv.addEventListener("wheel", e => { e.preventDefault(); const r = cv.getBoundingClientRect(); zoomBy(Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
   cv.addEventListener("keydown", e => {
     const step = 60 / cam.s, mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
@@ -865,8 +1547,20 @@ function initUI() {
     if (e.key === "+" || e.key === "=") zoomBy(1.4); if (e.key === "-") zoomBy(1 / 1.4);
     if (e.key === " ") { e.preventDefault(); document.getElementById("play").click(); }
   });
-  let drag = null;
-  cv.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; cv.setPointerCapture(e.pointerId); });
+  let drag = null, clickTimer = null;
+  function centreOn(ci) {
+    const [E, N] = cellCentre(ci), [lon, lat] = lv95ToWgs(E, N), from = { ...cam };
+    mouseAt = null; hushAt = lastPtr;
+    state.custom = { id: "custom", name: `Your point (${lat.toFixed(3)}° N, ${lon.toFixed(3)}° E)`, E, N }; state.selected = null;
+    update();
+    state.back = false; state.scene = 0; state.playing = false; state.free = false; skipIntro();
+    state.t = START[0] - 0.001; // the square view, before the spell leaves
+    buildGates(); const gi = gates.findIndex(g => g.id === "s12");
+    if (gi >= 0) { gateIdx = gi + 1; holdLeft = 0; capNow = gateText(gates[gi]); }
+    sceneStart = { ...cam }; rejoin = { from, start: performance.now(), dur: 700 };
+    syncUI();
+  }
+  cv.addEventListener("pointerdown", e => { lastPtr = [e.clientX, e.clientY]; drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; cv.setPointerCapture(e.pointerId); });
   cv.addEventListener("pointermove", e => {
     if (drag) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
@@ -874,23 +1568,96 @@ function initUI() {
       if (drag.moved) { cam.x = drag.cx - dx / cam.s; cam.y = drag.cy - dy / cam.s; }
       return;
     }
+    if (!hushAt || Math.hypot(e.clientX - hushAt[0], e.clientY - hushAt[1]) > 12) { hushAt = null; const rr = cv.getBoundingClientRect(); mouseAt = [e.clientX - rr.left, e.clientY - rr.top]; } // the square just left stays faint until the pointer moves on
     hover(e);
   });
+  cv.addEventListener("pointerleave", () => { mouseAt = null; });
   cv.addEventListener("pointerup", e => {
     cv.classList.remove("dragging");
     const d = drag; drag = null; if (!d || d.moved) return;
     const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-    if (state.scene === 2) { const id = hit(x, y); if (id) { state.selected = id; renderTally(); lastCount = ""; } return; }
+    if (state.scene === 2) { const dc = hitDc(x, y), id = dc || hit(x, y); if (id) { state.selected = id; renderTally(); lastCount = ""; lastGrid = ""; if (dc) { cardFor = null; showDcCard(dc); } } return; }
     if (!GRID) return;
     const w = toW(x, y), lv = wgsToLv95(w[0] / KX, -w[1] / KY), i = nearestIdx(lv[0], lv[1]); if (i < 0) return;
     const [E, N] = cellCentre(i), [lon, lat] = lv95ToWgs(E, N);
-    state.custom = { id: "custom", name: `Your point (${lat.toFixed(3)}° N, ${lon.toFixed(3)}° E)`, E, N }; state.selected = null;
-    update(); goScene(0, false);
+    const pick = () => { mouseAt = null; hushAt = [e.clientX, e.clientY]; state.custom = { id: "custom", name: `Your point (${lat.toFixed(3)}° N, ${lon.toFixed(3)}° E)`, E, N }; state.selected = null; update(); goScene(0, false); };
+    const close = state.scene === 0 && !state.back && 0.25 * cam.s > 40;
+    if (!close) { pick(); return; }
+    // square view: one click centres the square you clicked and makes it yours (100 %),
+    // a double click on the centred square lets the animation go on
+    const lvx = invLW(toW(x, y)), ci = cellIdx(lvx[0], lvx[1]);
+    if (ci < 0 || GRID.data[ci] === 255) return; // empty ground: nothing to pick
+    const own = model && cellIdx(model.pl.E, model.pl.N) === ci;
+    if (clickTimer && performance.now() - clickTimer.at < 320) {
+      clearTimeout(clickTimer.id); clickTimer = null;
+      if (own) {
+        state.free = false; state.playing = true;
+        if (state.t < START[0]) { state.t = START[0] + 0.01; const gi = gates.findIndex(g => g.t >= START[0] - 0.001); if (gi >= 0) { capNow = gateText(gates[gi]); gateIdx = gi + 1; } }
+        holdLeft = 0; syncUI(); // the spell leaves right away
+      }
+      else centreOn(ci);
+      return;
+    }
+    if (own) { clickTimer = { at: performance.now(), id: 0 }; return; }
+    clickTimer = { at: performance.now(), id: setTimeout(() => { clickTimer = null; centreOn(ci); }, 320) };
   });
-  cv.addEventListener("pointerleave", () => { state.hover = null; tip.style.display = "none"; });
-  window.addEventListener("resize", () => { resize(); if (!state.free) cam = sceneCam(state.scene, state.t); });
+  cv.addEventListener("pointerleave", () => { state.hover = null; tip.style.display = "none"; showPathCard(null); });
+  window.addEventListener("resize", () => { resize(); lastGrid = ""; if (!state.free) cam = sceneCam(state.scene, state.t); });
 }
 const tip = document.getElementById("tip");
+// card with the Epoch AI facts of a data centre, opened by clicking it on the map
+function showDcCard(id) {
+  const m = model, p = m.paths.find(x => x.id === id), e = EPOCH[id], el = document.getElementById("dccard");
+  if (!p) { el.hidden = true; return; }
+  const col = CCOL[p.st], num = v => fmtNum(v), nd = '<span class="nod">No data provided</span>';
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let rows = "";
+  const row = (k, v) => { rows += `<dt>${k}</dt><dd>${v}</dd>`; };
+  if (e) {
+    row("Owner", esc(e.owner)); row("Used by", esc(e.users)); row("Address", esc(e.address));
+    row("Size", `${e.buildings} building${e.buildings === 1 ? "" : "s"} in operation`);
+    row("Power", `${num(e.power)} MW for the whole site, ${num(e.itpower)} MW for the computers`);
+    row("Computing capacity", `~${num(e.h100e)} H100 equivalents`);
+    row("Chips", e.chips.map(([t, n]) => `${num(n)} ${esc(t)}`).join(", "));
+    row("Water", e.water ? `~${num(e.water * 3.785)} million litres a day (${num(e.water)} MGD)` : nd);
+    row("Cost", `~$${e.capex.toFixed(1)} bn in total, of which ~$${e.build.toFixed(1)} bn for building it`);
+    if (e.energy) row("Electricity from", esc(e.energy));
+    row("Material", nd);
+  } else {
+    const f = DC[id] || {};
+    row("Owner", DC_OWNER[id] ? esc(DC_OWNER[id]) : nd);
+    row("Power", f.power && f.power[1] !== "?" ? esc(f.power[0]) : nd);
+    row("Chips", f.chips && f.chips[1] !== "?" ? esc(f.chips[0]) : nd);
+    row("Material", nd);
+  }
+  const status = e ? `<div class="note">Status ${e.statusDate}: ${esc(e.status.split(/(?<=\.)\s/)[0])}</div>` : "";
+  const src = e ? `Epoch AI, “AI data centers”, Nov 2026 (CC BY 4.0)` : (DC[id] && DC[id].src) || "Not in the Epoch AI dataset";
+  el.innerHTML = `<button class="x" aria-label="Close">×</button><h3 style="color:${col}">Data Center: ${esc(p.name)}</h3><div class="src">${esc(src)}</div><dl>${rows}</dl>${status}`;
+  el.querySelector(".x").addEventListener("click", () => { el.hidden = true; pinnedDc = null; });
+  el.hidden = false; pinnedDc = id;
+}
+// hover on a line: the same card, same place, same type, with the cable data
+let pinnedDc = null, cardFor = null;
+function showPathCard(id) {
+  const el = document.getElementById("dccard");
+  if (!id) { if (cardFor) { cardFor = null; if (pinnedDc) showDcCard(pinnedDc); else el.hidden = true; } return; }
+  if (cardFor === id) return; cardFor = id;
+  const m = model, p = m.paths.find(x => x.id === id), tot = m.swiss.km + LOCAL_KM + p.land + p.sea;
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let rows = ""; const row = (k, v) => { rows += `<dt>${k}</dt><dd>${v}</dd>`; };
+  row("How sure", `<span style="color:${CCOL[p.st]}">${esc(CERT_WORD[p.st])}</span>`);
+  row("Why", esc(p.why));
+  row("One way", `~ ${fmtNum(tot)} km`); row("With the return", `~ ${fmtNum(tot * 2)} km`);
+  row("Land cable", `~ ${fmtKg(p.land * DUCT.kg)} outside Switzerland`);
+  if (p.sea) row("Under the sea", `~ ${fmtNum(p.sea)} km, ~ ${fmtKg(p.sea * SEA.min)}–${fmtKg(p.sea * SEA.max)}`);
+  el.innerHTML = `<h3 style="color:${CCOL[p.st]}">Path to ${esc(p.name)}</h3><div class="src">Click the data centre point for its details</div><dl>${rows}</dl>`;
+  el.hidden = false;
+}
+function hitDc(x, y) { // the data centre point at the end of each path
+  let best = null, bd = 14;
+  for (const sp of screenPaths) { const q = sp.pts[sp.pts.length - 1]; if (!q) continue; const d = Math.hypot(x - q[0], y - q[1]); if (d < bd) { bd = d; best = sp.id; } }
+  return best;
+}
 function hit(x, y) {
   let best = null, bd = 10;
   for (const sp of screenPaths) for (let i = 1; i < sp.pts.length; i++) {
@@ -903,25 +1670,27 @@ function hit(x, y) {
   return best;
 }
 function hover(e) {
-  if (state.scene !== 2) { tip.style.display = "none"; cv.style.cursor = ""; return; }
-  const r = cv.getBoundingClientRect(), id = hit(e.clientX - r.left, e.clientY - r.top);
+  tip.style.display = "none";
+  if (state.scene !== 2) { cv.style.cursor = ""; showPathCard(null); return; }
+  const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, dc = hitDc(x, y), id = dc || hit(x, y);
   state.hover = id; cv.style.cursor = id ? "pointer" : "";
-  if (!id) { tip.style.display = "none"; return; }
-  const p = model.paths.find(x => x.id === id), tot = model.swiss.km + LOCAL_KM + p.land + p.sea;
-  tip.innerHTML = `<div style="color:${COL[p.st]}">${p.name}</div><div class="note">${p.why}</div>
-    <div>Power: ${val(DC[p.id].power)}<br>${fmtNum(tot)} km one way <span class="code">EST</span><br>${fmtNum(tot * 2)} km with the return<br>
-    ${fmtKg(p.land * DUCT.kg)} of land cable outside Switzerland <span class="code">EST</span>${p.sea ? `<br>${fmtNum(p.sea)} km under the sea: ${fmtKg(p.sea * SEA.min)}–${fmtKg(p.sea * SEA.max)} <span class="code">EST</span>` : ""}</div>`;
-  tip.style.display = "block"; tip.style.left = Math.min(e.clientX + 14, innerWidth - 320) + "px"; tip.style.top = (e.clientY + 14) + "px";
+  if (dc && pinnedDc === dc) { showPathCard(null); return; }
+  showPathCard(id);
 }
 
 (async function main() {
-  FONT = getComputedStyle(document.body).fontFamily;
+  try { await document.fonts.load("500 14px MonkeyMono"); } catch (e) {}
+  FONT = getComputedStyle(document.body).fontFamily; // display font: MonkeyMono, else DM Mono
   initUI(); resize();
   update();
   try {
     const [g, l] = await Promise.all([loadGrid(), fetch("land.json").then(r => r.json())]);
     GRID = g; LAND = l; renderGridImage();
   } catch (err) { document.getElementById("caption").textContent = "Could not load the map data: " + err.message; }
+  introOn = !reduce;
+  document.getElementById("introNext").addEventListener("click", () => navCaption(1));
+  document.getElementById("introPrev").addEventListener("click", () => navCaption(-1));
+  document.getElementById("caption").addEventListener("click", e => { const b = e.target.closest(".capnav button"); if (b) navCaption(+b.dataset.dir); });
   update(0);
   requestAnimationFrame(frame);
 })();
