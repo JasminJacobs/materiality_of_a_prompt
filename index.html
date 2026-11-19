@@ -132,16 +132,16 @@ body.intro .mapnav, body.intro .zoom { opacity: 0; pointer-events: none; }
 .more { align-self: flex-end; background: transparent; border: calc(0.747 * var(--u)) solid var(--grey); color: var(--grey); padding: calc(1.494 * var(--u)) calc(5.975 * var(--u)); cursor: pointer; font-family: var(--display); font-size: calc(8.562 * var(--u)); margin-top: calc(6 * var(--u)); }
 .more[aria-expanded="true"] { border-color: var(--certain); color: var(--certain); }
 .cert { color: var(--certain); } .unc { color: var(--unknown); } .nod { color: var(--nodata); }
-.dccard { right: calc(14 * var(--u)); bottom: calc(14 * var(--u)); width: calc(380 * var(--u)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: rgba(38,38,38,0.94); border: calc(0.75 * var(--u)) solid #6f6f6f; padding: calc(12 * var(--u)) calc(14 * var(--u)); font-size: calc(12 * var(--u)); line-height: calc(15 * var(--u)); color: var(--text); }
+/* Design5 "Data Window": bottom right of the map, label column 128, rows 4 apart, labels sit on the last line of their value */
+.dccard { right: calc(3 * var(--ux)); bottom: calc(5 * var(--uy)); width: calc(562 * var(--ux)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: #262626; border: 0; padding: calc(8 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; color: #fff; }
 .dccard[hidden] { display: none; }
-.dccard h3 { margin: 0 calc(22 * var(--u)) calc(2 * var(--u)) 0; font: inherit; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); }
-.dccard .src { color: var(--grey2); margin-bottom: calc(8 * var(--u)); }
-.dccard dl { display: grid; grid-template-columns: calc(110 * var(--u)) 1fr; gap: calc(3 * var(--u)) calc(10 * var(--u)); margin: 0; }
-.dccard dt { color: var(--muted); } .dccard dd { margin: 0; }
+.dccard dl { display: grid; grid-template-columns: calc(128 * var(--u)) 1fr; row-gap: calc(4 * var(--u)); margin: 0; align-items: end; }
+.dccard dt { color: #6e6e6e; padding-right: calc(10 * var(--u)); } .dccard dd { margin: 0; color: #fff; }
+.dccard dd.tt { font-size: calc(16.65 * var(--u)); line-height: calc(17 * var(--u)); padding-right: calc(40 * var(--u)); }
+.dccard dd.gry { color: #6e6e6e; }
 .dccard .nod { color: var(--nodata); } .dccard .unc { color: var(--unknown); }
-.dccard .note { margin-top: calc(8 * var(--u)); color: var(--muted); font-size: calc(12 * var(--u)); line-height: calc(15 * var(--u)); letter-spacing: 0; }
 .dccard a { color: inherit; }
-.dccard .x { position: absolute; top: calc(6 * var(--u)); right: calc(8 * var(--u)); background: none; border: 0; color: var(--text); font: inherit; font-size: calc(18 * var(--u)); cursor: pointer; }
+.dccard .x { position: absolute; top: calc(1 * var(--u)); right: calc(2 * var(--u)); width: calc(37.4 * var(--u)); height: calc(27 * var(--u)); background: #262626; border: 0; color: #fff; font-family: var(--display); font-weight: 500; font-size: calc(24 * var(--u)); line-height: 1; cursor: pointer; padding: 0; }
 .details { top: calc(52 * var(--uy)); right: calc(16 * var(--ux)); bottom: calc(40 * var(--uy)); width: min(380px, 40%); z-index: 3; overflow-y: auto; background: rgba(37,37,37,0.96); border: 1px solid var(--line); padding: 14px; display: none; flex-direction: column; gap: 18px; font-family: var(--font); font-size: 12px; line-height: 1.45; }
 .details.open { display: flex; }
 .details h2 { margin: 0 0 8px; font-weight: 400; font-size: 13px; letter-spacing: 0.06em; }
@@ -1659,7 +1659,8 @@ function showDcCard(id) {
   const col = CCOL[p.st], num = v => fmtNum(v), nd = '<span class="nod">No data provided</span>';
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   let rows = "";
-  const row = (k, v) => { rows += `<dt>${k}</dt><dd>${v}</dd>`; };
+  const row = (k, v, cls) => { rows += `<dt>${k}:</dt><dd${cls ? ` class="${cls}"` : ""}>${v}</dd>`; };
+  row("Data Center", `<span style="color:${col}">${esc(p.name)}</span>`, "tt");
   if (e) {
     row("Owner", esc(e.owner)); row("Used by", esc(e.users)); row("Address", esc(e.address));
     row("Size", `${e.buildings} building${e.buildings === 1 ? "" : "s"} in operation`);
@@ -1677,9 +1678,9 @@ function showDcCard(id) {
     row("Chips", f.chips && f.chips[1] !== "?" ? esc(f.chips[0]) : nd);
     row("Material", nd);
   }
-  const status = e ? `<div class="note">Status ${e.statusDate}: ${esc(e.status.split(/(?<=\.)\s/)[0])}</div>` : "";
-  const src = e ? `Epoch AI, “AI data centers”, Nov 2026 (CC BY 4.0)` : (DC[id] && DC[id].src) || "Not in the Epoch AI dataset";
-  el.innerHTML = `<button class="x" aria-label="Close">×</button><h3 style="color:${col}">Data Center: ${esc(p.name)}</h3><div class="src">${esc(src)}</div><dl>${rows}</dl>${status}`;
+  if (e) row("Status " + e.statusDate, esc(e.status.split(/(?<=\.)\s/)[0]), "gry");
+  row("Source", esc(e ? `Epoch AI, “AI data centers”, Nov 2026 (CC BY 4.0)` : (DC[id] && DC[id].src) || "Not in the Epoch AI dataset"), "gry");
+  el.innerHTML = `<button class="x" aria-label="Close">x</button><dl>${rows}</dl>`;
   el.querySelector(".x").addEventListener("click", () => { el.hidden = true; pinnedDc = null; });
   el.hidden = false; pinnedDc = id;
 }
@@ -1691,13 +1692,15 @@ function showPathCard(id) {
   if (cardFor === id) return; cardFor = id;
   const m = model, p = m.paths.find(x => x.id === id), tot = m.swiss.km + LOCAL_KM + p.land + p.sea;
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  let rows = ""; const row = (k, v) => { rows += `<dt>${k}</dt><dd>${v}</dd>`; };
+  let rows = ""; const row = (k, v, cls) => { rows += `<dt>${k}:</dt><dd${cls ? ` class="${cls}"` : ""}>${v}</dd>`; };
+  row("Path to", `<span style="color:${CCOL[p.st]}">${esc(p.name)}</span>`, "tt");
   row("How sure", `<span style="color:${CCOL[p.st]}">${esc(CERT_WORD[p.st])}</span>`);
   row("Why", esc(p.why));
   row("One way", `~ ${fmtNum(tot)} km`); row("With the return", `~ ${fmtNum(tot * 2)} km`);
   row("Land cable", `~ ${fmtKg(p.land * DUCT.kg)} outside Switzerland`);
   if (p.sea) row("Under the sea", `~ ${fmtNum(p.sea)} km, ~ ${fmtKg(p.sea * SEA.min)}–${fmtKg(p.sea * SEA.max)}`);
-  el.innerHTML = `<h3 style="color:${CCOL[p.st]}">Path to ${esc(p.name)}</h3><div class="src">Click the data centre point for its details</div><dl>${rows}</dl>`;
+  row("More", "Click the data centre point for its details", "gry");
+  el.innerHTML = `<dl>${rows}</dl>`;
   el.hidden = false;
 }
 function hitDc(x, y) { // the data centre point at the end of each path, or its name
