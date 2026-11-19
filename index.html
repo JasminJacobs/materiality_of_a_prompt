@@ -104,7 +104,7 @@ body.intro .mapnav, body.intro .zoom { opacity: 0; pointer-events: none; }
 .scale { right: calc(16 * var(--ux)); bottom: calc(14 * var(--uy)); z-index: 2; color: var(--grey); font-family: var(--font); font-size: calc(10 * var(--u)); text-align: right; pointer-events: none; }
 .scale i { display: block; height: 0; border-top: 1px solid var(--grey); margin: 3px 0 0 auto; }
 #tip { position: fixed; z-index: 10; pointer-events: none; background: rgba(30,30,30,0.96); border: 1px solid var(--grey); padding: 8px 10px; max-width: 300px; display: none; font-family: var(--font); font-size: 11px; line-height: 1.45; }
-#counter { left: calc(1210 * var(--ux)); top: calc(183 * var(--uy)); width: calc(275 * var(--ux)); height: calc(502 * var(--uy)); overflow: hidden; display: flex; flex-wrap: wrap; align-content: flex-start; gap: calc(4 * var(--u)); }
+#counter { left: calc(1210 * var(--ux)); top: calc(208 * var(--uy)); width: calc(275 * var(--ux)); height: calc(502 * var(--uy)); overflow: hidden; display: flex; flex-wrap: wrap; align-content: flex-start; gap: calc(4 * var(--u)); }
 .cg { display: flex; flex-wrap: wrap; gap: calc(1.484 * var(--u)); align-items: center; }
 .cg i { --a: var(--unknown); --o: 80%; width: var(--sq, 22px); height: var(--sq, 22px); display: block; }
 .cg i.c { --a: var(--certain); } .cg i.u { --a: var(--unknown); } .cg i.n { --a: var(--nodata); }
@@ -213,7 +213,7 @@ footer .keys { display: flex; gap: calc(16 * var(--u)); }
     <div class="step">
       <span class="step-label">1  Where are you?</span>
       <label class="place"><svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3.75 15.75V3H10.5L10.8 4.5H15V12H9.75L9.45 10.5H5.25V15.75H3.75Z" fill="white"/></svg>
-        <select id="place" aria-label="Choose a place in Switzerland, or click on the map"></select></label>
+        <select id="place" aria-label="Choose ÉCAL, Renens or Lausanne centre"></select></label>
     </div>
     <div class="step">
       <span class="step-label">3  How are you connected?</span>
@@ -275,7 +275,7 @@ Enclosure</span></span></button>
       </div>
     </div>
     </div>
-    <span class="hint">Hover or click a path to see its kilometres and materials. The thicker one is our default guess. The colour of each data centre says how sure we are that the service uses it. Pause any scene to drag and zoom the map; click on Switzerland to pick your own point.</span>
+    <span class="hint">Hover or click a path to see its kilometres and materials. The thicker one is our default guess. The colour of each data centre says how sure we are that the service uses it. Pause any scene to drag and zoom the map.</span>
 </footer>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -314,16 +314,7 @@ const invLW = w => { const x = w[0] - A0[0], y = w[1] - A0[1]; return [2.6e6 + (
 // ================= data =================
 const PLACES = [
   { id: "ecal", name: "ÉCAL, Renens", E: 2534350, N: 1154400 },
-  { id: "lausanne", name: "Lausanne centre", E: 2538200, N: 1152500 },
-  { id: "geneve", name: "Genève centre", E: 2500300, N: 1117700 },
-  { id: "bern", name: "Bern centre", E: 2600600, N: 1199700 },
-  { id: "zurich", name: "Zürich centre", E: 2683200, N: 1247900 },
-  { id: "basel", name: "Basel centre", E: 2611300, N: 1267400 },
-  { id: "fribourg", name: "Fribourg centre", E: 2578800, N: 1183800 },
-  { id: "sion", name: "Sion centre", E: 2593900, N: 1120100 },
-  { id: "lugano", name: "Lugano centre", E: 2717800, N: 1095900 },
-  { id: "chur", name: "Chur centre", E: 2759300, N: 1190800 },
-  { id: "stgallen", name: "St. Gallen centre", E: 2746000, N: 1254300 }
+  { id: "lausanne", name: "Lausanne centre", E: 2538200, N: 1152500 }
 ];
 
 // [lon, lat]; ch = inside Switzerland (drawn through the LV95 grid fit)
@@ -903,10 +894,14 @@ function label(text, x, y, color, align, size, nearOnly) {
   const fs = Math.max(9, (size ? size * 14 / 11 : 14) * UF());
   ctx.save(); ctx.font = "500 " + fs + "px " + FONT;
   const w = ctx.measureText(text).width, h = fs * 1.05, pad = 3;
-  const tries = [[0, 0, align], [0, h * 1.1, align], [0, -h * 1.1, align], [0, h * 2.2, align], [0, -h * 2.2, align], [0, h * 3.3, align], [0, -h * 3.3, align]];
-  if (align !== "center") tries.push([0, 0, align === "right" ? "left" : "right"], [0, h * 1.1, align === "right" ? "left" : "right"]);
-  // sideways: beside the anchor, on either side
-  for (const dy of [0, h * 1.1, -h * 1.1, h * 2.2]) tries.push([7, dy, "left"], [-7, dy, "right"]);
+  // candidate spots around the anchor, tried nearest first
+  const tries = [];
+  for (const dy of [0, 0.6, -0.6, 1.1, -1.1, 1.7, -1.7, 2.2, -2.2, 3.3, -3.3]) {
+    tries.push([0, dy * h, align]);
+    if (align !== "center") tries.push([0, dy * h, align === "right" ? "left" : "right"]);
+    tries.push([7, dy * h, "left"], [-7, dy * h, "right"]);
+  }
+  tries.sort((p, q) => (Math.abs(p[0]) + Math.abs(p[1]) + (p[2] !== align) * 4) - (Math.abs(q[0]) + Math.abs(q[1]) + (q[2] !== align) * 4));
   for (const [dx, dy, al] of tries) {
     const a = al || "left", X = x + dx, Y = y + dy;
     const x0 = a === "left" ? X : a === "right" ? X - w : X - w / 2;
@@ -919,7 +914,7 @@ function label(text, x, y, color, align, size, nearOnly) {
   // wider search: further away in 8 directions, joined to its point by a thin leader line
   if (nearOnly) { ctx.restore(); return false; }
   const U = UF();
-  for (const r of [40, 70, 110, 160, 230].map(v => v * U)) for (let k = 0; k < 8; k++) {
+  for (const r of [18, 28, 40, 56, 80, 115, 160].map(v => v * U)) for (let k = 0; k < 8; k++) {
     const ang = k * Math.PI / 4, ex = x + Math.cos(ang) * r, ey = y + Math.sin(ang) * r;
     const a = Math.cos(ang) < -0.3 ? "right" : Math.cos(ang) > 0.3 ? "left" : "center";
     const x0 = a === "left" ? ex : a === "right" ? ex - w : ex - w / 2;
@@ -948,7 +943,7 @@ function renderGridImage() {
 }
 function drawLand() {
   if (!LAND) return;
-  ctx.save(); { const k = clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), v = Math.round(58 - (58 - 38) * (state.scene < 2 ? 1 : k)); ctx.fillStyle = `rgb(${v},${v},${v})`; } ctx.strokeStyle = "#4e4e4e"; // stages 1 and 2: land in Figma's Dark ctx.lineWidth = 0.6; // land brighter than the Dark sea
+  ctx.save(); ctx.fillStyle = "#262626"; // the map is always Dark; land shows by its outline ctx.strokeStyle = "#4e4e4e"; // stages 1 and 2: land in Figma's Dark ctx.lineWidth = 0.6; // land brighter than the Dark sea
   for (const ring of LAND.land) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8;
   for (const ring of LAND.ch) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.stroke(); }
@@ -1090,6 +1085,9 @@ function drawScene2(f, dash) {
   const gh = ghostFor(1);
   if (gh) { drawPlain(pts, s.keys, gh.sc, gh.tau, st, 8); if (gh.sc.backOnly || traced(pts, s.keys, gh.sc, gh.tau).length > 1) pathIcons(gh.sc.backOnly ? pts : traced(pts, s.keys, gh.sc, gh.tau), CCOL[st], sharedIcon); }
   else drawPlain(pts, s.keys, s.sched, 1e9, st, 8), pathIcons(pts, CCOL[st], sharedIcon);
+  // the thick stage-2 line keeps labels off it (centre line and both edges)
+  for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i], L = Math.hypot(bx - ax, by - ay) || 1, nx = -(by - ay) / L * 6, ny = (bx - ax) / L * 6;
+    LSEG.push([ax, ay, bx, by], [ax + nx, ay + ny, bx + nx, by + ny], [ax - nx, ay - ny, bx - nx, by - ny]); }
   const near = cam.s > 2.5;
   s.hops.forEach(hp => {
     if (!near || s.cum[hp.at] / s.cum[s.cum.length - 1] > f) return;
@@ -1188,7 +1186,7 @@ const CAPTXT = {
   s13: m => `Your spell leaves your [[device as invisible Wi-Fi radio waves to your router]], then enters the ground here, in your square: ⟦u:most likely as ${TYPE_NAME[m.lastMile.type].toLowerCase()}⟧, the most common thread around you.`,
   s13m: () => "Your spell leaves your phone as [[invisible waves to the nearest antenna]]. ⟦u:Where it stands we can only guess⟧; there it enters the ground and travels on as light in a fibre.",
   s14: () => `About ${LOCAL_KM} km to the local exchange. It is the operator's building where all the lines of your neighbourhood meet and travel further on the same cable. ⟦n:Its location is kept unpublished⟧.`,
-  s15: () => "Pause to drag and zoom the map. Click anywhere in Switzerland to send your spell from another square.",
+  s15: () => "Pause to drag and zoom the map, or double-click your square to let the spell go on.",
   s21: () => "From the exchange your spell joins the shared backbone: fibres many networks share, hidden along roads and railways, carrying a society's whispers.",
   s22: () => "We sent a traceroute: a signal that every router on the way must answer. Each answer is a hop, a stop where your spell jumps to the next cable. These hops called back like echoes in a cave. ⟦n:The trenches themselves are not published⟧.",
   s22e: () => "We never sent a traceroute from here, ⟦u:so the line is our estimate⟧: a path we can only imagine.",
@@ -1415,7 +1413,7 @@ function renderTally() {
 }
 let lastCount = "";
 const UNIT = 25; // km per square, the same in all three scenes; squares add up from scene 1 to 3
-const SQ_SIZES = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4]; // Design5: 13 px squares
+const SQ_SIZES = [40, 36, 32, 28, 26, 24, 22, 20, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4]; // as big as the column allows
 let lastGrid = "";
 function updateCounts() {
   const m = model, p = selPath();
@@ -1633,7 +1631,7 @@ function initUI() {
     const [E, N] = cellCentre(i), [lon, lat] = lv95ToWgs(E, N);
     const pick = () => { mouseAt = null; hushAt = [e.clientX, e.clientY]; state.custom = { id: "custom", name: `Your point (${lat.toFixed(3)}° N, ${lon.toFixed(3)}° E)`, E, N }; state.selected = null; update(); goScene(0, false); };
     const close = state.scene === 0 && !state.back && 0.25 * cam.s > 40;
-    if (!close) { pick(); return; }
+    if (!close) return; // only ÉCAL and Lausanne centre: no free points
     // square view: one click centres the square you clicked and makes it yours (100 %),
     // a double click on the centred square lets the animation go on
     const lvx = invLW(toW(x, y)), ci = cellIdx(lvx[0], lvx[1]);
@@ -1646,11 +1644,9 @@ function initUI() {
         if (state.t < START[0]) { state.t = START[0] + 0.01; const gi = gates.findIndex(g => g.t >= START[0] - 0.001); if (gi >= 0) { capNow = gateText(gates[gi]); gateIdx = gi + 1; } }
         holdLeft = 0; syncUI(); // the spell leaves right away
       }
-      else centreOn(ci);
       return;
     }
-    if (own) { clickTimer = { at: performance.now(), id: 0 }; return; }
-    clickTimer = { at: performance.now(), id: setTimeout(() => { clickTimer = null; centreOn(ci); }, 320) };
+    if (own) clickTimer = { at: performance.now(), id: 0 };
   });
   cv.addEventListener("pointerleave", () => { state.hover = null; tip.style.display = "none"; showPathCard(null); });
   window.addEventListener("resize", () => { resize(); lastGrid = ""; if (!state.free) cam = sceneCam(state.scene, state.t); });
