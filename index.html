@@ -42,13 +42,16 @@ body.choose .choices { width: calc(654 * var(--ux)); flex-wrap: wrap; row-gap: c
 .place select option { background: var(--bg); }
 .chips { display: flex; flex-wrap: wrap; gap: calc(4.481 * var(--u)) calc(11.95 * var(--u)); }
 .cap-u { color: var(--unknown); } .cap-n { color: var(--nodata); }
-#caption { transition: top 1.2s cubic-bezier(.65,0,.35,1), width 1.2s cubic-bezier(.65,0,.35,1), font-size 1.2s cubic-bezier(.65,0,.35,1), line-height 1.2s cubic-bezier(.65,0,.35,1); }
+#caption { transition: top 1.2s cubic-bezier(.65,0,.35,1), width 1.2s cubic-bezier(.65,0,.35,1), font-size 1.2s cubic-bezier(.65,0,.35,1), line-height 1.2s cubic-bezier(.65,0,.35,1), opacity .26s cubic-bezier(.68,-.6,.32,1.6), filter .26s cubic-bezier(.68,-.6,.32,1.6), text-shadow .26s cubic-bezier(.68,-.6,.32,1.6); }
+/* a caption leaves in a quick bright glow, blurring away; the next one arrives the same way in reverse (easeInOutBack) */
+#caption.cap-out { opacity: 0; filter: blur(5px) brightness(2.4); text-shadow: 0 0 10px #fff, 0 0 22px var(--unknown); }
 body.intro #caption { width: calc(654 * var(--ux)); font-size: calc(34.544 * var(--u)); line-height: calc(34.1 * var(--u)); }
 .stage { transition: clip-path 1.4s cubic-bezier(.65,0,.35,1); clip-path: inset(0 0 0 0); }
 body.intro .stage { clip-path: inset(0 0 0 56.9%); } /* Design4: map visible from x 690 */
 .intro-nav { display: none; left: 0; top: 0; z-index: 5; }
 body.intro .intro-nav { display: block; }
-.intro-nav button { padding: 0; position: absolute; transition: top 1s cubic-bezier(.65,0,.35,1); top: calc(593 * var(--uy)); width: calc(122 * var(--ux)); height: calc(32 * var(--u)); background: #262626; border: calc(1.247 * var(--u)) solid #262626; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
+.intro-nav button { opacity: 0; padding: 0; position: absolute; transition: top 1s cubic-bezier(.65,0,.35,1), opacity .5s; top: calc(593 * var(--uy)); width: calc(122 * var(--ux)); height: calc(32 * var(--u)); background: #262626; border: calc(1.247 * var(--u)) solid #262626; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
+.intro-nav button.placed { opacity: 1; }
 .intro-nav button svg { width: calc(20 * var(--u)); height: calc(20 * var(--u)); }
 #introPrev { left: calc(27 * var(--ux)); justify-content: flex-start; } #introNext { left: calc(544 * var(--ux)); justify-content: flex-end; } /* Design4: triangles flush with the text edges */
 .intro-nav button:disabled { opacity: .3; cursor: default; }
@@ -72,12 +75,25 @@ body.choose .chip:not([aria-pressed="true"]) { color: #9a9a9a; border-color: #6f
 .scene .lab { padding: calc(2 * var(--u)) calc(6.433 * var(--u)) 0; white-space: pre; }
 /* progress = the white fill of the block, growing left to right */
 .scene .prog { position: absolute; inset: 0; display: flex; gap: inherit; padding: inherit; background: #ffffff; color: #262626; pointer-events: none; clip-path: inset(0 100% 0 0); }
-.tools { left: calc(809 * var(--ux)); top: calc(215 * var(--uy)); width: calc(381 * var(--ux)); z-index: 4; display: flex; gap: calc(7.479 * var(--u)); }
-.tool { flex: 1 0 0; min-width: calc(37.4 * var(--u)); height: calc(32 * var(--u)); display: flex; align-items: center; justify-content: center; background: var(--bg); border: calc(1.247 * var(--u)) solid var(--bg); border-radius: 0; color: var(--certain); font-family: var(--font); font-size: calc(32 * var(--u)); line-height: 1; font-weight: 300; cursor: pointer; padding: 0 calc(12.95 * var(--u)); }
-.tool:hover { border-color: var(--grey); }
-.trace-toggle { left: calc(809 * var(--ux)); top: calc(255 * var(--uy)); z-index: 4; background: transparent; border: calc(0.747 * var(--u)) solid #6f6f6f; color: #9a9a9a; font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); padding: calc(1.494 * var(--u)) calc(5.975 * var(--u)); cursor: pointer; border-radius: 0; }
-.trace-toggle:hover { color: var(--text); border-color: var(--muted); }
-.trace-toggle[aria-pressed="true"] { color: var(--unknown); border-color: var(--unknown); }
+/* Design5: navigation inside the map */
+.nb { position: absolute; height: calc(27 * var(--u)); background: #262626; border: 0; border-radius: 0; color: #fff; font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; z-index: 4; }
+.nb { box-shadow: inset 0 0 0 calc(1 * var(--u)) #3d3d3d; } .nb:hover { background: #3a3a3a; } .nb svg { width: calc(20.2 * var(--u)); height: calc(20.2 * var(--u)); }
+.mapnav, .zoom { left: 0; top: 0; z-index: 4; }
+#stagePrev { left: calc(26 * var(--ux)); top: calc(190 * var(--uy)); width: calc(61 * var(--ux)); }
+#stageNext { left: calc(92 * var(--ux)); top: calc(190 * var(--uy)); width: calc(61 * var(--ux)); }
+#play { left: calc(26 * var(--ux)); top: calc(222 * var(--uy)); width: calc(127 * var(--ux)); }
+#zoomOut, #zoomIn { top: calc(840 * var(--uy)); width: calc(61 * var(--ux)); font-size: calc(32 * var(--u)); font-weight: 400; }
+#zoomOut { left: calc(26 * var(--ux)); } #zoomIn { left: calc(92 * var(--ux)); }
+.reveal { left: calc(805 * var(--ux)); top: calc(194 * var(--uy)); width: calc(383 * var(--ux)); transition: opacity .4s; }
+.reveal[aria-pressed="true"] { color: var(--unknown); }
+body:not(.st3) .reveal { opacity: 0; pointer-events: none; }
+body.intro .mapnav, body.intro .zoom { opacity: 0; pointer-events: none; }
+.acclegend { left: calc(1210 * var(--ux)); top: calc(135 * var(--uy)); width: calc(190 * var(--ux)); display: flex; flex-wrap: wrap; column-gap: calc(16 * var(--u)); color: #6e6e6e; font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); z-index: 3; }
+.acclegend span { display: inline-flex; align-items: center; gap: calc(6 * var(--u)); white-space: nowrap; } .acclegend .br { flex-basis: 100%; }
+.acclegend i { width: calc(8 * var(--u)); height: calc(9 * var(--u)); background: #cbcbcb; margin-right: calc(2 * var(--u)); }
+.acclegend svg { height: calc(13 * var(--u)); width: auto; }
+.kmkey { right: calc(27 * var(--ux)); top: calc(135 * var(--uy)); color: #6e6e6e; font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); display: flex; align-items: center; gap: calc(10 * var(--u)); z-index: 3; }
+.kmkey i { width: calc(11 * var(--u)); height: calc(11 * var(--u)); background: var(--unknown); }
 .tool svg { width: calc(20.165 * var(--u)); height: calc(20.165 * var(--u)); display: block; }
 #play { padding: 0 calc(11.2 * var(--u)); }
 .sqlegend { left: 0; top: 0; z-index: 2; display: grid; grid-template-columns: calc(34 * var(--u)) auto; gap: calc(6 * var(--u)) calc(6 * var(--u)); align-items: center; pointer-events: none; font-family: var(--display); font-weight: 500; transition: opacity 0.3s; }
@@ -88,14 +104,17 @@ body.choose .chip:not([aria-pressed="true"]) { color: #9a9a9a; border-color: #6f
 .scale { right: calc(16 * var(--ux)); bottom: calc(14 * var(--uy)); z-index: 2; color: var(--grey); font-family: var(--font); font-size: calc(10 * var(--u)); text-align: right; pointer-events: none; }
 .scale i { display: block; height: 0; border-top: 1px solid var(--grey); margin: 3px 0 0 auto; }
 #tip { position: fixed; z-index: 10; pointer-events: none; background: rgba(30,30,30,0.96); border: 1px solid var(--grey); padding: 8px 10px; max-width: 300px; display: none; font-family: var(--font); font-size: 11px; line-height: 1.45; }
-#counter { left: calc(1210 * var(--ux)); top: calc(190 * var(--uy)); width: calc(275 * var(--ux)); height: calc(502 * var(--uy)); overflow: hidden; display: flex; flex-wrap: wrap; align-content: flex-start; gap: calc(14.842 * var(--u)); }
+#counter { left: calc(1210 * var(--ux)); top: calc(183 * var(--uy)); width: calc(275 * var(--ux)); height: calc(502 * var(--uy)); overflow: hidden; display: flex; flex-wrap: wrap; align-content: flex-start; gap: calc(4 * var(--u)); }
 .cg { display: flex; flex-wrap: wrap; gap: calc(1.484 * var(--u)); align-items: center; }
-.cg i { --a: var(--unknown); width: var(--sq, 22px); height: var(--sq, 22px); display: block;
-  --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='%23252525' stroke-width='1.6'%3E%3Ccircle cx='7.4' cy='10' r='4.6'/%3E%3Ccircle cx='12.6' cy='10' r='4.6'/%3E%3C/g%3E%3C/svg%3E"); }
+.cg i { --a: var(--unknown); --o: 80%; width: var(--sq, 22px); height: var(--sq, 22px); display: block; }
 .cg i.c { --a: var(--certain); } .cg i.u { --a: var(--unknown); } .cg i.n { --a: var(--nodata); }
-.cg i.pub { background: var(--a); }
-.cg i.sh { background: var(--a) var(--ico) center / 78% no-repeat; }
-.cg i.pr { background: var(--a) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect x='5' y='9' width='10' height='7' fill='%23252525'/%3E%3Cpath d='M7 9.2V7.4a3 3 0 0 1 6 0v1.8' fill='none' stroke='%23252525' stroke-width='1.7'/%3E%3C/svg%3E") center / 82% no-repeat; }
+/* the same blue in three strengths: public 40 %, shared 60 %, private 80 % */
+.cg i.pub { --o: 40%; background: color-mix(in srgb, var(--a) var(--o), #262626); }
+.cg i.sh { --o: 60%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2.5 -3 19.6 21'%3E%3Cpath d='M2.00879 7.55298V7.66626C2.00879 9.1528 2.52965 10.4119 3.57227 11.4436C4.61502 12.4753 5.87968 12.9913 7.36621 12.9915C7.83214 12.9915 8.28773 12.9309 8.73145 12.8088C9.14818 12.6942 9.55391 12.5233 9.95117 12.301L8.95996 11.3098C8.71726 11.4249 8.47062 11.514 8.21875 11.5745C7.94033 11.6413 7.65575 11.675 7.36621 11.675C6.24221 11.6749 5.28768 11.2851 4.50293 10.5061C3.71801 9.72675 3.3252 8.77957 3.3252 7.66626V7.52954L4.39941 8.60376L5.32129 7.68286L3.59961 5.96118L2.66602 5.02759L0.0117188 7.68286L0.933594 8.60474L2.00879 7.52954ZM11.9697 5.01294C12.4273 5.79799 12.6582 6.68153 12.6582 7.66626V7.80298L13.7334 6.72778L14.6543 7.64966L12 10.3049L9.34473 7.64966L10.2656 6.72778L11.3418 7.80298V7.66626C11.3418 7.05871 11.2231 6.50156 10.9893 5.99341L11.9697 5.01294ZM10.1582 3.14087L11.8789 4.86157L11.9658 5.00415L10.9854 5.98462C10.791 5.56509 10.5181 5.17892 10.1641 4.82739C9.37915 4.04807 8.42416 3.65845 7.2998 3.65845C7.01043 3.65846 6.72651 3.69129 6.44824 3.75806C6.1717 3.82443 5.90024 3.92365 5.63477 4.05591L4.64648 3.06763C5.06515 2.82623 5.49513 2.64577 5.93555 2.52466C6.34876 2.41103 6.77163 2.35278 7.2041 2.34497C8.30 2.33 9.3 2.6 10.1582 3.14087Z' fill='%23252525'/%3E%3C/svg%3E") center / 86% no-repeat, color-mix(in srgb, var(--a) var(--o), #262626); }
+.cg i.pr { --o: 80%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-6 -4 19.6 21'%3E%3Cpath d='M3.80957 3.00586C4.4667 3.00587 5.02708 3.23706 5.49023 3.7002C5.95338 4.16334 6.18455 4.72374 6.18457 5.38086V6.33301H6.19043V6.33887H6.66699C6.92711 6.33894 7.14966 6.43194 7.33496 6.61719C7.52036 6.80259 7.61328 7.02582 7.61328 7.28613V12.0479C7.61323 12.308 7.52028 12.5305 7.33496 12.7158C7.14964 12.9011 6.92717 12.9941 6.66699 12.9941H0.952148C0.691935 12.9941 0.469525 12.9012 0.28418 12.7158C0.0988346 12.5305 0.00591455 12.3081 0.00585938 12.0479V7.28613C0.00585938 7.02582 0.0987791 6.80259 0.28418 6.61719C0.469493 6.43195 0.692011 6.33892 0.952148 6.33887H1.42871V6.33301H1.43457V5.38086C1.43459 4.72374 1.66576 4.16334 2.12891 3.7002C2.59206 3.23708 3.15245 3.00586 3.80957 3.00586ZM3.80957 8.70801C3.54607 8.70801 3.32043 8.80262 3.13281 8.99023C2.94529 9.17782 2.85156 9.40356 2.85156 9.66699C2.85164 9.93035 2.94527 10.1562 3.13281 10.3438C3.32039 10.5312 3.54616 10.625 3.80957 10.625C4.07298 10.625 4.29875 10.5313 4.48633 10.3438C4.67387 10.1562 4.7675 9.93035 4.76758 9.66699C4.76758 9.40358 4.67382 9.17781 4.48633 8.99023C4.29872 8.80263 4.07305 8.70802 3.80957 8.70801ZM3.80957 3.94629C3.41118 3.94629 3.07188 4.08633 2.79297 4.36523C2.51436 4.64404 2.37502 4.98271 2.375 5.38086V6.33301H2.38086V6.33887H5.23828V6.33301H5.24414V5.38086C5.24412 4.98251 5.10408 4.64412 4.8252 4.36523C4.5463 4.08635 4.20793 3.9463 3.80957 3.94629Z' fill='%23252525'/%3E%3C/svg%3E") center / 86% no-repeat, color-mix(in srgb, var(--a) var(--o), #262626); }
+.cgw { width: 100%; position: relative; }
+.cgw > .gl { display: block; text-align: right; color: #6e6e6e; font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); margin-bottom: calc(3 * var(--u)); white-space: nowrap; }
+.cgw.inline > .gl { margin-bottom: calc(-17 * var(--u)); } /* a short row shares its line with the label */
 .cg svg { display: block; margin-right: calc(var(--sq, 22px) * -0.19); height: calc(var(--sq, 22px) * 1.05); width: auto; }
 #tally { left: calc(1210 * var(--ux)); bottom: calc(112 * var(--uy)); /* ends with the map at 870 */ width: calc(275 * var(--ux)); display: flex; flex-direction: column; gap: calc(10 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: -0.005em; }
 #tally h2 { margin: 0 0 calc(6 * var(--u)); width: calc(190 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); color: var(--unknown); }
@@ -228,12 +247,19 @@ Enclosure</span><span class="prog" aria-hidden="true"><span class="num">3</span>
 Enclosure</span></span></button>
   </div>
   <div class="intro-nav" aria-label="Intro"><button id="introPrev" aria-label="Previous text"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15 2.6L2.4 10 15 17.4Z" fill="white"/></svg></button><button id="introNext" aria-label="Next text"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.6L17.6 10 5 17.4Z" fill="white"/></svg></button></div>
-  <div class="tools">
-    <button class="tool" id="play" aria-label="Pause"></button>
-    <button class="tool" id="zoomOut" aria-label="Zoom out">−</button>
-    <button class="tool" id="zoomIn" aria-label="Zoom in">+</button>
+  <div class="acclegend" aria-label="Who owns it">
+    <span><i class="pub"></i>Public</span>
+    <span><svg viewBox="0 0 15 15" aria-hidden="true"><path d="M2.00879 7.55298V7.66626C2.00879 9.1528 2.52965 10.4119 3.57227 11.4436C4.61502 12.4753 5.87968 12.9913 7.36621 12.9915C7.83214 12.9915 8.28773 12.9309 8.73145 12.8088C9.14818 12.6942 9.55391 12.5233 9.95117 12.301L8.95996 11.3098C8.71726 11.4249 8.47062 11.514 8.21875 11.5745C7.94033 11.6413 7.65575 11.675 7.36621 11.675C6.24221 11.6749 5.28768 11.2851 4.50293 10.5061C3.71801 9.72675 3.3252 8.77957 3.3252 7.66626V7.52954L4.39941 8.60376L5.32129 7.68286L3.59961 5.96118L2.66602 5.02759L0.0117188 7.68286L0.933594 8.60474L2.00879 7.52954ZM11.9697 5.01294C12.4273 5.79799 12.6582 6.68153 12.6582 7.66626V7.80298L13.7334 6.72778L14.6543 7.64966L12 10.3049L9.34473 7.64966L10.2656 6.72778L11.3418 7.80298V7.66626C11.3418 7.05871 11.2231 6.50156 10.9893 5.99341L11.9697 5.01294ZM10.1582 3.14087L11.8789 4.86157L11.9658 5.00415L10.9854 5.98462C10.791 5.56509 10.5181 5.17892 10.1641 4.82739C9.37915 4.04807 8.42416 3.65845 7.2998 3.65845C7.01043 3.65846 6.72651 3.69129 6.44824 3.75806C6.1717 3.82443 5.90024 3.92365 5.63477 4.05591L4.64648 3.06763C5.06515 2.82623 5.49513 2.64577 5.93555 2.52466C6.34876 2.41103 6.77163 2.35278 7.2041 2.34497C8.30 2.33 9.3 2.6 10.1582 3.14087Z" fill="#CBCBCB"/></svg>Shared</span>
+    <span class="br"><svg viewBox="0 0 8 15" aria-hidden="true"><path d="M3.80957 3.00586C4.4667 3.00587 5.02708 3.23706 5.49023 3.7002C5.95338 4.16334 6.18455 4.72374 6.18457 5.38086V6.33301H6.19043V6.33887H6.66699C6.92711 6.33894 7.14966 6.43194 7.33496 6.61719C7.52036 6.80259 7.61328 7.02582 7.61328 7.28613V12.0479C7.61323 12.308 7.52028 12.5305 7.33496 12.7158C7.14964 12.9011 6.92717 12.9941 6.66699 12.9941H0.952148C0.691935 12.9941 0.469525 12.9012 0.28418 12.7158C0.0988346 12.5305 0.00591455 12.3081 0.00585938 12.0479V7.28613C0.00585938 7.02582 0.0987791 6.80259 0.28418 6.61719C0.469493 6.43195 0.692011 6.33892 0.952148 6.33887H1.42871V6.33301H1.43457V5.38086C1.43459 4.72374 1.66576 4.16334 2.12891 3.7002C2.59206 3.23708 3.15245 3.00586 3.80957 3.00586ZM3.80957 8.70801C3.54607 8.70801 3.32043 8.80262 3.13281 8.99023C2.94529 9.17782 2.85156 9.40356 2.85156 9.66699C2.85164 9.93035 2.94527 10.1562 3.13281 10.3438C3.32039 10.5312 3.54616 10.625 3.80957 10.625C4.07298 10.625 4.29875 10.5313 4.48633 10.3438C4.67387 10.1562 4.7675 9.93035 4.76758 9.66699C4.76758 9.40358 4.67382 9.17781 4.48633 8.99023C4.29872 8.80263 4.07305 8.70802 3.80957 8.70801ZM3.80957 3.94629C3.41118 3.94629 3.07188 4.08633 2.79297 4.36523C2.51436 4.64404 2.37502 4.98271 2.375 5.38086V6.33301H2.38086V6.33887H5.23828V6.33301H5.24414V5.38086C5.24412 4.98251 5.10408 4.64412 4.8252 4.36523C4.5463 4.08635 4.20793 3.9463 3.80957 3.94629Z" fill="#CBCBCB"/></svg>Private</span>
   </div>
-  <button class="trace-toggle" id="trace" aria-pressed="false">Show trace of uncertainty</button>
+  <div class="kmkey"><i></i>~ 25 km</div>
+  <div class="mapnav">
+    <button class="nb" id="stagePrev" aria-label="Previous stage"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15 2.6L2.4 10 15 17.4Z" fill="white"/></svg></button>
+    <button class="nb" id="stageNext" aria-label="Next stage"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.6L17.6 10 5 17.4Z" fill="white"/></svg></button>
+    <button class="nb wide" id="play">Pause</button>
+  </div>
+  <div class="zoom"><button class="nb" id="zoomOut" aria-label="Zoom out">−</button><button class="nb" id="zoomIn" aria-label="Zoom in">+</button></div>
+  <button class="nb reveal" id="trace" aria-pressed="false">Reveal traces of uncertainty</button>
 
   <div id="counter" aria-label="Cable passed, one square per 25 km"></div>
   <div id="tally" aria-live="off"></div>
@@ -246,14 +272,6 @@ Enclosure</span></span></button>
         <span class="sq"></span><span style="color:#fff">Certain: measured or observed</span>
         <span class="sq sh"></span><span style="color:var(--unknown)">Uncertain: estimated, or likely but not confirmed</span>
         <span class="sq pr"></span><span style="color:var(--nodata)">No data: nothing is published</span>
-      </div>
-    </div>
-    <div>
-      <div class="fh">Who owns it</div>
-      <div class="legend lines">
-        <span class="ln"></span><span class="sqf"></span><span>Public</span>
-        <span class="ln sh"></span><span class="sqf sh"></span><span>Shared</span>
-        <span class="ln pr"></span><span class="sqf pr"></span><span>Private</span>
       </div>
     </div>
     </div>
@@ -448,6 +466,7 @@ const CERT_WORD = { c: "confirmed", u: "likely, not confirmed", n: "not disclose
 const COL = CCOL;
 const RADIO_KM = 0.3; // phone to the nearest antenna, city; our estimate
 const SHARE = [0, 0.05, 0.3, 0.7, 0.95]; // class midpoints, BAKOM classes none / >0–10 / >10–50 / >50–90 / >90–100 %
+const GROUP_NAME = { fibre: "Fibre Cable", coax: "Coaxial Cable", copper: "Copper Cable", sea: "Submarine Cable", radio: "Radio" };
 const TYPE_NAME = { fibre: "Glass fibre", coax: "Coaxial cable", copper: "Copper wire", sea: "Submarine cable", radio: "Radio" };
 // Cable symbols from the Figma file (Copper / Fibre / Coaxial Cable); sea and radio drawn in the same style.
 const CAP = "M5.38379 0.0507812C3.73767 0.441036 0.5392 3.11534 0.539062 8.0752C0.539062 13.5311 3.73758 15.7869 5.38379 16.1084V16.1514H0V0H5.38379V0.0507812Z";
@@ -455,7 +474,7 @@ const SYM = {
   copper: '<circle cx="10.2293" cy="8.07547" r="8.07547" fill="white"/>',
   fibre: [[4.67739, 8.07546], [7.70523, 2.52358], [14.2667, 2.52358], [10.7335, 8.07546], [7.70523, 13.6273], [14.2667, 13.6273], [17.2951, 8.07546]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.52358" fill="white"/>`).join(""),
   coax: '<circle cx="10.2288" cy="8.07558" r="3.35818" fill="white"/><circle cx="10.2288" cy="8.07547" r="7.61837" stroke="white" stroke-width="0.914204"/>',
-  sea: '<circle cx="10.23" cy="8.08" r="2.6" fill="white"/>' + Array.from({ length: 9 }, (_, i) => { const a = i / 9 * Math.PI * 2; return `<circle cx="${(10.23 + 6.4 * Math.cos(a)).toFixed(2)}" cy="${(8.08 + 6.4 * Math.sin(a)).toFixed(2)}" r="1.45" fill="white"/>`; }).join(""),
+  sea: '<g transform="translate(0 0.4)">' + [[6.9282,7.62816],[8.10106,5.4763],[10.644,5.4763],[9.27488,7.62816],[8.10106,9.77977],[10.644,9.77977],[11.8179,7.62816],[7.77098,13.0674],[10.8638,13.0674],[13.394,11.6618],[15.0815,9.13133],[15.0815,6.31956],[13.9575,4.07078],[11.9888,2.38353],[9.45848,1.82152],[6.9282,2.38353],[4.6782,4.07078],[3.55516,6.6013],[3.83543,9.41234],[5.23973,11.6618]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="0.978" fill="white"/>`).join("") + '<circle cx="9.35146" cy="7.62831" r="4.14139" stroke="white" stroke-width="0.506"/><path d="M9.46484 0.25293C13.5938 0.25293 16.9344 3.54231 16.9346 7.59082C16.9346 11.6395 13.5939 14.9297 9.46484 14.9297C5.3359 14.9295 1.99609 11.6394 1.99609 7.59082C1.99627 3.54242 5.33601 0.25311 9.46484 0.25293Z" stroke="white" stroke-width="0.506"/></g>',
   radio: '<circle cx="8.6" cy="8.08" r="2.6" fill="white"/><path d="M12.2 4.2a5.6 5.6 0 0 1 0 7.76M14.9 1.6a9.4 9.4 0 0 1 0 12.96" stroke="white" stroke-width="1.2" stroke-linecap="round"/>'
 };
 function symSvg(type, cap, size) {
@@ -628,8 +647,16 @@ function along(seg, f) { const c = polyCum(seg); return partial(seg, c, f); }
 function posOn(seg, f) { const p = along(seg, f); return p[p.length - 1]; }
 // draw: trail of past positions inside the current leg, glow head, flash on the hop it reached
 function drawGhost(ptsS, keys, sc, tau, col, wid, alpha) {
-  if (tau < 0 || tau > sc.total) return;
   alpha = alpha === undefined ? 1 : alpha;
+  if (tau > sc.total && sc.legs.length) { // arrived: the bulb rests where it landed until the next slide
+    const g = sc.legs[sc.legs.length - 1], seg = legPts(ptsS, keys, g.i, g.back), h = seg[seg.length - 1];
+    ctx.save(); ctx.fillStyle = ctx.shadowColor = col;
+    ctx.filter = "blur(7px)"; ctx.globalAlpha = alpha * 0.45; ctx.beginPath(); ctx.arc(h[0], h[1], wid * 5 + 7, 0, Math.PI * 2); ctx.fill();
+    ctx.filter = "blur(2px)"; ctx.globalAlpha = alpha * (0.7 + 0.2 * Math.sin(tau * 3.1) * Math.sin(tau * 1.7)); ctx.shadowBlur = 20;
+    ctx.beginPath(); ctx.arc(h[0], h[1], wid * 2.4 + 2.5, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    return;
+  }
+  if (tau < 0) return;
   ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round";
   for (const g of sc.legs) { // flash where a jump lands
     const since = tau - (g.t0 + g.d); if (since < 0 || since > 0.6) continue;
@@ -687,12 +714,15 @@ function drawTravel(ptsS, keys, sc, tau, cert, wid, alpha, acc) {
   drawGhost(ptsS, keys, sc, tau, CCOL[cert] || CCOL.u, wid, alpha);
 }
 // the line a ghost leaves behind: thin and blurred; the access icons stay sharp on top
+let SOFT_DIM = 1; // stage 3: traces fade almost away unless hovered or revealed
 function softLine(pts, col, alpha, acc) {
-  ctx.save(); ctx.globalAlpha = 0.28 * (alpha === undefined ? 1 : alpha); ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 14;
-  ctx.filter = "blur(2.6px)"; ctx.lineWidth = 0.5; ctx.lineCap = ctx.lineJoin = "round";
+  ctx.save(); ctx.globalAlpha = 0.28 * SOFT_DIM * (alpha === undefined ? 1 : alpha); ctx.strokeStyle = ctx.shadowColor = col; ctx.shadowBlur = 14;
+  ctx.filter = SOFT_DIM < 1 ? "blur(4.5px)" : "blur(2.6px)"; ctx.lineWidth = 0.5; ctx.lineCap = ctx.lineJoin = "round";
   ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.stroke(); ctx.restore();
   for (let i = 1; i < pts.length; i++) LSEG.push([pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]]);
+  ctx.save(); ctx.globalAlpha = SOFT_DIM < 1 ? 0.3 : 1;
   if (acc === "pr") pathIcons(pts, col, lockIcon); else if (acc === "sh") pathIcons(pts, col, sharedIcon);
+  ctx.restore();
 }
 // stage 2: sober. One steady speed, a plain line and a small plain dot, no glow.
 function drawPlain(ptsS, keys, sc, tau, cert, wid) {
@@ -781,23 +811,16 @@ let FONT = "11px monospace";
 const HOLLOW = "#2b2b2b";
 // "Shared" icon: two overlapping rings (networks meeting), placed along the path every SHARED_STEP screen px
 const SHARED_STEP = 150;
-function sharedIcon(x, y, r, col) {
+// icons on the lines: the Figma glyphs (Design5) on a small dark disc
+const P_SHARED = new Path2D("M2.00879 7.55298V7.66626C2.00879 9.1528 2.52965 10.4119 3.57227 11.4436C4.61502 12.4753 5.87968 12.9913 7.36621 12.9915C7.83214 12.9915 8.28773 12.9309 8.73145 12.8088C9.14818 12.6942 9.55391 12.5233 9.95117 12.301L8.95996 11.3098C8.71726 11.4249 8.47062 11.514 8.21875 11.5745C7.94033 11.6413 7.65575 11.675 7.36621 11.675C6.24221 11.6749 5.28768 11.2851 4.50293 10.5061C3.71801 9.72675 3.3252 8.77957 3.3252 7.66626V7.52954L4.39941 8.60376L5.32129 7.68286L3.59961 5.96118L2.66602 5.02759L0.0117188 7.68286L0.933594 8.60474L2.00879 7.52954ZM11.9697 5.01294C12.4273 5.79799 12.6582 6.68153 12.6582 7.66626V7.80298L13.7334 6.72778L14.6543 7.64966L12 10.3049L9.34473 7.64966L10.2656 6.72778L11.3418 7.80298V7.66626C11.3418 7.05871 11.2231 6.50156 10.9893 5.99341L11.9697 5.01294ZM10.1582 3.14087L11.8789 4.86157L11.9658 5.00415L10.9854 5.98462C10.791 5.56509 10.5181 5.17892 10.1641 4.82739C9.37915 4.04807 8.42416 3.65845 7.2998 3.65845C7.01043 3.65846 6.72651 3.69129 6.44824 3.75806C6.1717 3.82443 5.90024 3.92365 5.63477 4.05591L4.64648 3.06763C5.06515 2.82623 5.49513 2.64577 5.93555 2.52466C6.34876 2.41103 6.77163 2.35278 7.2041 2.34497C8.30 2.33 9.3 2.6 10.1582 3.14087Z"), P_LOCK = new Path2D("M3.80957 3.00586C4.4667 3.00587 5.02708 3.23706 5.49023 3.7002C5.95338 4.16334 6.18455 4.72374 6.18457 5.38086V6.33301H6.19043V6.33887H6.66699C6.92711 6.33894 7.14966 6.43194 7.33496 6.61719C7.52036 6.80259 7.61328 7.02582 7.61328 7.28613V12.0479C7.61323 12.308 7.52028 12.5305 7.33496 12.7158C7.14964 12.9011 6.92717 12.9941 6.66699 12.9941H0.952148C0.691935 12.9941 0.469525 12.9012 0.28418 12.7158C0.0988346 12.5305 0.00591455 12.3081 0.00585938 12.0479V7.28613C0.00585938 7.02582 0.0987791 6.80259 0.28418 6.61719C0.469493 6.43195 0.692011 6.33892 0.952148 6.33887H1.42871V6.33301H1.43457V5.38086C1.43459 4.72374 1.66576 4.16334 2.12891 3.7002C2.59206 3.23708 3.15245 3.00586 3.80957 3.00586ZM3.80957 8.70801C3.54607 8.70801 3.32043 8.80262 3.13281 8.99023C2.94529 9.17782 2.85156 9.40356 2.85156 9.66699C2.85164 9.93035 2.94527 10.1562 3.13281 10.3438C3.32039 10.5312 3.54616 10.625 3.80957 10.625C4.07298 10.625 4.29875 10.5313 4.48633 10.3438C4.67387 10.1562 4.7675 9.93035 4.76758 9.66699C4.76758 9.40358 4.67382 9.17781 4.48633 8.99023C4.29872 8.80263 4.07305 8.70802 3.80957 8.70801ZM3.80957 3.94629C3.41118 3.94629 3.07188 4.08633 2.79297 4.36523C2.51436 4.64404 2.37502 4.98271 2.375 5.38086V6.33301H2.38086V6.33887H5.23828V6.33301H5.24414V5.38086C5.24412 4.98251 5.10408 4.64412 4.8252 4.36523C4.5463 4.08635 4.20793 3.9463 3.80957 3.94629Z");
+function glyphIcon(x, y, r, col, p, w, h) {
   ctx.save(); ctx.shadowBlur = 0;
   ctx.fillStyle = HOLLOW; ctx.beginPath(); ctx.arc(x, y, r * 1.9, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, r * 0.32);
-  ctx.beginPath(); ctx.arc(x - r * 0.55, y, r, 0, Math.PI * 2); ctx.stroke();
-  ctx.beginPath(); ctx.arc(x + r * 0.55, y, r, 0, Math.PI * 2); ctx.stroke();
+  const k = r * 2.3 / Math.max(w, h); ctx.translate(x - w * k / 2, y - h * k / 2); ctx.scale(k, k); ctx.fillStyle = col; ctx.fill(p);
   ctx.restore();
 }
-// "Private" icon: a lock
-function lockIcon(x, y, r, col) {
-  ctx.save(); ctx.shadowBlur = 0;
-  ctx.fillStyle = HOLLOW; ctx.beginPath(); ctx.arc(x, y, r * 1.9, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = col; ctx.fillRect(x - r * 0.95, y - r * 0.2, r * 1.9, r * 1.35);
-  ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, r * 0.32);
-  ctx.beginPath(); ctx.arc(x, y - r * 0.2, r * 0.6, Math.PI, 0); ctx.stroke();
-  ctx.restore();
-}
+function sharedIcon(x, y, r, col) { ctx.save(); ctx.translate(0, 0); glyphIcon(x, y + r * 0.05, r, col, P_SHARED, 14.7, 15); ctx.restore(); }
+function lockIcon(x, y, r, col) { glyphIcon(x, y - r * 0.05, r, col, P_LOCK, 7.6, 16); }
 function pathIcons(pts, col, icon) {
   const u = UF(), step = SHARED_STEP * u, r = 4.2 * u;
   let carry = step * 0.5;
@@ -852,7 +875,7 @@ function reserve(x, y, w, h) { LBOX.push({ x, y, w, h }); }
 function reserveUI() {
   LBOX = []; LSEG = [];
   const c = cv.getBoundingClientRect();
-  const els = [document.getElementById("caption"), document.querySelector(".scenes"), document.querySelector(".tools"), document.getElementById("scale"), document.getElementById("trace")];
+  const els = [document.getElementById("caption"), document.querySelector(".scenes"), document.getElementById("stagePrev"), document.getElementById("stageNext"), document.getElementById("play"), document.getElementById("zoomOut"), document.getElementById("zoomIn"), document.getElementById("scale"), ...(state.scene === 2 ? [document.getElementById("trace")] : [])];
   const lg = document.getElementById("sqlegend"); if (parseFloat(getComputedStyle(lg).opacity) > 0.05) els.push(lg);
   const dt = document.getElementById("details"); if (dt.classList.contains("open")) els.push(dt);
   const dc = document.getElementById("dccard"); if (!dc.hidden) els.push(dc);
@@ -1090,11 +1113,13 @@ function drawScene3(f, dash) {
     const isSel = p.id === sel, isHover = state.hover === p.id;
     const sp = p.pts.map(toS);
     screenPaths.push({ id: p.id, pts: sp });
-    if (p.st !== "c" || !isSel) strokePoly(sp, p.st, isSel ? 1.4 : 1, 0, isHover ? 0.3 : traceA(isSel ? 0.6 : 0.3, 0.04), "pr");
+    SOFT_DIM = state.trace || isHover ? 1 : 0.18;
+    if (p.st !== "c" || !isSel) { ctx.save(); if (!isHover && !state.trace) ctx.filter = "blur(3px)"; strokePoly(sp, p.st, isSel ? 1.4 : 1, 0, isHover ? 0.75 : traceA(isSel ? 0.6 : 0.3, 0.02), "pr"); ctx.restore(); }
     const gh = ghostFor(2);
     if (isSel && gh) drawTravel(sp, p.keys, gh.sc, gh.tau, p.st, 2.4, 1, "pr");
     else if (isSel && (state.back || state.scene === 2) && p.st === "c") softLine(sp, CCOL.c, 1, "pr");
     else if (isSel && (state.back || state.scene === 2) && p.st === "n") softLine(sp, CCOL.n, 1, "pr");
+    SOFT_DIM = 1;
   }
   const hp = toS(m.hub); dot(hp[0], hp[1], 3.5, m.P.hubObserved ? CCOL.c : CCOL.u);
   for (const p of order.slice().reverse()) {
@@ -1181,9 +1206,10 @@ const CAPTXT = {
   },
   s34: m => `The faint lines are the other data centres ${m.P.company} might use. We know they exist but ⟦u:not where exactly⟧; ⟦n:which one answered you remains unknown⟧.`,
   s35: m => `The answer travels back through the same unseen cables, to ${PT[m.P.hub].name}, where it re-enters the shared network.`,
-  s36: () => "Click another data centre to make it the guess. Press “Show trace of uncertainty” to see ⟦u:every line we could not confirm⟧: the shape of what we do not know.",
+  s36: () => "Click another data centre to make it the guess. Press “Reveal traces of uncertainty” to see ⟦u:every line we could not confirm⟧: the shape of what we do not know.",
   b41: m => `The answer comes back the same way: from ${PT[m.P.hub].name} across Switzerland to your exchange. Every kilometre is travelled twice, unseen both times.`,
   b42: m => `And from the exchange into your square, back to your device. A few seconds for you; ${document.getElementById("c-tot").textContent.replace(/^~\s*/, "")} of cable you will never see.`,
+  s37: () => "Everything you saw is a trace of something larger: what we could measure, ⟦u:what we had to guess⟧, and ⟦n:the gaps where nobody tells⟧. Next begins again; Restart goes back to the start.",
   b43: () => "Everything you saw is a trace of something larger: what we could measure, ⟦u:what we had to guess⟧, and ⟦n:the gaps where nobody tells⟧. Press replay or choose another start."
 };
 // gates: at scene time t the caption appears and the animation waits until it has been read
@@ -1204,7 +1230,7 @@ function buildGates() {
     const p = selPath(), legs = p.sched.legs, out = legs.filter(l => !l.back), lastOut = out[out.length - 1], oe = START[2] + lastOut.t0 + lastOut.d;
     G(0, "s31");
     if (p.via.length && p.via[0].startsWith("Cable landing")) G(START[2] + out[0].t0 + out[0].d, "s32");
-    G(oe, "s33"); if (m.paths.length > 1) G(oe + 0.01, "s34"); G(oe + 0.02, "s35"); G(START[2] + p.sched.total + 0.1, "s36");
+    G(oe, "s33"); if (m.paths.length > 1) G(oe + 0.01, "s34"); G(oe + 0.02, "s35"); G(START[2] + p.sched.total + 0.1, "s36"); G(START[2] + p.sched.total + 0.11, "s37");
   }
   gates = g; gateIdx = 0; holdLeft = 0;
 }
@@ -1239,12 +1265,13 @@ function placeChoices(under) {
   document.body.classList.toggle("choose", under);
   if (!under) ch.style.top = "";
   requestAnimationFrame(() => {
-    setCaption(capNow); lastCap = capNow;
+    // measure only once the text is really set: not mid-swap, not while it still grows to the intro size
+    if (!cap.textContent || cap.classList.contains("cap-out") || parseFloat(getComputedStyle(cap).fontSize) < 33 * UF()) return;
     const a = document.querySelector(".app").getBoundingClientRect(), rg = document.createRange(); rg.selectNodeContents(cap); const tr = rg.getBoundingClientRect(), r = { bottom: tr.height ? tr.bottom : cap.getBoundingClientRect().bottom };
     if (under) ch.style.top = (r.bottom - a.top + 28 * UF()) + "px";
     // the big arrows sit underneath the text (and under the choices on 0.2)
     const below = under ? r.bottom - a.top + 28 * UF() + ch.getBoundingClientRect().height : r.bottom - a.top;
-    document.querySelectorAll(".intro-nav button").forEach(btn => btn.style.top = (below + 15 * UF()) + "px");
+    document.querySelectorAll(".intro-nav button").forEach(btn => { const first = !btn.classList.contains("placed"); if (first) btn.style.transition = "none"; btn.style.top = (below + 15 * UF()) + "px"; if (first) { void btn.offsetWidth; btn.style.transition = ""; } btn.classList.add("placed"); });
   });
 }
 function reNav() { if (document.body.classList.contains("intro")) placeChoices(document.body.classList.contains("choose")); }
@@ -1254,6 +1281,7 @@ function maybeEndIntro() { const nx = gates[gateIdx]; if (introOn && !(nx && nx.
 function setIntro(on) {
   const was = document.body.classList.contains("intro");
   document.body.classList.toggle("intro", on);
+  if (!on) document.querySelectorAll(".intro-nav button").forEach(b => b.classList.remove("placed"));
   if (was && !on) { placeChoices(false); introOn = false; rejoin = { from: { ...cam }, start: performance.now(), dur: 1400 }; }
 }
 function skipIntro() {
@@ -1269,12 +1297,6 @@ function setCaption(text) {
     else if (part.startsWith("⟦")) { const s = document.createElement("span"); s.className = "cap-" + part[1]; s.textContent = part.slice(3, -1); el.appendChild(s); }
     else if (part) el.appendChild(document.createTextNode(part));
   });
-  if (!introOn && gates.length) {
-    const nav = document.createElement("div"); nav.className = "capnav";
-    const canBack = true;
-    nav.innerHTML = `<button data-dir="-1" aria-label="Previous text"${canBack ? "" : " disabled"}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15 2.6L2.4 10 15 17.4Z"/></svg></button><button data-dir="1" aria-label="Next"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.6L17.6 10 5 17.4Z"/></svg></button>`;
-    el.appendChild(nav);
-  }
 }
 function caption() {
   const m = model, t = state.t, P = m.P, c = m.cell;
@@ -1308,7 +1330,7 @@ function renderTally() {
   const m = model, P = m.P, p = selPath(), c = m.cell;
   const lmKg = m.lastMile.kg || 0;
   document.getElementById("tally").innerHTML = `<h2>Your prompt<br>to ${P.label} (${P.company})</h2>
-    <span class="unit">■ = 25 km</span>
+
     <div class="row"><span>One way, so far</span><span class="v unc">~ <span id="c-one">0</span> km</span></div>
     <div class="row unc" id="c-backrow"><span>And back to your device</span><span class="v">× 2</span></div>
     <div class="row" style="margin-top:calc(10 * var(--u))"><span>Total distance</span><span class="v big unc" id="c-tot">~ 0 km</span></div>
@@ -1388,7 +1410,7 @@ function renderTally() {
 }
 let lastCount = "";
 const UNIT = 25; // km per square, the same in all three scenes; squares add up from scene 1 to 3
-const SQ_SIZES = [22.263, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4];
+const SQ_SIZES = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4]; // Design5: 13 px squares
 let lastGrid = "";
 function updateCounts() {
   const m = model, p = selPath();
@@ -1412,7 +1434,7 @@ function updateCounts() {
     for (let i = 0; i < full; i++) { last = at((i + 0.5) * UNIT); sq += `<i class="${last[2]} ${last[1]}"></i>`; key += last[2] + last[1]; }
     if (frac > 0.001) { last = at(total); const w = Math.max(18, Math.round(frac * 100)); sq += `<i class="${last[2]} ${last[1]}" style="width:calc(var(--sq, 16px) * ${w / 100})"></i>`; key += "p" + last[2] + last[1] + w; }
     key += type + ";";
-    html += `<div class="cg" title="${TYPE_NAME[type]} · ${fmtNum(total)} km">${sq}${symSvg(type, CCOL[last[1]])}</div>`;
+    html += `<div class="cgw"><span class="gl">${GROUP_NAME[type]}</span><div class="cg" title="${TYPE_NAME[type]} · ${fmtNum(total)} km">${sq}${symSvg(type, CCOL[last[1]])}</div></div>`;
   }
   { // the squares fill down to the tally; refit when the tally grows (e.g. the sea cable row appears)
     const ct = document.getElementById("counter"), tl = document.getElementById("tally");
@@ -1424,7 +1446,8 @@ function updateCounts() {
     // largest square size at which everything still fits above the tally: try each size and measure
     const ct = document.getElementById("counter"), tl = document.getElementById("tally");
     ct.innerHTML = html;
-    for (const z of SQ_SIZES) { ct.style.setProperty("--sq", (z * UF()).toFixed(2) + "px"); if (ct.scrollHeight <= ct.clientHeight + 1) break; }
+    const fit = () => ct.querySelectorAll(".cgw").forEach(w => { w.classList.remove("inline"); const g = w.querySelector(".cg"), l = w.querySelector(".gl"); const row = [...g.children].reduce((a, c) => a + c.getBoundingClientRect().width, 0) + g.children.length * 1.5 * UF(); const rg = document.createRange(); rg.selectNodeContents(l); const lw = rg.getBoundingClientRect().width; if (row + lw + 12 * UF() < w.clientWidth) w.classList.add("inline"); });
+    for (const z of SQ_SIZES) { ct.style.setProperty("--sq", (z * UF()).toFixed(2) + "px"); fit(); if (ct.scrollHeight <= ct.clientHeight + 1) break; }
   }
 
   const km = (state.conn === "mobile" ? RADIO_KM * f0 : 0) + LOCAL_KM * f0 + m.swiss.km * f1 + p.total() * f2;
@@ -1454,16 +1477,30 @@ function goScene(k, play) {
 }
 function syncUI() {
   document.querySelectorAll(".scene").forEach(b => b.setAttribute("aria-current", +b.dataset.scene === state.scene));
-  const end = (state.back && state.scene === 0 && state.t >= BDUR[0]) || (!state.playing && !state.back && state.scene === 2 && state.t >= DUR[2]);
-  const pb = document.getElementById("play"), mode = state.playing ? "Pause" : (end ? "Replay" : "Play");
-  if (pb.dataset.mode !== mode) {
-    pb.dataset.mode = mode; pb.setAttribute("aria-label", mode);
-    pb.innerHTML = mode === "Pause" ? '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="3" width="3.6" height="14" fill="white"/><rect x="11.9" y="3" width="3.6" height="14" fill="white"/></svg>'
-      : mode === "Replay" ? '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10a5.5 5.5 0 1 1-1.6-3.9" stroke="white" stroke-width="2"/><path d="M15.8 2.8v4.6h-4.6" stroke="white" stroke-width="2"/></svg>'
-      : '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.6L17.6 10 5 17.4Z" fill="white"/></svg>';
-  }
+  const end = isEnded();
+  document.body.classList.toggle("st3", state.scene === 2 && !state.back);
+  const pb = document.getElementById("play"), mode = state.playing ? "Pause" : (end ? "Restart" : "Play");
+  if (pb.dataset.mode !== mode) { pb.dataset.mode = mode; pb.textContent = mode; pb.setAttribute("aria-label", mode); }
 }
-let lastNow = performance.now(), lastCap = "";
+function isEnded() { return !state.playing && !state.back && state.scene === 2 && state.t >= DUR[2] - 0.01 && gateIdx >= gates.length; }
+// back to the very beginning, with the intro
+function restartIntro() {
+  goScene(0, !reduce); introOn = !reduce; state.t = 0; buildGates(); gateIdx = 0; holdLeft = 0; capNow = ""; rejoin = null; cam = chFit();
+  syncUI();
+}
+// stage navigation: prev / next slide to the neighbouring stage
+function stageStep(dir) {
+  if (introOn) { navCaption(dir); return; }
+  if (dir > 0) { if (state.scene < 2 && !state.back) goScene(state.scene + 1, true); else goScene(0, true); }
+  else { if (state.scene > 0 && !state.back) goScene(state.scene - 1, true); else { introOn = true; state.t = 0; buildGates(); gateIdx = gates.findIndex(g => g.id === "i2"); holdLeft = 0; rejoin = null; state.playing = true; syncUI(); } }
+}
+let lastNow = performance.now(), lastCap = "", capSwap = null;
+function swapCaption(cap) {
+  const el = document.getElementById("caption");
+  if (reduce || !el.textContent) { setCaption(cap); return; }
+  clearTimeout(capSwap); el.classList.add("cap-out");
+  capSwap = setTimeout(() => { setCaption(lastCap); void el.offsetWidth; el.classList.remove("cap-out"); if (introOn) reNav(); }, 260);
+}
 function frame(now) {
   const dt = Math.min(0.1, (now - lastNow) / 1000); lastNow = now;
   if (model && ctx) {
@@ -1480,9 +1517,9 @@ function frame(now) {
         }
       } else if (state.t >= DUR[state.scene] + (state.scene < 2 ? HOLD : 0)) {
         sceneStart = { ...cam }; lastCount = ""; lastGrid = "";
-        if (state.scene < 2) { state.scene++; state.t = 0; }
-        else { state.back = true; state.scene = 1; state.t = 0; } // the answer comes back
-        buildGates();
+        if (state.scene < 2) { state.scene++; state.t = 0; buildGates(); }
+        else { state.t = DUR[2]; state.playing = false; } // stage 3 ends with the bulb back in Europe
+
         syncUI();
       }
     }
@@ -1493,7 +1530,7 @@ function frame(now) {
     }
     draw();
     document.querySelectorAll(".scene .prog").forEach((el, k) => { const f = state.back ? (k < state.scene ? 1 : k > state.scene ? 0 : 1 - clamp01(state.t / BDUR[k])) : k < state.scene ? 1 : k > state.scene ? 0 : clamp01(state.t / (DUR[k] + (k < 2 ? HOLD : 0))); el.style.clipPath = "inset(0 " + (100 - 100 * f).toFixed(2) + "% 0 0)"; });
-    const cap = capNow || caption(); if (cap !== lastCap) { setCaption(cap); lastCap = cap; }
+    const cap = capNow || caption(); if (cap !== lastCap) { lastCap = cap; swapCaption(cap); }
     const lg = document.getElementById("sqlegend"), showLg = state.scene === 0 && 0.25 * cam.s > 220 * UF() && model.cell && sqRect && !detailsOpen;
     lg.classList.toggle("hide", !showLg);
     if (showLg) { const u = UF(); lg.style.left = Math.min(VW - 120 * u, sqRect.x + 18 * u) + "px"; lg.style.top = Math.max(50 * u, sqRect.y - 5 * u) + "px"; }
@@ -1526,14 +1563,15 @@ function initUI() {
     state.conn = b.dataset.conn; document.querySelectorAll("#conn .chip").forEach(x => x.setAttribute("aria-pressed", x === b)); update(0);
   }));
   document.querySelectorAll(".scene").forEach(b => b.addEventListener("click", () => { skipIntro(); goScene(+b.dataset.scene, true); }));
-  document.getElementById("trace").addEventListener("click", e => { state.trace = !state.trace; e.currentTarget.setAttribute("aria-pressed", state.trace); e.currentTarget.textContent = state.trace ? "Hide trace of uncertainty" : "Show trace of uncertainty"; });
+  document.getElementById("trace").addEventListener("click", e => { state.trace = !state.trace; e.currentTarget.setAttribute("aria-pressed", state.trace); e.currentTarget.textContent = state.trace ? "Hide traces of uncertainty" : "Reveal traces of uncertainty"; });
   document.getElementById("play").addEventListener("click", () => {
     if (state.playing) { state.playing = false; }
-    else if (state.back && state.scene === 0 && state.t >= BDUR[0]) { goScene(0, true); return; }
-    else if (!state.back && state.scene === 2 && state.t >= DUR[2]) { state.back = true; state.scene = 1; state.t = 0; sceneStart = { ...cam }; state.playing = true; buildGates(); }
+    else if (isEnded()) { restartIntro(); return; }
     else { state.playing = true; if (state.free) { rejoin = { from: { ...cam }, start: performance.now() }; state.free = false; } }
     syncUI();
   });
+  document.getElementById("stagePrev").addEventListener("click", () => stageStep(-1));
+  document.getElementById("stageNext").addEventListener("click", () => stageStep(1));
   const zoomBy = (k, x = VW / 2, y = VH / 2) => {
     const before = toW(x, y); cam.s = Math.max(0.02, Math.min(20000, cam.s * k)); const after = toW(x, y);
     cam.x += before[0] - after[0]; cam.y += before[1] - after[1];
@@ -1691,7 +1729,6 @@ function hover(e) {
   introOn = !reduce;
   document.getElementById("introNext").addEventListener("click", () => navCaption(1));
   document.getElementById("introPrev").addEventListener("click", () => navCaption(-1));
-  document.getElementById("caption").addEventListener("click", e => { const b = e.target.closest(".capnav button"); if (b) navCaption(+b.dataset.dir); });
   update(0);
   requestAnimationFrame(frame);
 })();
