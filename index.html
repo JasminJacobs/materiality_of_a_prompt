@@ -1216,12 +1216,13 @@ const CAPTXT = {
 // gates: at scene time t the caption appears and the animation waits until it has been read
 let gates = [], gateIdx = 0, holdLeft = 0, capNow = "", introOn = false;
 function buildGates() {
+  pendHold = 0;
   const m = model, k = state.scene, g = [], G = (t, id, intro) => g.push({ t, id, intro });
   if (state.back) {
     if (k === 1) G(0, "b41"); else { G(0, "b42"); G(BDUR[0] - 0.35, "b43"); }
   } else if (k === 0) {
     if (introOn) { G(0, "i1", 1); G(0, "i2", 1); }
-    G(0, "i3");
+    if (!state.jump) G(0, "i3");
     G(0.01, "s11"); G(5.2, "s12"); G(START[0], state.conn === "mobile" ? "s13m" : "s13");
     G(START[0] + m.s1.total, "s14"); G(START[0] + m.s1.total + 0.01, "s15");
   } else if (k === 1) {
@@ -1238,11 +1239,14 @@ function buildGates() {
 function gateText(gt) { const m = model; return CAPTXT[gt.id](m, selPath()); }
 // a scene shown without playing gets its last caption
 function settleGates() { gateIdx = gates.length; holdLeft = 0; const last = gates.filter(x => !x.intro).pop(); if (last) capNow = gateText(last); }
+let pendHold = 0;
 function stepGates(dt) { // returns true while the animation must wait
   if (holdLeft > 0) { holdLeft -= dt; if (holdLeft <= 0) maybeEndIntro(); return true; }
   const gt = gates[gateIdx];
+  if (gt && state.t >= gt.t && pendHold > 0) { holdLeft = pendHold; pendHold = 0; return true; } // the rest of the reading time, before the next text
   if (gt && state.t >= gt.t) {
-    gateIdx++; capNow = gateText(gt); holdLeft = gt.intro ? (1.4 + plain(capNow).split(/\s+/).length / 3.3) * 2 + 8 : readTime(capNow); // intro slides wait longer, so the arrows get used
+    gateIdx++; capNow = gateText(gt); holdLeft = gt.intro ? (1.4 + plain(capNow).split(/\s+/).length / 3.3) * 2 + 8 : readTime(capNow);
+    pendHold = 0; { const nx = gates[gateIdx]; if (!gt.intro && gt.t < 0.05 && (!nx || nx.t > gt.t + 0.5)) { pendHold = nx ? Math.max(0, holdLeft - (nx.t - gt.t)) : 0; holdLeft = 0; } } // a stage's first text is read while the map already moves // intro slides wait longer, so the arrows get used
     setIntro(!!gt.intro); syncIntroNav(); placeChoices(gt.id === "i2");
     return true;
   }
@@ -1487,15 +1491,14 @@ function CH_SCALE() { return chFit().s; } // the zoom at which all of Switzerlan
 function isEnded() { return !state.playing && !state.back && state.scene === 2 && state.t >= DUR[2] - 0.01 && gateIdx >= gates.length; }
 // back to the very beginning, with the intro
 function restartIntro() {
+  state.jump = false;
   goScene(0, !reduce); introOn = !reduce; state.t = 0; buildGates(); gateIdx = 0; holdLeft = 0; capNow = ""; rejoin = null; cam = chFit();
   syncUI();
 }
 // stage navigation: prev / next slide to the neighbouring stage
 let startTimer = null;
-function goSceneSoon(k) { // jump now, start moving half a second later
-  goScene(k, true); if (reduce) return;
-  state.playing = false; syncUI(); clearTimeout(startTimer);
-  startTimer = setTimeout(() => { state.playing = true; syncUI(); }, 500);
+function goSceneSoon(k) { // a click jumps there and the map starts moving at once
+  state.jump = true; goScene(k, true); syncUI();
 }
 function stageStep(dir) {
   if (introOn) { navCaption(dir); return; }
