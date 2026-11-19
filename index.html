@@ -173,11 +173,85 @@ footer .fh { color: var(--grey2); margin-bottom: calc(5 * var(--u)); }
 footer .hint { color: var(--grey2); padding-right: calc(19 * var(--u)); }
 footer .keys { display: flex; gap: calc(16 * var(--u)); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ================= mobile (Figma frame "Mobile", 402 wide, the page scrolls) ================= */
+.title-mob { display: none; }
+@media (max-width: 700px) {
+  :root { --ux: calc(100vw / 402); --uy: var(--ux); --u: var(--ux); }
+  html, body { height: auto; } body { overflow-x: hidden; overflow-y: auto; }
+  .app { width: calc(402 * var(--u)); height: calc(1530 * var(--u)); overflow: clip; }
+  .title-art { display: none; }
+  .title-mob { display: block; position: absolute; left: calc(-129.8 * var(--u)); top: calc(-77.7 * var(--u)); width: calc(699.05 * var(--u)); height: calc(486.68 * var(--u)); z-index: 0; pointer-events: none; overflow: visible; }
+  .choices, body.choose .choices { left: calc(16 * var(--u)); top: calc(28.7 * var(--u)) !important; width: calc(385 * var(--u)); flex-wrap: wrap; column-gap: 0; row-gap: calc(18 * var(--u)); }
+  .choices .step { width: calc(192.5 * var(--u)); } .choices .step:nth-child(3) { width: 100%; }
+  .choices .step:nth-child(2) .step-label { white-space: normal; width: calc(130 * var(--u)); }
+  .place { width: calc(170 * var(--u)); }
+  #caption, body.intro #caption { left: calc(17 * var(--u)); top: calc(278 * var(--u)); width: calc(365 * var(--u)); }
+  body.intro #caption { font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); }
+  body.intro .scenes { visibility: hidden; }
+  .scenes { left: calc(20 * var(--u)); top: calc(401 * var(--u)); height: calc(42 * var(--u)); gap: calc(6 * var(--u)); }
+  .scene { width: calc(117 * var(--u)); }
+  .stage { left: calc(20 * var(--u)); top: calc(444 * var(--u)); width: calc(364 * var(--u)); height: calc(276 * var(--u)); }
+  body.intro .stage { clip-path: none; }
+  #play { left: calc(134 * var(--u)); top: calc(595 * var(--u)); width: calc(123 * var(--u)); }
+  #stagePrev { left: calc(261 * var(--u)); top: calc(595 * var(--u)); width: calc(58.5 * var(--u)); }
+  #stageNext { left: calc(323.5 * var(--u)); top: calc(595 * var(--u)); width: calc(58.5 * var(--u)); }
+  #zoomOut, #zoomIn { top: calc(689 * var(--u)); width: calc(27 * var(--u)); }
+  #zoomOut { left: calc(24 * var(--u)); } #zoomIn { left: calc(55 * var(--u)); }
+  .reveal { left: calc(24 * var(--u)); top: calc(448 * var(--u)); width: calc(356 * var(--u)); }
+  .acclegend { left: calc(205 * var(--u)); top: calc(1430 * var(--u)); width: calc(180 * var(--u)); }
+  .kmkey { left: calc(27 * var(--u)); right: auto; top: calc(1430 * var(--u)); }
+  footer .legend span { white-space: normal; }
+  #counter { left: calc(14 * var(--u)); top: calc(788 * var(--u)); width: calc(176 * var(--u)); height: calc(252 * var(--u)) !important; }
+  #tally { left: calc(205 * var(--u)); top: calc(747 * var(--u)); bottom: auto; width: calc(179 * var(--u)); padding-top: calc(42 * var(--u)); }
+  #tally h2 { position: absolute; left: calc(-187 * var(--u)); top: 0; width: calc(363 * var(--u)); margin: 0; }
+  #tally .row { grid-template-columns: 1fr; gap: 0; }
+  #tally .row > span:first-child { white-space: normal; }
+  #tally .row:has(#c-kg) { display: grid; }
+  #tally .big { font-size: calc(32 * var(--u)); line-height: calc(32 * var(--u)); white-space: normal; text-align: right; }
+  #tally .more { position: static; align-self: flex-end; margin-top: calc(8 * var(--u)); }
+  footer { left: calc(25 * var(--u)); top: calc(1150 * var(--u)); width: calc(350 * var(--u)); display: flex; flex-direction: column; gap: calc(14 * var(--u)); }
+  footer .hint { order: -1; padding: 0; }
+  footer .keys { flex-direction: column; }
+  .dccard { left: calc(4 * var(--u)); right: calc(4 * var(--u)); bottom: calc(4 * var(--u)); width: auto; max-height: calc(100% - 40 * var(--u)); }
+  .dccard dl { grid-template-columns: calc(110 * var(--u)) 1fr; }
+  #introPrev { left: calc(17 * var(--u)); } #introNext { left: calc(263 * var(--u)); }
+  .intro-nav button { width: calc(122 * var(--u)); }
+}
 </style>
 </head>
 <body>
 <div class="app">
   <h1 class="vh">Materiality of a Prompt</h1>
+<svg class="title-mob" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 487" fill="none" aria-hidden="true" focusable="false">
+<g filter="url(#tmob)">
+<path d="M135.83 189.747V141.468H144.313L152.106 169.125L160.038 141.468H168.59V189.747H162.866V148.641L154.658 175.953H149.486L141.554 148.779V189.747H135.83ZM197.392 189.747V183.746C195.047 188.023 190.909 190.437 185.392 190.437C178.495 190.437 173.667 186.574 173.667 180.505C173.667 175.056 177.391 171.608 186.633 170.022L196.979 168.297C196.772 163.194 193.116 160.09 187.668 160.09C182.288 160.09 179.185 162.711 177.736 167.608L172.15 166.021C173.598 159.055 179.736 154.228 188.151 154.228C197.392 154.228 203.462 159.883 203.462 168.228V189.747H197.392ZM180.357 180.643C180.357 183.815 183.047 185.609 186.633 185.609C192.634 185.609 196.979 180.85 196.979 174.367V173.332L189.047 174.643C183.047 175.677 180.357 177.263 180.357 180.643ZM229.436 190.437C222.332 190.437 218.47 185.954 218.47 178.505V160.711H209.159V155.124H218.47V147.538L225.091 144.641V155.124H239.368V160.711H225.091V178.436C225.091 182.367 226.815 184.919 230.471 184.919C233.368 184.919 235.161 183.195 236.471 179.884L241.299 181.815C239.023 187.747 235.023 190.437 229.436 190.437ZM262.791 190.437C253.342 190.437 245.755 183.471 245.755 172.504C245.755 161.745 252.79 154.228 262.446 154.228C272.86 154.228 278.791 163.194 277.619 173.953H252.238C252.514 181.126 257.342 184.988 262.928 184.988C267.274 184.988 270.653 182.643 272.722 179.126L277.067 182.091C274.377 186.988 269.343 190.437 262.791 190.437ZM252.445 168.849H271.412C270.929 163.332 267.48 159.538 262.308 159.538C257.066 159.538 252.997 163.263 252.445 168.849ZM285.11 189.747V155.124H291.8V162.021C294.352 156.71 298.49 154.434 303.249 154.434C308.421 154.434 312.422 157.124 314.353 163.056L308.214 165.745C307.111 162.504 304.628 160.435 301.18 160.435C295.731 160.435 291.8 165.125 291.8 176.781V189.747H285.11ZM339.086 190.437C332.12 190.437 328.258 185.954 328.258 178.505V160.228H319.085V155.124H334.879V178.436C334.879 182.367 336.534 184.919 339.913 184.919C342.672 184.919 344.396 183.195 345.638 180.022L350.742 181.884C348.535 187.609 344.603 190.437 339.086 190.437ZM328.051 150.227V143.055H335.017V150.227H328.051ZM380.027 189.747V183.746C377.682 188.023 373.544 190.437 368.026 190.437C361.129 190.437 356.301 186.574 356.301 180.505C356.301 175.056 360.025 171.608 369.267 170.022L379.613 168.297C379.406 163.194 375.751 160.09 370.302 160.09C364.922 160.09 361.819 162.711 360.37 167.608L354.784 166.021C356.232 159.055 362.37 154.228 370.785 154.228C380.027 154.228 386.096 159.883 386.096 168.228V189.747H380.027ZM362.991 180.643C362.991 183.815 365.681 185.609 369.267 185.609C375.268 185.609 379.613 180.85 379.613 174.367V173.332L371.681 174.643C365.681 175.677 362.991 177.263 362.991 180.643ZM408.622 190.437C401.449 190.437 396.897 185.747 396.897 178.022V146.572H387.655V141.468H403.518V178.022C403.518 182.16 405.518 184.919 409.519 184.919C412.76 184.919 414.691 183.057 416.14 179.47L421.312 181.539C418.898 187.333 414.691 190.437 408.622 190.437ZM448.666 190.437C441.7 190.437 437.838 185.954 437.838 178.505V160.228H428.665V155.124H444.459V178.436C444.459 182.367 446.114 184.919 449.494 184.919C452.253 184.919 453.977 183.195 455.218 180.022L460.322 181.884C458.115 187.609 454.184 190.437 448.666 190.437ZM437.631 150.227V143.055H444.597V150.227H437.631ZM485.124 190.437C478.02 190.437 474.158 185.954 474.158 178.505V160.711H464.847V155.124H474.158V147.538L480.779 144.641V155.124H495.056V160.711H480.779V178.436C480.779 182.367 482.503 184.919 486.159 184.919C489.055 184.919 490.849 183.195 492.159 179.884L496.987 181.815C494.711 187.747 490.711 190.437 485.124 190.437ZM508.892 203.541L514.616 189.609L500.753 155.124H507.65L517.858 181.884L527.444 155.124H534.272L515.651 203.541H508.892ZM261.756 252.437C252.1 252.437 244.858 245.057 244.858 234.436C244.858 223.814 252.1 216.228 261.756 216.228C271.481 216.228 278.653 223.676 278.653 234.298C278.653 244.919 271.481 252.437 261.756 252.437ZM261.825 246.781C267.825 246.781 272.032 241.746 272.032 234.367C272.032 226.918 267.687 221.883 261.756 221.883C255.756 221.883 251.48 226.918 251.48 234.298C251.48 241.746 255.825 246.781 261.825 246.781ZM292.834 214.434C292.834 207.468 298.007 202.779 306.076 202.779C311.18 202.779 314.904 204.572 316.767 207.744L312.353 210.848C310.973 209.262 309.042 208.296 306.283 208.296C302.076 208.296 299.455 210.572 299.455 214.09V217.124H313.042V222.711H299.455V251.747H292.834V222.711H283.592V217.124H292.834V214.434ZM380.027 251.747V245.746C377.682 250.023 373.544 252.437 368.026 252.437C361.129 252.437 356.301 248.574 356.301 242.505C356.301 237.056 360.025 233.608 369.267 232.022L379.613 230.297C379.406 225.194 375.751 222.09 370.302 222.09C364.922 222.09 361.819 224.711 360.37 229.608L354.784 228.021C356.232 221.055 362.37 216.228 370.785 216.228C380.027 216.228 386.096 221.883 386.096 230.228V251.747H380.027ZM362.991 242.643C362.991 245.815 365.681 247.609 369.267 247.609C375.268 247.609 379.613 242.85 379.613 236.367V235.332L371.681 236.643C365.681 237.677 362.991 239.263 362.991 242.643ZM228.94 313.747V265.468H244.182C254.459 265.468 260.459 271.055 260.459 280.09C260.459 289.332 254.321 295.125 243.906 295.125H235.906V313.747H228.94ZM235.906 289.056H244.113C250.183 289.056 253.562 285.745 253.562 280.297C253.562 274.848 250.114 271.538 243.768 271.538H235.906V289.056ZM266.846 313.747V279.124H273.536V286.021C276.088 280.71 280.226 278.434 284.985 278.434C290.158 278.434 294.158 281.124 296.089 287.056L289.951 289.745C288.847 286.504 286.365 284.435 282.916 284.435C277.468 284.435 273.536 289.125 273.536 300.781V313.747H266.846ZM316.546 314.437C306.891 314.437 299.649 307.057 299.649 296.436C299.649 285.814 306.891 278.228 316.546 278.228C326.271 278.228 333.444 285.676 333.444 296.298C333.444 306.919 326.271 314.437 316.546 314.437ZM316.615 308.781C322.616 308.781 326.823 303.746 326.823 296.367C326.823 288.918 322.478 283.883 316.546 283.883C310.546 283.883 306.27 288.918 306.27 296.298C306.27 303.746 310.615 308.781 316.615 308.781ZM364.66 290.297C364.729 285.193 363.212 283.262 360.936 283.262C358.453 283.262 356.177 285.814 356.177 293.815V313.747H350.383V290.297C350.383 285.193 348.866 283.262 346.59 283.262C344.176 283.262 341.831 285.814 341.831 293.815V313.747H336.038V279.124H341.831V283.193C343.279 279.814 345.624 278.366 348.521 278.366C351.625 278.366 354.039 280.021 355.28 283.4C356.866 279.883 359.418 278.366 362.384 278.366C367.35 278.366 370.453 281.952 370.453 289.608V313.747H364.66V290.297ZM374.358 327.541V279.124H380.979V284.228C383.324 280.366 386.979 278.228 391.807 278.228C400.704 278.228 406.704 285.676 406.704 296.367C406.704 307.057 400.635 314.437 391.807 314.437C386.979 314.437 383.324 312.229 380.979 308.436V327.541H374.358ZM390.565 308.781C396.29 308.781 400.083 303.746 400.083 296.367C400.083 288.987 396.29 283.883 390.565 283.883C384.772 283.883 380.979 288.987 380.979 296.367C380.979 303.746 384.772 308.781 390.565 308.781ZM430.334 314.437C423.23 314.437 419.368 309.954 419.368 302.505V284.711H410.057V279.124H419.368V271.538L425.989 268.641V279.124H440.265V284.711H425.989V302.436C425.989 306.367 427.713 308.919 431.368 308.919C434.265 308.919 436.058 307.195 437.369 303.884L442.197 305.815C439.921 311.747 435.92 314.437 430.334 314.437Z" fill="#262626"/>
+</g>
+<defs>
+<filter id="tmob" x="0" y="0" width="699.05" height="486.68" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="15.389"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="14.474" dy="8.8355"/>
+<feGaussianBlur stdDeviation="7.04729"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.494118 0 0 0 0 0.964706 0 0 0 0 0.992157 0 0 0 1 0"/>
+<feBlend mode="normal" in2="effect1" result="effect2"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="1.69155" dy="-20.2985"/>
+<feGaussianBlur stdDeviation="16.3516"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.245925 0 0 0 0 0.974864 0 0 0 0 1 0 0 0 1 0"/>
+<feBlend mode="normal" in2="effect2" result="effect3"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect3" result="shape"/>
+</filter>
+</defs>
+</svg>
   <svg class="title-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1512 421" preserveAspectRatio="xMinYMin meet" fill="none" aria-hidden="true" focusable="false">
 <defs>
 <filter id="tglow" x="-219.49" y="-213.383" width="1983.82" height="634.217" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -464,7 +538,8 @@ const CLASS = ["none", ">0–10%", ">10–50%", ">50–90%", ">90–100%"];
 // Colour = how sure we are (certainty). Icon on the line = who owns it: public plain line, shared = two rings, private = lock.
 const CCOL = { c: "#ffffff", u: "#3ff9ff", n: "#ff3f88" };
 const ACOL = { pub: "#ffffff", sh: "#3ff9ff", pr: "#ff3f88" }; // only for the legend of the three scenes
-const UF = () => Math.min(innerWidth / 1512, innerHeight / 982); // 1 Figma px in screen px
+const MOB = matchMedia("(max-width: 700px)");
+const UF = () => MOB.matches ? innerWidth / 402 : Math.min(innerWidth / 1512, innerHeight / 982); // 1 Figma px in screen px
 const ACC_NAME = { pub: "Public", sh: "Shared", pr: "Private" };
 const CERT_WORD = { c: "confirmed", u: "likely, not confirmed", n: "not disclosed" };
 const COL = CCOL;
@@ -759,7 +834,9 @@ function resize() {
   ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 function fit(pts, padT = 70, padB = 80, padL = 40, padR = 220, minKm = 2) {
-  const U = UF(); padT = Math.max(padT, 90 * U); padB *= U; padL *= U; padR *= U;
+  const U = UF();
+  if (MOB.matches) { padT = 34 * U; padB = 46 * U; padL = 22 * U; padR = 22 * U; } // narrow map: no side panel over it
+  else { padT = Math.max(padT, 90 * U); padB *= U; padL *= U; padR *= U; }
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const p of pts) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
   const bw = Math.max(x1 - x0, minKm), bh = Math.max(y1 - y0, minKm * 0.6);
@@ -767,7 +844,7 @@ function fit(pts, padT = 70, padB = 80, padL = 40, padR = 220, minKm = 2) {
   return { x: (x0 + x1) / 2 - ((padL - padR) / 2) / s, y: (y0 + y1) / 2 - ((padT - padB) / 2) / s, s };
 }
 function chFit() { return GRID ? fit([LW(GRID.left, GRID.top), LW(GRID.left + GRID.w * GRID.res, GRID.top - GRID.h * GRID.res)], 60, 70, 20, 20) : { x: 0, y: -46.8 * KY, s: VW / 400 }; }
-function introFit() { const U = UF(); return GRID ? fit([LW(GRID.left, GRID.top), LW(GRID.left + GRID.w * GRID.res, GRID.top - GRID.h * GRID.res)], 60, 70, (0.64 * VW) / U + 20, 20) : chFit(); }
+function introFit() { const U = UF(); return GRID ? fit([LW(GRID.left, GRID.top), LW(GRID.left + GRID.w * GRID.res, GRID.top - GRID.h * GRID.res)], 60, 70, MOB.matches ? 20 : (0.64 * VW) / U + 20, 20) : chFit(); }
 function diveTarget() { const s = Math.min(VW, VH) * 0.5 / 0.25; return { x: model.home[0] + 40 / s, y: model.home[1], s }; }
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const clamp01 = t => Math.max(0, Math.min(1, t));
@@ -1285,6 +1362,7 @@ function navCaption(dir) {
   state.playing = true; syncUI();
 }
 function placeChoices(under) {
+  if (MOB.matches) under = false;
   const ch = document.querySelector(".choices"), cap = document.getElementById("caption");
   document.body.classList.toggle("choose", under);
   if (!under) ch.style.top = "";
@@ -1464,7 +1542,7 @@ function updateCounts() {
   }
   { // the squares fill down to the tally; refit when the tally grows (e.g. the sea cable row appears)
     const ct = document.getElementById("counter"), tl = document.getElementById("tally");
-    const hNeed = Math.max(40, tl.offsetTop - ct.offsetTop - 14 * UF());
+    const hNeed = MOB.matches ? ct.clientHeight : Math.max(40, tl.offsetTop - ct.offsetTop - 14 * UF()); // on mobile the column sits beside the tally
     if (Math.abs(ct.clientHeight - hNeed) > 1) { ct.style.height = hNeed + "px"; lastGrid = ""; }
   }
   if (key !== lastGrid) {
