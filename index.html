@@ -943,7 +943,7 @@ function renderGridImage() {
 }
 function drawLand() {
   if (!LAND) return;
-  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), w = 1 - k, o = Math.round(78 + (203 - 78) * w); ctx.fillStyle = `rgba(110,110,110,${(0.2 * w).toFixed(3)})`; ctx.strokeStyle = `rgb(${o},${o},${o})`; ctx.lineWidth = 1 - 0.5 * w; } // Swiss views Dark; the world: Grey at 20 %, 0.5 px Light Grey outline
+  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), w = 1 - k, o = Math.round(78 + (90 - 78) * w); ctx.fillStyle = `rgba(255,255,255,${(0.24 * w).toFixed(3)})`; ctx.strokeStyle = `rgb(${o},${o},${o})`; ctx.lineWidth = 1 - 0.2 * w; } // Swiss views Dark; the world: land white at 24 %, outlines and borders #5A5A5A
   for (const ring of LAND.land) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8;
   for (const ring of LAND.ch) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.stroke(); }
