@@ -133,7 +133,7 @@ body.intro .mapnav, body.intro .zoom { opacity: 0; pointer-events: none; }
 .more[aria-expanded="true"] { border-color: var(--certain); color: var(--certain); }
 .cert { color: var(--certain); } .unc { color: var(--unknown); } .nod { color: var(--nodata); }
 /* Design5 "Data Window": bottom right of the map, label column 128, rows 4 apart, labels sit on the last line of their value */
-.dccard { right: calc(3 * var(--ux)); bottom: calc(5 * var(--uy)); width: calc(562 * var(--ux)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: #262626; border: 0; padding: calc(8 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; color: #fff; }
+.dccard { right: calc(3 * var(--ux)); bottom: calc(5 * var(--uy)); width: calc(562 * var(--ux)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: #262626; border: 1px solid #cbcbcb; padding: calc(8 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; color: #fff; }
 .dccard[hidden] { display: none; }
 .dccard dl { display: grid; grid-template-columns: calc(128 * var(--u)) 1fr; row-gap: calc(4 * var(--u)); margin: 0; align-items: end; }
 .dccard dt { color: #6e6e6e; padding-right: calc(10 * var(--u)); } .dccard dd { margin: 0; color: #fff; }
@@ -943,7 +943,7 @@ function renderGridImage() {
 }
 function drawLand() {
   if (!LAND) return;
-  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), v = Math.round(110 - (110 - 38) * k); ctx.fillStyle = `rgb(${v},${v},${v})`; } // Swiss views Dark, the world in Grey ctx.strokeStyle = "#4e4e4e"; // stages 1 and 2: land in Figma's Dark ctx.lineWidth = 0.6; // land brighter than the Dark sea
+  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), w = 1 - k, o = Math.round(78 + (203 - 78) * w); ctx.fillStyle = `rgba(110,110,110,${(0.6 * w).toFixed(3)})`; ctx.strokeStyle = `rgb(${o},${o},${o})`; ctx.lineWidth = 1; } // Swiss views Dark; the world: Grey at 60 %, Light Grey outline
   for (const ring of LAND.land) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8;
   for (const ring of LAND.ch) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.stroke(); }
@@ -1417,7 +1417,7 @@ function renderTally() {
 }
 let lastCount = "";
 const UNIT = 25; // km per square, the same in all three scenes; squares add up from scene 1 to 3
-const SQ_SIZES = [25, 24, 22, 20, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4]; // as big as the column allows
+const SQ_SIZES = [20, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4]; // as big as the column allows
 let lastGrid = "";
 function updateCounts() {
   const m = model, p = selPath();
