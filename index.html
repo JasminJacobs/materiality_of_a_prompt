@@ -45,7 +45,7 @@ body.choose .choices { width: calc(654 * var(--ux)); flex-wrap: wrap; row-gap: c
 #caption { transition: top 1.2s cubic-bezier(.65,0,.35,1), width 1.2s cubic-bezier(.65,0,.35,1), font-size 1.2s cubic-bezier(.65,0,.35,1), line-height 1.2s cubic-bezier(.65,0,.35,1), opacity .55s cubic-bezier(.68,-.6,.32,1.6), filter .55s cubic-bezier(.68,-.6,.32,1.6), text-shadow .55s cubic-bezier(.68,-.6,.32,1.6), transform .55s cubic-bezier(.68,-.6,.32,1.6); transform-origin: 0 50%; }
 /* a caption leaves in a quick bright glow, blurring away; the next one arrives the same way in reverse (easeInOutBack) */
 #caption.cap-out { opacity: 0; filter: blur(12px) brightness(2.6); text-shadow: 0 0 14px #fff, 0 0 30px var(--unknown); transform: scale(1.08); }
-body.intro #caption { width: calc(654 * var(--ux)); font-size: calc(34.544 * var(--u)); line-height: calc(34.1 * var(--u)); }
+body.intro #caption { width: calc(654 * var(--ux)); } /* intro text as small as the rest */
 .stage { transition: clip-path 1.4s cubic-bezier(.65,0,.35,1); clip-path: inset(0 0 0 0); }
 body.intro .stage { clip-path: inset(0 0 0 56.9%); } /* Design4: map visible from x 690 */
 .intro-nav { display: none; left: 0; top: 0; z-index: 5; }
@@ -188,22 +188,24 @@ footer .keys { display: flex; gap: calc(16 * var(--u)); }
   .choices .step { width: calc(192.5 * var(--u)); } .choices .step:nth-child(3) { width: 100%; }
   .choices .step:nth-child(2) .step-label { white-space: normal; width: calc(130 * var(--u)); }
   .place { width: calc(170 * var(--u)); }
-  #caption, body.intro #caption { left: calc(17 * var(--u)); top: calc(278 * var(--u)); width: calc(365 * var(--u)); }
+  #caption, body.intro #caption { left: calc(17 * var(--u)); top: calc(278 * var(--u)); width: calc(365 * var(--u)); min-height: calc(68 * var(--u)); max-height: calc(170 * var(--u)); overflow: hidden; }
+  /* everything under the text follows it: --dy = text box height − 68 */
+  #play, #stagePrev, #stageNext, .intro-nav button, .scenes, .stage, #zoomOut, #zoomIn, .reveal, #tally { transition: top .7s cubic-bezier(.65,0,.35,1); }
   body.intro #caption { font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); }
   body.intro .scenes { visibility: hidden; }
   /* Play · back · forward: one row between the text and the stage tabs */
-  #play { left: calc(15 * var(--u)); top: calc(360 * var(--u)); width: calc(182 * var(--u)); height: calc(27 * var(--u)); }
-  #stagePrev { left: calc(201 * var(--u)); top: calc(360 * var(--u)); width: calc(88 * var(--u)); height: calc(27 * var(--u)); }
-  #stageNext { left: calc(293 * var(--u)); top: calc(360 * var(--u)); width: calc(88 * var(--u)); height: calc(27 * var(--u)); }
-  .scenes { left: calc(20 * var(--u)); top: calc(401 * var(--u)); height: calc(42 * var(--u)); gap: calc(6 * var(--u)); }
+  #play { left: calc(15 * var(--u)); top: calc(360 * var(--u) + var(--dy, 0px)); width: calc(182 * var(--u)); height: calc(27 * var(--u)); }
+  #stagePrev { left: calc(201 * var(--u)); top: calc(360 * var(--u) + var(--dy, 0px)); width: calc(88 * var(--u)); height: calc(27 * var(--u)); }
+  #stageNext { left: calc(293 * var(--u)); top: calc(360 * var(--u) + var(--dy, 0px)); width: calc(88 * var(--u)); height: calc(27 * var(--u)); }
+  .scenes { left: calc(20 * var(--u)); top: calc(401 * var(--u) + var(--dy, 0px)); height: calc(42 * var(--u)); gap: calc(6 * var(--u)); }
   .scene { width: calc(117 * var(--u)); }
-  .stage { left: calc(20 * var(--u)); top: calc(444 * var(--u)); width: calc(364 * var(--u)); height: calc(276 * var(--u)); }
+  .stage { left: calc(20 * var(--u)); top: calc(444 * var(--u) + var(--dy, 0px)); width: calc(364 * var(--u)); height: calc(276 * var(--u)); }
   body.intro .stage { clip-path: none; }
-  #zoomOut, #zoomIn { top: calc(689 * var(--u)); width: calc(27 * var(--u)); }
+  #zoomOut, #zoomIn { top: calc(689 * var(--u) + var(--dy, 0px)); width: calc(27 * var(--u)); }
   #zoomOut { left: calc(24 * var(--u)); } #zoomIn { left: calc(55 * var(--u)); }
-  .reveal { left: calc(24 * var(--u)); top: calc(448 * var(--u)); width: calc(356 * var(--u)); }
+  .reveal { left: calc(24 * var(--u)); top: calc(448 * var(--u) + var(--dy, 0px)); width: calc(356 * var(--u)); }
   /* numbers: full width, label left, value right */
-  #tally { left: calc(20 * var(--u)); top: calc(747 * var(--u)); bottom: auto; width: calc(364 * var(--u)); padding-top: calc(41 * var(--u)); gap: calc(4 * var(--u)); }
+  #tally { left: calc(20 * var(--u)); top: calc(747 * var(--u) + var(--dy, 0px)); bottom: auto; width: calc(364 * var(--u)); padding-top: calc(41 * var(--u)); gap: calc(4 * var(--u)); }
   #tally h2 { position: absolute; left: calc(-2 * var(--u)); top: 0; width: calc(363 * var(--u)); margin: 0; }
   #tally h2 br { display: none; }
   #tally .big { font-size: calc(34.5 * var(--u)); line-height: calc(34 * var(--u)); }
@@ -225,8 +227,9 @@ footer .keys { display: flex; gap: calc(16 * var(--u)); }
   .cg i, .cg svg { display: inline-block; vertical-align: top; margin: 0 calc(1.484 * var(--u)) calc(1.484 * var(--u)) 0; }
   .dccard { left: calc(4 * var(--u)); right: calc(4 * var(--u)); bottom: calc(4 * var(--u)); width: auto; max-height: calc(100% - 40 * var(--u)); }
   .dccard dl { grid-template-columns: calc(110 * var(--u)) 1fr; }
-  #introPrev { left: calc(17 * var(--u)); } #introNext { left: calc(263 * var(--u)); }
-  .intro-nav button { width: calc(122 * var(--u)); }
+  .intro-nav button, .intro-nav button.placed { top: calc(360 * var(--u) + var(--dy, 0px)); height: calc(27 * var(--u)); width: calc(88 * var(--u)); justify-content: center; }
+  #introPrev { left: calc(201 * var(--u)); } #introNext { left: calc(293 * var(--u)); }
+  .intro-nav button:not(:disabled) { opacity: 1; }
 }
 </style>
 </head>
@@ -1372,13 +1375,13 @@ function navCaption(dir) {
   state.playing = true; syncUI();
 }
 function placeChoices(under) {
-  if (MOB.matches) under = false;
+  if (MOB.matches) { document.body.classList.remove("choose"); return; } // mobile: the arrows sit in the button row under the text
   const ch = document.querySelector(".choices"), cap = document.getElementById("caption");
   document.body.classList.toggle("choose", under);
   if (!under) ch.style.top = "";
   requestAnimationFrame(() => {
     // measure only once the text is really set: not mid-swap, not while it still grows to the intro size
-    if (!cap.textContent || cap.classList.contains("cap-out") || parseFloat(getComputedStyle(cap).fontSize) < 33 * UF()) return;
+    if (!cap.textContent || cap.classList.contains("cap-out")) return;
     const a = document.querySelector(".app").getBoundingClientRect(), rg = document.createRange(); rg.selectNodeContents(cap); const tr = rg.getBoundingClientRect(), r = { bottom: tr.height ? tr.bottom : cap.getBoundingClientRect().bottom };
     if (under) ch.style.top = (r.bottom - a.top + 28 * UF()) + "px";
     // the big arrows sit underneath the text (and under the choices on 0.2)
@@ -1386,6 +1389,9 @@ function placeChoices(under) {
     document.querySelectorAll(".intro-nav button").forEach(btn => { const first = !btn.classList.contains("placed"); if (first) btn.style.transition = "none"; btn.style.top = (below + 15 * UF()) + "px"; if (first) { void btn.offsetWidth; btn.style.transition = ""; } btn.classList.add("placed"); });
   });
 }
+// mobile: the button row, tabs, map and numbers follow the text box (min 4, max 10 lines)
+{ const cap = document.getElementById("caption"), setDy = () => { const dy = MOB.matches ? cap.offsetHeight - 68 * UF() : 0; document.documentElement.style.setProperty("--dy", Math.max(0, dy).toFixed(1) + "px"); if (MOB.matches) { const tl = document.getElementById("tally"); setTimeout(() => document.documentElement.style.setProperty("--fy", (tl.offsetTop + tl.offsetHeight + 26 * UF()).toFixed(1) + "px"), 720); } };
+  new ResizeObserver(setDy).observe(cap); MOB.addEventListener("change", setDy); }
 function reNav() { if (document.body.classList.contains("intro")) placeChoices(document.body.classList.contains("choose")); }
 addEventListener("resize", reNav); document.fonts && document.fonts.ready.then(reNav); setTimeout(reNav, 300); setTimeout(reNav, 1400); document.getElementById("caption").addEventListener("transitionend", reNav);
 function syncIntroNav() { const b = document.getElementById("introPrev"); if (b) b.disabled = !(gateIdx >= 2 && gates[gateIdx - 2] && gates[gateIdx - 2].intro); }
@@ -1441,7 +1447,7 @@ let detailsOpen = false;
 function renderTally() {
   const m = model, P = m.P, p = selPath(), c = m.cell;
   const lmKg = m.lastMile.kg || 0;
-  document.getElementById("tally").innerHTML = `<h2>Your prompt<br>to ${P.label} (${P.company})</h2>
+  document.getElementById("tally").innerHTML = `<h2>Your prompt<br> to ${P.label} (${P.company})</h2>
 
     <div class="row"><span>One way, so far</span><span class="v unc">~ <span id="c-one">0</span> km</span></div>
     <div class="row unc" id="c-backrow"><span>And back to your device</span><span class="v">× 2</span></div>
@@ -1552,7 +1558,7 @@ function updateCounts() {
   }
   { // the squares fill down to the tally; refit when the tally grows (e.g. the sea cable row appears)
     const ct = document.getElementById("counter"), tl = document.getElementById("tally");
-    if (MOB.matches) { const fy = Math.max(948 * UF(), tl.offsetTop + tl.offsetHeight + 26 * UF()); document.documentElement.style.setProperty("--fy", fy.toFixed(1) + "px"); } // reading-the-data follows the numbers
+    if (MOB.matches) { const fy = tl.offsetTop + tl.offsetHeight + 26 * UF(); document.documentElement.style.setProperty("--fy", fy.toFixed(1) + "px"); } // reading-the-data follows the numbers
     const hNeed = MOB.matches ? ct.clientHeight : Math.max(40, tl.offsetTop - ct.offsetTop - 14 * UF()); // on mobile the column sits beside the tally
     if (Math.abs(ct.clientHeight - hNeed) > 1) { ct.style.height = hNeed + "px"; lastGrid = ""; }
   }
