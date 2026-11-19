@@ -1138,12 +1138,16 @@ function drawScene3(f, dash) {
     const tau = state.t - START[2], ss = selPath().sched, selF = tau <= 0 ? 0 : tau >= ss.total ? 1 : ghostState(ss, tau).out;
     f = isSel ? selF : (selF >= 1 ? 1 : 0);
     p.via.forEach((v, i) => { const key = v; if (seen.has(key)) return; seen.add(key); const q = sp[i + 1]; if (p.cum[i + 1] / p.cum[p.cum.length - 1] <= f) { dot(q[0], q[1], 2.2, CCOL.u); VIA_L.push([v, q]); } });
-    if (f >= 1) { const e = sp[sp.length - 1]; dot(e[0], e[1], isSel ? 5 : 3.5, CCOL[p.st]); DC_L.push(["Data Center: " + p.name + (p.def && m.paths.length > 1 ? " · default guess" : ""), e, CCOL[p.st], p.id]); }
+    if (f >= 1) {
+      const e = sp[sp.length - 1], veil = !isSel && !state.trace && state.hover !== p.id; // the other possibilities stay veiled until hovered
+      ctx.save(); if (veil) { ctx.globalAlpha = 0.3; ctx.filter = "blur(2.5px)"; } dot(e[0], e[1], isSel ? 5 : 3.5, CCOL[p.st]); ctx.restore();
+      DC_L.push(["Data Center: " + p.name + (p.def && m.paths.length > 1 ? " · default guess" : ""), e, CCOL[p.st], p.id, veil]);
+    }
   }
   // every point keeps its own spot free; data centres are named first, right next to their point, then the cable landings
   [...DC_L.map(d => d[1]), ...VIA_L.map(v => v[1])].forEach(q => reserve(q[0] - 5, q[1] - 5, 10, 10));
   DC_HIT.length = 0;
-  DC_L.forEach(([t, e, c, id]) => { if (label(t, e[0] + 6, e[1] + 4, c, "left", undefined, true) || label(t, e[0] + 6, e[1] + 4, c)) DC_HIT.push({ id, b: LBOX[LBOX.length - 1] }); });
+  DC_L.forEach(([t, e, c, id, veil]) => { ctx.save(); if (veil) { ctx.globalAlpha = 0.3; ctx.filter = "blur(2.5px)"; } if (label(t, e[0] + 6, e[1] + 4, c, "left", undefined, true) || label(t, e[0] + 6, e[1] + 4, c)) DC_HIT.push({ id, b: LBOX[LBOX.length - 1] }); ctx.restore(); });
   VIA_L.forEach(([v, q]) => label(v, q[0] + 7, q[1] + 4, CCOL.u));
   DC_L.length = 0; VIA_L.length = 0;
   if (cam.s <= 2.5) label("Edge node", hp[0] + 7, hp[1] - 6, m.P.hubObserved ? CCOL.c : CCOL.u);
