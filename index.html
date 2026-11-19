@@ -133,7 +133,7 @@ body.intro .mapnav, body.intro .zoom { opacity: 0; pointer-events: none; }
 .more[aria-expanded="true"] { border-color: var(--certain); color: var(--certain); }
 .cert { color: var(--certain); } .unc { color: var(--unknown); } .nod { color: var(--nodata); }
 /* Design5 "Data Window": bottom right of the map, label column 128, rows 4 apart, labels sit on the last line of their value */
-.dccard { right: calc(3 * var(--ux)); bottom: calc(5 * var(--uy)); width: calc(562 * var(--ux)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: #262626; border: 1px solid #cbcbcb; padding: calc(8 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; color: #fff; }
+.dccard { right: calc(3 * var(--ux)); bottom: calc(5 * var(--uy)); width: calc(562 * var(--ux)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: #262626; border: 0.8px solid #5a5a5a; /* like the Swiss border */ padding: calc(8 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; color: #fff; }
 .dccard[hidden] { display: none; }
 .dccard dl { display: grid; grid-template-columns: calc(128 * var(--u)) 1fr; row-gap: calc(4 * var(--u)); margin: 0; align-items: end; }
 .dccard dt { color: #6e6e6e; padding-right: calc(10 * var(--u)); } .dccard dd { margin: 0; color: #fff; }
@@ -319,6 +319,7 @@ const PLACES = [
 
 // [lon, lat]; ch = inside Switzerland (drawn through the LV95 grid fit)
 const PT = {
+  yverdonSwitch: { ll: [6.64, 46.78], ch: true, name: "SWITCH, Yverdon" },
   lausanneSwitch: { ll: [6.566, 46.519], ch: true, name: "SWITCH, Lausanne" },
   fribourgSwitch: { ll: [7.15, 46.80], ch: true, name: "SWITCH, Fribourg" },
   zurichSwitch: { ll: [8.55, 47.38], ch: true, name: "SWITCH, Zurich" },
@@ -332,6 +333,8 @@ const PT = {
   bilbao: { ll: [-2.98, 43.38], name: "Cable landing, Bilbao" },
   vabeach: { ll: [-75.98, 36.85], name: "Cable landing, Virginia Beach" },
   memphis: { ll: [-90.13, 35.06], name: "Colossus 1, Memphis" },
+  colossus2: { ll: [-90.03, 35.01], name: "Colossus 2, Memphis" },
+  lakemariner: { ll: [-78.60, 43.36], name: "Lake Mariner, Barker (NY)" },
   newcarlisle: { ll: [-86.51, 41.70], name: "Anthropic-Amazon, New Carlisle (IN)" },
   waltham: { ll: [-0.03, 51.70], name: "Google, Waltham Cross (UK)" },
   ashburn: { ll: [-77.49, 39.04], name: "AWS, Northern Virginia" },
@@ -339,30 +342,36 @@ const PT = {
   stghislain: { ll: [3.87, 50.47], name: "Google, St. Ghislain (BE)" },
   eemshaven: { ll: [6.84, 53.43], name: "Google, Eemshaven (NL)" },
   hamina: { ll: [27.11, 60.54], name: "Google, Hamina (FI)" },
-  paris: { ll: [2.40, 48.60], name: "Mistral compute, Paris region" },
+  bruyeres: { ll: [2.19, 48.59], name: "Mistral, Bruyères-le-Châtel (FR)" },
+  lesulis: { ll: [2.17, 48.68], name: "Mistral, Les Ulis (FR)" },
   germany: { ll: [10.45, 51.16], name: "Proton servers, Germany (city not public)" }
 };
 const posOf = k => PT[k].ch ? SW(PT[k].ll) : W(PT[k].ll);
 
 // Data centre facts. Epoch AI, "AI data centers", Nov 2026 (CC BY 4.0), unless noted.
+// Only published, verified facts are listed; a fact nobody publishes is left out.
 const DC = {
-  memphis: { power: ["340 MW", "EXT"], chips: ["H100, H200, B200 · ~276'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #confident" },
-  newcarlisle: { power: ["1'037 MW", "EXT"], chips: ["Amazon Trainium2 · ~818'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #confident" },
-  ashburn: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
-  frankfurt: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
-  waltham: { power: ["88 MW", "EXT"], chips: ["Google TPU v6e · ~124'000 H100e", "EXT"], src: "Epoch AI: Google DeepMind listed as user, #speculative" },
-  stghislain: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
-  eemshaven: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
-  hamina: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
-  d4: { power: ["1.25 MW IT · PUE 1.09", "SR"], chips: ["Nvidia L4, A100, H100", "SR"], src: "Infomaniak; DatacenterDynamics. Exact address not public." },
-  paris: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Not in the Epoch AI dataset" },
-  germany: { power: ["No data provided", "?"], chips: ["No data provided", "?"], src: "Proton names only the country." }
+  memphis: { power: ["340 MW IT · 425 MW site", "EXT"], chips: ["H100, H200, B200 · ~276'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #confident" },
+  colossus2: { power: ["946 MW IT · 1'276 MW site", "EXT"], chips: ["B200, B300 · ~1'112'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #confident" },
+  newcarlisle: { power: ["1'037 MW IT · 1'244 MW site", "EXT"], chips: ["Amazon Trainium2 · ~818'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #confident" },
+  lakemariner: { power: ["210 MW IT · 245 MW site", "EXT"], chips: ["Google TPU v7 · ~293'000 H100e", "EXT"], src: "Epoch AI: Anthropic listed as user, #likely" },
+  ashburn: { pue: ["1.15 (2025, region average)", "SR"], water: ["0.06 L/kWh (2025, region average)", "SR"], src: "Not in the Epoch AI dataset. AWS, US East (Northern Virginia) sustainability fact sheet; AWS publishes per region, not per building." },
+  frankfurt: { pue: ["1.24 (2025, region average)", "SR"], water: ["0.17 L/kWh (2025, region average)", "SR"], src: "Not in the Epoch AI dataset. AWS, Germany sustainability fact sheet; AWS publishes per region, not per building." },
+  waltham: { power: ["88 MW IT · 124 MW site", "EXT"], chips: ["Google TPU v6e · ~124'000 H100e", "EXT"], src: "Epoch AI: Google DeepMind listed as user, #speculative" },
+  stghislain: { pue: ["1.08 (Q2 2026)", "SR"], src: "Not in the Epoch AI dataset. PUE: Google, datacenters.google/efficiency." },
+  eemshaven: { pue: ["1.07 (Q2 2026)", "SR"], src: "Not in the Epoch AI dataset. PUE: Google, datacenters.google/efficiency." },
+  hamina: { pue: ["1.09 (Q2 2026)", "SR"], src: "Not in the Epoch AI dataset. PUE: Google, datacenters.google/efficiency." },
+  d4: { pue: ["1.09", "SR"], chips: ["Nvidia L4, A100, H100", "SR"], water: ["None for cooling", "SR"], src: "Not in the Epoch AI dataset. Infomaniak; DatacenterDynamics. Exact address not public." },
+  bruyeres: { power: ["44 MW", "SR"], chips: ["13'800 Nvidia GB300", "SR"], src: "Not in the Epoch AI dataset. Mistral AI (March 2026), run by Eclairion; for training and answers." },
+  lesulis: { power: ["10 MW", "SR"], src: "Not in the Epoch AI dataset. Mistral AI (May 2026): inference site, due Q3 2026." },
+  germany: { src: "Not in the Epoch AI dataset. Proton names only the country (swissinfo)." }
 };
+const DC_ROWS = [["power", "Power"], ["chips", "Chips"], ["pue", "PUE (energy overhead)"], ["water", "Water"]];
 // who owns the building (Epoch AI / company pages); empty = not public
-const DC_OWNER = { memphis: "SpaceXAI", newcarlisle: "Amazon", ashburn: "Amazon (AWS)", frankfurt: "Amazon (AWS)", waltham: "Google", stghislain: "Google", eemshaven: "Google", hamina: "Google", d4: "Infomaniak", paris: "", germany: "" };
+const DC_OWNER = { memphis: "SpaceXAI", colossus2: "SpaceXAI", newcarlisle: "Amazon", lakemariner: "AI XPV Platform", ashburn: "Amazon (AWS)", frankfurt: "Amazon (AWS)", waltham: "Google", stghislain: "Google", eemshaven: "Google", hamina: "Google", d4: "Infomaniak", bruyeres: "Eclairion", lesulis: "", germany: "" };
 // Epoch AI, "AI data centers" (Nov 2026, CC BY 4.0): latest record up to today for the sites on our map
-const EPOCH = {"memphis": {"name": "Colossus 1", "owner": "SpaceXAI", "users": "Anthropic", "address": "3231 Riverport Rd, Memphis, TN 38109", "country": "United States", "energy": "MLGW", "builder": "", "power": 425.0, "itpower": 340.0, "h100e": 275795.85649317835, "buildings": 1.0, "water": null, "capex": 12.87988, "build": 4.001460000000001, "chips": [["H200", 50000], ["B200", 30000], ["H100", 150000]], "status": "No major changes to the data center since February. Solar panels have been placed next to the facility.", "statusDate": "2026-06-15", "sources": [["May 2025 Electricity Provider Disclosure", "https://drive.google.com/file/d/17WAFThn95X85ebzA_e19R1zYycwFzAl2/view?usp=sharing"], ["July 2025 Permit for Gas Turbines", "https://www.scribd.com/document/883601734/01156-01PC-070225-Permit"], ["Southern Environmental Law Center Gas Permit Appeal, with additional satellite images", "https://cdn.arstechnica.net/wp-content/uploads/2025/07/NAACP-and-YGGs-xAI-Air-Permit-Appeal-7-15-2025.pdf"], ["Disclosure on X (formerly Twitter) by Elon Musk of the breakdown of GPUs", "https://archive.is/oHQSA"]]}, "newcarlisle": {"name": "Anthropic-Amazon New Carlisle", "owner": "Amazon", "users": "Anthropic", "address": "55001 Larrison Blvd, New Carlisle, IN 46552", "country": "United States", "energy": "", "builder": "", "power": 1244.0, "itpower": 1037.0, "h100e": 818428.4992420415, "buildings": 18.0, "water": 21.0, "capex": 39.283634, "build": 12.204452999999999, "chips": [["Trainium2", 1044980]], "status": "Buildings 17-18 are operational. This is an estimate based on a rule of thumb of \"operational 5 months after roof is complete\", assuming the roofs took one more month after 2025-12-23. Also added four more months to account for commissioning and adjacent cooling units not being complete yet.", "statusDate": "2026-10-19", "sources": [["Air Construction Permit application for the northern portion", "https://drive.google.com/file/d/1BKiTFNUk2KDaUaiHG7fz0KlkNSBTHzbb/view?usp=sharing"], ["Backup diesel generator referenced in the permit", "https://www.cat.com/en_US/products/new/power-systems/electric-power/diesel-generator-sets/117341.html"], ["Announcement of Project Rainier coming online", "https://www.aboutamazon.com/news/aws/aws-project-rainier-ai-trainium-chips-compute-cluster"], ["Air permit for Buildings 19-32, suggesting expansion to 2.3 GW total facility power", "https://t.co/HsAO7oyKa2"]]}, "waltham": {"name": "Google Waltham Cross", "owner": "Google", "users": "Google DeepMind", "address": "Land at Maxwell's Farm West, Great Cambridge Road, Cheshunt, EN8 8XH", "country": "United Kingdom", "energy": "Shell Energy Europe,Engie", "builder": "", "power": 124.0, "itpower": 88.0, "h100e": 123799.89893885801, "buildings": 1.0, "water": null, "capex": 3.3336159999999997, "build": 1.035672, "chips": [["TPU v6e", 133385]], "status": "Full buildout reconfirmed via high-resolution Pléiades-Neo satellite image; no capacity change since September 2025.", "statusDate": "2026-04-23", "sources": [["Google — Waltham Cross data centre page", "https://datacenters.google/locations/waltham-cross/"], ["Google opening announcement (Sept 2025)", "https://www.googlecloudpresscorner.com/2025-09-16-Google-Opens-Waltham-Cross-Data-Centre-as-Part-of-Two-year-GBP5-Billion-Investment-in-the-UK-to-Help-Power-its-AI-Economy"], ["Project Saracen scoping report (Broxbourne planning application ref 07/18/1181/O) ", "https://www.broxbourne.gov.uk/downloads/file/51/project-saracen-scoping-report-for-submission-full-13-08-18-compressed-v2"], ["Planning application description (CPRE Hertfordshire)", "https://www.cpreherts.org.uk/resources/land-at-maxwells-farm-west-great-cambridge-road-cheshunt-hertfordshire/"]]}};
-// sea cable most likely used between two landings (TeleGeography)
+const EPOCH = {"memphis": {"name": "Colossus 1", "owner": "SpaceXAI", "users": "Anthropic", "address": "3231 Riverport Rd, Memphis, TN 38109", "country": "United States", "energy": "MLGW", "builder": "", "power": 425.0, "itpower": 340.0, "h100e": 275795.85649317835, "buildings": 1.0, "water": null, "capex": 12.87988, "build": 4.001460000000001, "chips": [["H200", 50000], ["B200", 30000], ["H100", 150000]], "status": "No major changes to the data center since February. Solar panels have been placed next to the facility.", "statusDate": "2026-06-15", "sources": [["May 2025 Electricity Provider Disclosure", "https://drive.google.com/file/d/17WAFThn95X85ebzA_e19R1zYycwFzAl2/view?usp=sharing"], ["July 2025 Permit for Gas Turbines", "https://www.scribd.com/document/883601734/01156-01PC-070225-Permit"], ["Southern Environmental Law Center Gas Permit Appeal, with additional satellite images", "https://cdn.arstechnica.net/wp-content/uploads/2025/07/NAACP-and-YGGs-xAI-Air-Permit-Appeal-7-15-2025.pdf"], ["Disclosure on X (formerly Twitter) by Elon Musk of the breakdown of GPUs", "https://archive.is/oHQSA"]]}, "newcarlisle": {"name": "Anthropic-Amazon New Carlisle", "owner": "Amazon", "users": "Anthropic", "address": "55001 Larrison Blvd, New Carlisle, IN 46552", "country": "United States", "energy": "", "builder": "", "power": 1244.0, "itpower": 1037.0, "h100e": 818428.4992420415, "buildings": 18.0, "water": 21.0, "capex": 39.283634, "build": 12.204452999999999, "chips": [["Trainium2", 1044980]], "status": "Buildings 17-18 are operational. This is an estimate based on a rule of thumb of \"operational 5 months after roof is complete\", assuming the roofs took one more month after 2025-12-23. Also added four more months to account for commissioning and adjacent cooling units not being complete yet.", "statusDate": "2026-10-19", "sources": [["Air Construction Permit application for the northern portion", "https://drive.google.com/file/d/1BKiTFNUk2KDaUaiHG7fz0KlkNSBTHzbb/view?usp=sharing"], ["Backup diesel generator referenced in the permit", "https://www.cat.com/en_US/products/new/power-systems/electric-power/diesel-generator-sets/117341.html"], ["Announcement of Project Rainier coming online", "https://www.aboutamazon.com/news/aws/aws-project-rainier-ai-trainium-chips-compute-cluster"], ["Air permit for Buildings 19-32, suggesting expansion to 2.3 GW total facility power", "https://t.co/HsAO7oyKa2"]]}, "waltham": {"name": "Google Waltham Cross", "owner": "Google", "users": "Google DeepMind", "address": "Land at Maxwell's Farm West, Great Cambridge Road, Cheshunt, EN8 8XH", "country": "United Kingdom", "energy": "Shell Energy Europe,Engie", "builder": "", "power": 124.0, "itpower": 88.0, "h100e": 123799.89893885801, "buildings": 1.0, "water": null, "capex": 3.3336159999999997, "build": 1.035672, "chips": [["TPU v6e", 133385]], "status": "Full buildout reconfirmed via high-resolution Pléiades-Neo satellite image; no capacity change since September 2025.", "statusDate": "2026-04-23", "sources": [["Google — Waltham Cross data centre page", "https://datacenters.google/locations/waltham-cross/"], ["Google opening announcement (Sept 2025)", "https://www.googlecloudpresscorner.com/2025-09-16-Google-Opens-Waltham-Cross-Data-Centre-as-Part-of-Two-year-GBP5-Billion-Investment-in-the-UK-to-Help-Power-its-AI-Economy"], ["Project Saracen scoping report (Broxbourne planning application ref 07/18/1181/O) ", "https://www.broxbourne.gov.uk/downloads/file/51/project-saracen-scoping-report-for-submission-full-13-08-18-compressed-v2"], ["Planning application description (CPRE Hertfordshire)", "https://www.cpreherts.org.uk/resources/land-at-maxwells-farm-west-great-cambridge-road-cheshunt-hertfordshire/"]]}, "colossus2": {"name": "Colossus 2", "owner": "SpaceXAI", "users": "Anthropic, Cursor, SpaceXAI", "address": "5420 Tulane Rd, Memphis, TN 38109", "country": "United States", "energy": "", "builder": "", "power": 1276.0, "itpower": 946.0, "h100e": 1111672.5618999496, "buildings": 2.0, "water": null, "capex": 35.836372, "build": 11.133474, "chips": [["B200", 110000], ["B300", 330000]], "status": "The site is estimated to have at least ~830 MW of GPU server power, with at least \"at least 220,000 additional GB300 processors and over 400 additional megawatts of compute power\", corresponding to the \"next phase of expansion\" found in the following company S-1 filing, page 76. This estimate is backed up by our cooling and turbine based power production calculations. The cooling calculations suggest there is enough infrastructure to support ~850MW of IT Power. Similarly the energy production calculations support ~900MW of available IT Power. This gives us confidence that the proposed expansion was achieved in time. The roof for building 3 is halfway complete.", "statusDate": "2026-06-15", "sources": [["WSJ profile of the Colossus data centers", "https://www.wsj.com/tech/elon-musk-xai-memphis-tennessee-power-dec4c70d"], ["Final GPU count reported by Elon Musk", "https://x.com/elonmusk/status/1947701807389515912"], ["MLGW update mentioning power requests for Colossus 2", "https://www.mlgw.com/images/content/files/pdf/new/5-5-25%20xAI%20Update.pdf#page=4"], ["SpaceX-Cursor partnership to use Colossus", "https://x.com/SpaceX/status/2046713419978453374"]]}, "lakemariner": {"name": "Anthropic Lake Mariner", "owner": "AI XPV Platform", "users": "Anthropic", "address": "7725 Lake Rd, Barker, NY 14012", "country": "United States", "energy": "", "builder": "", "power": 245.0, "itpower": 210.0, "h100e": 292829.71197574533, "buildings": 2.0, "water": null, "capex": 7.955219999999999, "build": 2.4714899999999997, "chips": [["TPU v7", 125598]], "status": "Building 2 (AKA CB4) is operational. On February 26, Terawulf stated that CB4 was expected to be energized by Q3 2026.", "statusDate": "2026-10-31", "sources": [["Terawulf press release with details and timeline for Buildings 1-5", "https://investors.terawulf.com/news-events/press-releases/detail/132/terawulf-reports-fourth-quarter-and-full-year-2025-results"], ["DCD article suggesting that Fluidstack will deploy Google TPUs at Lake Mariner", "https://www.datacenterdynamics.com/en/news/google-offers-its-tpus-to-ai-cloud-providers-report/"], ["Announcement of Anthropic-Fluidstack partnership, including data center(s) in New York", "https://www.anthropic.com/news/anthropic-invests-50-billion-in-american-ai-infrastructure"]]}};
+// one possible sea cable between two landings (TeleGeography); no trace shows which cable is used
 const SEA_CABLE = { "bilbao-vabeach": { name: "MAREA", owners: "Microsoft, Meta and Telxius" } };
 // Traceroutes from Lausanne centre, home Wi-Fi, 18 Nov 2026 23:01 (own measurement). The line leaves the home router over
 // Swisscom's infrastructure (138.187.x, Swisscom-Infra) into the green.ch backbone (146.228.x). Those routers give no place
@@ -381,13 +390,15 @@ const PROVIDERS = {
   claude: {
     label: "Claude", company: "Anthropic", hub: "cixp", hubObserved: true, edge: "Cloudflare's edge for claude.ai",
     dcs: [
-      { to: "memphis", via: ["bilbao", "vabeach"], def: true, st: "u", why: "Epoch AI lists Anthropic as a user (#confident); not confirmed which prompts it answers." },
-      { to: "newcarlisle", via: ["bilbao", "vabeach"], st: "u", why: "Epoch AI lists Anthropic as a user (#confident); built by Amazon, named mainly for training." },
+      { to: "memphis", via: ["bilbao", "vabeach"], def: true, st: "u", why: "Anthropic itself announced that it takes all of Colossus 1's computing power (Epoch AI; Anthropic's IPO filing). Which prompts it answers is not published." },
+      { to: "colossus2", via: ["bilbao", "vabeach"], st: "u", why: "Epoch AI lists Anthropic as a user (#confident). Which prompts it answers is not published." },
+      { to: "newcarlisle", via: ["bilbao", "vabeach"], st: "u", why: "Epoch AI lists Anthropic as a user (#confident); built by Amazon." },
+      { to: "lakemariner", via: ["bilbao", "vabeach"], st: "u", why: "Epoch AI lists Anthropic as a likely user (#likely)." },
       { to: "ashburn", via: ["bilbao", "vabeach"], st: "n", why: "AWS region; Anthropic does not say whether prompts run here." },
       { to: "frankfurt", via: [], st: "n", why: "AWS region; Anthropic does not say whether prompts run here." }
     ],
-    energy: ["No data provided", "?"], energyExt: ["~0.3–2.8 Wh", "EXT"], water: ["No data provided", "?"], material: ["No data provided", "?"],
-    dcNote: "Anthropic does not say where a prompt is computed. All its sites in the Epoch AI dataset are in the US. Energy: independent estimates per model (Projet Celsius); agent use such as Claude Code can reach ~150 Wh per prompt (Hausfather 2026)."
+    energy: ["No data provided", "?"], energyExt: ["~0.83 Wh per conversation (Sonnet 5)", "EXT"], water: ["No data provided", "?"], material: ["No data provided", "?"],
+    dcNote: "Anthropic does not say where a prompt is computed. All its sites in the Epoch AI dataset are in the US. Energy: independent estimate for Claude Sonnet 5 (Projet Celsius, CLEER method, Nov 2026, assuming a typical US data centre); agent use such as Claude Code can reach ~150 Wh per prompt (Hausfather 2026)."
   },
   gemini: {
     label: "Gemini", company: "Google", hub: "swissix", hubObserved: true, edge: "Google's edge in Zurich",
@@ -398,7 +409,7 @@ const PROVIDERS = {
       { to: "waltham", via: [], st: "u", why: "Epoch AI lists Google DeepMind as a user (#speculative)." }
     ],
     energy: ["0.24 Wh", "SR"], water: ["0.26 ml", "SR"], material: ["No data provided", "?"],
-    dcNote: "Google publishes per-prompt energy and water, but not which data centre answers you. Its 0.24 Wh leaves out the network, your device and training."
+    dcNote: "Google publishes per-prompt energy and water, but not which data centre answers you. Its 0.24 Wh (median prompt, May 2025 data, not independently verified) leaves out the network, your device and training. Google publishes the PUE of each site, not its power or chips."
   },
   perplexity: {
     label: "Perplexity", company: "Perplexity", hub: "equinixzh", hubObserved: true, edge: "Cloudflare's edge in Zurich",
@@ -406,8 +417,8 @@ const PROVIDERS = {
       { to: "ashburn", via: ["bilbao", "vabeach"], def: true, st: "n", why: "Perplexity rents AWS servers; region not published." },
       { to: "frankfurt", via: [], st: "n", why: "Possible AWS region; not published." }
     ],
-    energy: ["No data provided", "?"], energyExt: ["~0.5 Wh", "EXT"], water: ["No data provided", "?"], waterExt: ["~0.9 ml", "EXT"], material: ["No data provided", "?"],
-    dcNote: "Perplexity rents AWS and Azure servers and does not publish where."
+    energy: ["No data provided", "?"], water: ["No data provided", "?"], material: ["No data provided", "?"],
+    dcNote: "Perplexity rents servers from AWS (its preferred provider), Microsoft Azure and CoreWeave, and does not publish where. It publishes no figures for energy, water or emissions."
   },
   euria: {
     label: "Euria", company: "Infomaniak", hub: "cixp", hubObserved: true, edge: "Infomaniak's network, Geneva",
@@ -417,10 +428,13 @@ const PROVIDERS = {
     dcNote: "D4 sits underground in Plan-les-Ouates and feeds server heat into Geneva's district heating. On Wi-Fi and on mobile, every trace ends at Infomaniak routers named 'plo' (Plan-les-Ouates). The exact address is not public."
   },
   mistral: {
-    label: "Le Chat", company: "Mistral", hub: "cixp", hubObserved: true, edge: "Cloudflare's edge for chat.mistral.ai",
-    dcs: [ { to: "paris", via: [], def: true, st: "u", why: "Mistral computes in France; site not published." } ],
-    energy: ["No data provided", "?"], water: ["45 ml", "SR"], material: ["0.16 mg Sb eq", "SR"],
-    dcNote: "Mistral's life-cycle analysis is the only one that reports material use. Our traces reach Cloudflare at CIXP, Geneva; every hop after that is hidden."
+    label: "Vibe", company: "Mistral", hub: "cixp", hubObserved: true, edge: "Cloudflare's edge for chat.mistral.ai",
+    dcs: [
+      { to: "bruyeres", via: [], def: true, st: "u", why: "Mistral's own cluster near Paris, for training and answers since mid-2026. Which site answers a prompt is not published." },
+      { to: "lesulis", via: [], st: "u", why: "Mistral's site for answering prompts, due in Q3 2026." }
+    ],
+    energy: ["No data provided", "?"], water: ["45 ml per 400-token answer (2025)", "SR"], material: ["0.16 mg Sb eq per 400-token answer (2025)", "SR"],
+    dcNote: "Vibe was called Le Chat until May 2026. Mistral's life-cycle analysis (July 2025, model Mistral Large 2) is the only one that reports material use; it does not cover the model Vibe uses today and gives no energy figure. Epoch AI also lists a Mistral site in Borlänge, Sweden, not running yet. Our traces reach Cloudflare at CIXP, Geneva; every hop after that is hidden."
   },
   lumo: {
     label: "Lumo", company: "Proton", hub: "swissix", hubObserved: false, edge: "Proton's network (not traced yet)",
@@ -432,11 +446,11 @@ const PROVIDERS = {
 
 // Cable data (Data sources, 17 Nov 2026). kg per km of route.
 const DUCT = { kg: 485, split: [["HDPE duct (40 mm)", 375], ["HDPE cable sheath", 45], ["PBT tubes", 20], ["Yarns, tape, gel", 20], ["Glass-fibre rod", 12], ["Optical fibre (glass 3.9, coating 5.8)", 10]] };
-const COPPER = { kg: 40, cu: 7.5, perPair: 3.5 }; // 2-pair cable; 3.5 kg Cu per pair-km at 0.5 mm (Swisscom diameters 0.4–1.0 mm → 2.3–14.1)
+const COPPER = { kg: 40, cu: 7.0, perPair: 3.5 }; // 2-pair cable; 3.5 kg Cu per pair-km at 0.5 mm (Swisscom diameters 0.4–1.0 mm → 2.3–14.1)
 const SEA = { min: 650, max: 1700, mats: "galvanised steel armour, steel tube, HDPE, bitumen, some copper" };
 // One sector (≈ ⅓ of a 3-direction Swisscom site) serves your prompt; counted once, not ×2.
 const MOBILE = [
-  ["Panel antennas in your sector, 1–3 × 12–57 kg", "12–171 kg", "SR"],
+  ["Panel antennas in your sector, 1–3 × 15–57 kg", "15–171 kg", "SR"],
   ["or 5G active antenna (Ericsson AIR 3268)", "~12 kg", "SR"],
   ["Brackets and clamps, galvanised steel", "5–7 kg each", "SR"],
   ["Radio units and baseband", "10–30 kg each", "EST"],
@@ -447,8 +461,7 @@ const MOBILE = [
 ];
 const LAND_FACTOR = 1.3, SEA_FACTOR = 1.1, LOCAL_KM = 1.5;
 const CLASS = ["none", ">0–10%", ">10–50%", ">50–90%", ">90–100%"];
-// Colour = who owns the infrastructure (access). Line form / square fill = how sure we are (certainty).
-// Colour = how sure we are (certainty). Line form = who owns it: public single line, shared double line, private line in a casing.
+// Colour = how sure we are (certainty). Icon on the line = who owns it: public plain line, shared = two rings, private = lock.
 const CCOL = { c: "#ffffff", u: "#3ff9ff", n: "#ff3f88" };
 const ACOL = { pub: "#ffffff", sh: "#3ff9ff", pr: "#ff3f88" }; // only for the legend of the three scenes
 const UF = () => Math.min(innerWidth / 1512, innerHeight / 982); // 1 Figma px in screen px
@@ -541,8 +554,8 @@ function polyCum(pts) { const c = [0]; for (let i = 1; i < pts.length; i++) c.pu
 function swissRoute(pl, P, observed) {
   const hops = [];
   if (observed) {
-    if (P.hub === "cixp") hops.push("lausanneSwitch");
-    else hops.push("lausanneSwitch", "fribourgSwitch", "bernSwitch", "baselSwitch", "zurichSwitch");
+    if (P.hub === "cixp") hops.push("yverdonSwitch", "lausanneSwitch");
+    else hops.push("yverdonSwitch", "lausanneSwitch", "fribourgSwitch", "bernSwitch", "baselSwitch", "zurichSwitch");
   }
   const key = [pl.E, pl.N, P.hub, hops.join()].join("|");
   if (routeCache.has(key)) return routeCache.get(key);
@@ -798,7 +811,7 @@ const toW = (x, y) => [(x - VW / 2) / cam.s + cam.x, (y - VH / 2) / cam.s + cam.
 
 // ================= drawing =================
 let FONT = "11px monospace";
-// cert: colour (c white, u blue, n red) · acc: form ("pub" single line, "sh" double line, "pr" line inside a casing, "r" radio dots)
+// cert: colour (c white, u blue, n red) · acc: form ("pub" plain line, "sh" line with the shared icon, "pr" line with the lock icon, "r" radio dots)
 const HOLLOW = "#2b2b2b";
 // "Shared" icon: two overlapping rings (networks meeting), placed along the path every SHARED_STEP screen px
 const SHARED_STEP = 150;
@@ -943,7 +956,7 @@ function renderGridImage() {
 }
 function drawLand() {
   if (!LAND) return;
-  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), w = 1 - k, o = Math.round(78 + (90 - 78) * w); ctx.fillStyle = `rgba(255,255,255,${(0.08 * w).toFixed(3)})`; ctx.strokeStyle = `rgb(${o},${o},${o})`; ctx.lineWidth = 1 - 0.2 * w; } // Swiss views Dark; the world: land white at 8 %, outlines and borders #5A5A5A
+  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), w = 1 - k; ctx.fillStyle = `rgba(255,255,255,${(0.08 * w).toFixed(3)})`; ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8; } // every outline like the Swiss border // Swiss views Dark; the world: land white at 8 %, outlines and borders #5A5A5A
   for (const ring of LAND.land) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8;
   for (const ring of LAND.ch) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.stroke(); }
@@ -1019,7 +1032,7 @@ function drawScene1(t, dash) {
       ctx.restore();
       strokePoly([dev, ant], "u", 1.6, dash, traceA(0.6, 0.04), "r");
       dot(ant[0], ant[1], 4, CCOL.u); label("Mobile antenna 4G / 5G", ant[0] + 8, ant[1] - 8, CCOL.u, "left", 9);
-      label("your sector: 1–3 antennas, 12–57 kg each", ant[0] + 8, ant[1] + 6, CCOL.u, "left", 9);
+      label("your sector: 1–3 antennas, 15–57 kg each", ant[0] + 8, ant[1] + 6, CCOL.u, "left", 9);
       label("then fibre in the ground to the exchange", ant[0] + 8, ant[1] + 20, CCOL.u, "left", 9);
       pts.push(dev, ant, street, out);
     } else {
@@ -1125,12 +1138,16 @@ function drawScene3(f, dash) {
     const tau = state.t - START[2], ss = selPath().sched, selF = tau <= 0 ? 0 : tau >= ss.total ? 1 : ghostState(ss, tau).out;
     f = isSel ? selF : (selF >= 1 ? 1 : 0);
     p.via.forEach((v, i) => { const key = v; if (seen.has(key)) return; seen.add(key); const q = sp[i + 1]; if (p.cum[i + 1] / p.cum[p.cum.length - 1] <= f) { dot(q[0], q[1], 2.2, CCOL.u); VIA_L.push([v, q]); } });
-    if (f >= 1) { const e = sp[sp.length - 1]; dot(e[0], e[1], isSel ? 5 : 3.5, CCOL[p.st]); DC_L.push(["Data Center: " + p.name + (p.def && m.paths.length > 1 ? " · default guess" : ""), e, CCOL[p.st], p.id]); }
+    if (f >= 1) {
+      const e = sp[sp.length - 1], veil = !isSel && !state.trace && state.hover !== p.id; // the other possibilities stay veiled until hovered
+      ctx.save(); if (veil) { ctx.globalAlpha = 0.3; ctx.filter = "blur(2.5px)"; } dot(e[0], e[1], isSel ? 5 : 3.5, CCOL[p.st]); ctx.restore();
+      DC_L.push(["Data Center: " + p.name + (p.def && m.paths.length > 1 ? " · default guess" : ""), e, CCOL[p.st], p.id, veil]);
+    }
   }
   // every point keeps its own spot free; data centres are named first, right next to their point, then the cable landings
   [...DC_L.map(d => d[1]), ...VIA_L.map(v => v[1])].forEach(q => reserve(q[0] - 5, q[1] - 5, 10, 10));
   DC_HIT.length = 0;
-  DC_L.forEach(([t, e, c, id]) => { if (label(t, e[0] + 6, e[1] + 4, c, "left", undefined, true) || label(t, e[0] + 6, e[1] + 4, c)) DC_HIT.push({ id, b: LBOX[LBOX.length - 1] }); });
+  DC_L.forEach(([t, e, c, id, veil]) => { ctx.save(); if (veil) { ctx.globalAlpha = 0.3; ctx.filter = "blur(2.5px)"; } if (label(t, e[0] + 6, e[1] + 4, c, "left", undefined, true) || label(t, e[0] + 6, e[1] + 4, c)) DC_HIT.push({ id, b: LBOX[LBOX.length - 1] }); ctx.restore(); });
   VIA_L.forEach(([v, q]) => label(v, q[0] + 7, q[1] + 4, CCOL.u));
   DC_L.length = 0; VIA_L.length = 0;
   if (cam.s <= 2.5) label("Edge node", hp[0] + 7, hp[1] - 6, m.P.hubObserved ? CCOL.c : CCOL.u);
@@ -1197,7 +1214,7 @@ const CAPTXT = {
   s31: m => `Past the border the route goes dark and private. ⟦n:${m.P.company} does not say in which data center a spell is received and answered⟧, so from here on ⟦u:we follow the most likely path⟧: one we cannot possibly measure.`,
   s32: (m, p) => {
     const land = p.via[0].replace(/^Cable landing, /, ""), sea = p.segs.find(x => x.kind === "sea"), c = sea && SEA_CABLE[sea.a + "-" + sea.b];
-    return `At ${land} the spell slips into a privately owned cable on the sea floor${c ? `, ⟦u:most likely ${c.name} of ${c.owners}⟧` : ""}: a few centimetres of steel and plastic around hair-thin fibres, crossing the dark ocean as flashes of laser light, together with billions of others every second.`;
+    return `At ${land} the spell slips into a privately owned cable on the sea floor${c ? `, ⟦u:one possible cable is ${c.name} of ${c.owners}⟧` : ""}: a few centimetres of steel and plastic around hair-thin fibres, crossing the dark ocean as flashes of laser light, together with billions of others every second.`;
   },
   s33: (m, p) => {
     const own = DC_OWNER[p.id], rent = own && !own.startsWith(m.P.company) ? `, ⟦u:its computing power rented by ${m.P.company}⟧` : "";
@@ -1380,8 +1397,7 @@ function renderTally() {
     <div class="row"><span>Repeaters on the sea floor</span><span class="v nod">No data provided <span class="code n">?</span></span></div>`;
   html += `<div class="row"><span>Data centre</span><span class="v" style="color:${CCOL[p.st]}">${p.name}</span></div>
     <div class="row"><span>Does ${P.label} use it?</span><span class="v" style="color:${CCOL[p.st]}">${{ c: "Certain", u: "Uncertain", n: "No data" }[p.st]}</span></div>
-    <div class="row"><span>Power of the site</span><span class="v">${val(DC[p.id].power)}</span></div>
-    <div class="row"><span>Chips</span><span class="v">${val(DC[p.id].chips)}</span></div>
+    ${DC_ROWS.filter(([k]) => DC[p.id][k]).map(([k, n]) => `<div class="row"><span>${n}</span><span class="v">${val(DC[p.id][k])}</span></div>`).join("")}
     <div class="note">${DC[p.id].src}</div>
     <div class="row"><span>Energy per prompt</span><span class="v">${val(P.energy)}</span></div>
     ${P.energyExt ? `<div class="row"><span class="note">third-party estimate</span><span class="v">${val(P.energyExt)}</span></div>` : ""}
@@ -1391,10 +1407,10 @@ function renderTally() {
     ${(P.extra || []).map(([n, v, cd]) => `<div class="row"><span>${n}</span><span class="v">${val([v, cd])}</span></div>`).join("")}
     <div class="row"><span>Training share</span><span class="v unc">Decision pending</span></div>
     <div class="note">${P.dcNote}</div></section>`;
-  html += `<section><div class="note">Prototype, 18 Nov 2026. In the bar the meter shows the whole BAKOM class (e.g. 10–50%), not one value. Hubs, landings and data centres are placed approximately. Land routes outside Switzerland: straight line × ${LAND_FACTOR}; sea × ${SEA_FACTOR}.</div>
+  html += `<section><div class="note">Prototype, 19 Nov 2026. In the bar the meter shows the whole BAKOM class (e.g. 10–50%), not one value. Hubs, landings and data centres are placed approximately. Land routes outside Switzerland: straight line × ${LAND_FACTOR}; sea × ${SEA_FACTOR}.</div>
     <details><summary>Sources</summary><ul>
     <li><a href="https://map.geo.admin.ch">BAKOM broadband atlas (fibre, coax, copper)</a></li>
-    <li><a href="https://ecatalog.corning.com">Corning duct and armoured cables</a>, <a href="https://efobasen.efo.no">Emtelle HDPE ducts</a>, <a href="https://fiber-optic-catalog.ofsoptics.com">OFS</a></li>
+    <li>Corning <a href="https://ecatalog.corning.com/optical-communications/AU/en/Fiber-Optic-Cables/Outdoor/Outdoor-Duct-Cables/ALTOS%C2%AE-Loose-Tube%2C-Gel-Free%2C-All-Dielectric%2C-Non-Armored-Cables-with-Binderless-FastAccess%E2%84%A2-Technology/p/144ZP4-T3F20D20">duct cable 144ZP4-T3F20D20</a> and <a href="https://ecatalog.corning.com/optical-communications/AU/en/Fiber-Optic-Cables/Outdoor/Outdoor-Direct-Buried-Cables/ALTOS%C2%AE-Loose-Tube-Steel-Armor-Outdoor-Cable-LT-2-0-HDPE/p/144FPC-T3101P20">armoured cable 144FPC-T3101P20</a>, <a href="https://efobasen.efo.no/API/Produktfiler/LastNed?id=1337038">EFO database, HDPE duct 40 mm</a>, <a href="https://www.emtelle.com/Content/Uploads/MHT2639.pdf">Emtelle HDPE duct specification</a>, <a href="https://fiber-optic-catalog.ofsoptics.com/documents/pdf/200-AD.12.01.PE.0_Standard%20Duct_12el.pdf">OFS standard duct cable</a></li>
     <li><a href="https://www.aenor.com/documents/d/guest/globalepd-en15804-209-cunext-opgw-a003a-260119">CUNEXT OPGW EPD</a>, <a href="https://assets.legrand.com/pim/DOCUMENT/LGRP-02008-V01.01-EN.pdf">Legrand PEP</a></li>
     <li><a href="https://www.nexans.no/en/products/Fiberoptic-Cables-and-Components/Submarine-Fiber-Cables/URC-1-Ligh10763.html">Nexans URC-1</a> and <a href="https://www.hexatronic.com/hubfs/datasheets/28701-10_ton_SA_en_Hexatronic.pdf">Hexatronic</a> submarine cables (650–1,700 kg/km)</li>
     <li><a href="https://www.swisscom.ch/content/dam/swisscom/de/ws/documents/D_FMG-Dokumente/TAL/D_TAL_HB_Technik_V2-0.pdf">Swisscom, Handbuch Teilnehmeranschlussleitung</a>; <a href="https://www.swisscom.ch/de/about/netz/kupferanschluss.html">Swisscom, copper switch-off</a></li>
@@ -1405,10 +1421,13 @@ function renderTally() {
     <li><a href="https://www.ericsson.com/en/news/2016/3/swisscom-and-ericsson-plant-lte-small-cells-underground">Swisscom and Ericsson, small cells in manholes</a></li>
     <li><a href="https://epoch.ai/data/ai-data-centers">Epoch AI, AI data centers</a> (CC BY 4.0)</li>
     <li><a href="https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference">Google, Gemini per-prompt figures</a></li>
-    <li><a href="https://projetcelsius.com/en/blog/claude-carbon-footprint/">Projet Celsius, Claude estimate</a></li>
+    <li><a href="https://projetcelsius.com/en/blog/claude-carbon-footprint/">Projet Celsius, Claude estimate (Sonnet 5)</a></li>
+    <li><a href="https://www.datacenterdynamics.com/en/news/perplexity-signs-750m-cloud-agreement-with-microsoft/">DatacenterDynamics, Perplexity and Microsoft</a>, <a href="https://projetcelsius.com/en/ai/ranking/assistants/perplexity/">Projet Celsius, Perplexity profile</a></li>
+    <li><a href="https://sustainability.aboutamazon.com/aws-sustainability-fact-sheets/aws-fact-sheet-virginia.pdf">AWS fact sheet Virginia</a>, <a href="https://sustainability.aboutamazon.com/aws-sustainability-fact-sheets/aws-fact-sheet-germany.pdf">AWS fact sheet Germany</a>, <a href="https://datacenters.google/efficiency/">Google, PUE per site</a></li>
+    <li><a href="https://www.datacenterdynamics.com/en/news/mistral-ai-raises-830m-in-debt-financing-for-data-center-in-paris-france">DatacenterDynamics, Mistral Bruyères-le-Châtel</a>, <a href="https://mistral.ai/news/ai-now-summit-2026">Mistral, AI Now Summit 2026 (Les Ulis, Vibe)</a></li>
     <li><a href="https://mistral.ai/news/our-contribution-to-a-global-environmental-standard-for-ai">Mistral life-cycle analysis</a></li>
-    <li><a href="https://news.infomaniak.com/en/infomaniak-inaugurates-a-revolutionary-data-center-that-recovers-100-of-its-energy-for-building-heating">Infomaniak D4</a></li>
-    <li><a href="https://proton.me/blog/lumo-ai">Proton, Lumo</a>, <a href="https://heise.de/-10538664">heise on Proton moving servers</a></li>
+    <li><a href="https://news.infomaniak.com/en/infomaniak-inaugurates-a-revolutionary-data-center-that-recovers-100-of-its-energy-for-building-heating">Infomaniak D4</a>, <a href="https://datacenterdynamics.com/en/news/infomaniak-launches-geneva-data-center">DatacenterDynamics on D4</a></li>
+    <li><a href="https://www.swissinfo.ch/eng/ai-governance/proton-does-not-trust-switzerland-to-host-its-ai-servers/89727842">swissinfo, Proton hosts Lumo in Germany</a>, <a href="https://proton.me/blog/lumo-ai">Proton, Lumo</a>, <a href="https://heise.de/-10538664">heise on Proton moving servers</a></li>
     <li><a href="https://www.submarinecablemap.com">TeleGeography Submarine Cable Map</a></li>
     <li>Traceroutes from ÉCAL Wi-Fi and Sunrise mobile, 17 Nov 2026, 11:00–16:02, and 18 Nov 2026, 17:11; same path every run (own measurement)</li><li>Traceroutes from Lausanne centre, home Wi-Fi and Sunrise mobile, 18 Nov 2026, 23:01 (own measurement)</li>
     <li>Coastlines: Natural Earth (public domain)</li>
@@ -1567,6 +1586,7 @@ function update(restartAt) {
   model = buildModel();
   model.paths.forEach(p => p.total = () => p.land + p.sea);
   renderTally(); lastCount = ""; lastGrid = "";
+  document.getElementById("dccard").hidden = true; pinnedDc = null; cardFor = null; // a card from another service would be stale
   const keep = introOn ? (gates[gateIdx - 1] || {}).id : null; // a choice made during the intro keeps its slide
   if (restartAt !== undefined) goScene(restartAt, !reduce);
   if (keep) { const i = gates.findIndex(g => g.id === keep); if (i >= 0) { gateIdx = i; holdLeft = 0; } }
@@ -1681,16 +1701,13 @@ function showDcCard(id) {
     row("Power", `${num(e.power)} MW for the whole site, ${num(e.itpower)} MW for the computers`);
     row("Computing capacity", `~${num(e.h100e)} H100 equivalents`);
     row("Chips", e.chips.map(([t, n]) => `${num(n)} ${esc(t)}`).join(", "));
-    row("Water", e.water ? `~${num(e.water * 3.785)} million litres a day (${num(e.water)} MGD)` : nd);
+    if (e.water) row("Water", `~${num(e.water * 3.785)} million litres a day (${num(e.water)} MGD)`);
     row("Cost", `~$${e.capex.toFixed(1)} bn in total, of which ~$${e.build.toFixed(1)} bn for building it`);
     if (e.energy) row("Electricity from", esc(e.energy));
-    row("Material", nd);
   } else {
     const f = DC[id] || {};
-    row("Owner", DC_OWNER[id] ? esc(DC_OWNER[id]) : nd);
-    row("Power", f.power && f.power[1] !== "?" ? esc(f.power[0]) : nd);
-    row("Chips", f.chips && f.chips[1] !== "?" ? esc(f.chips[0]) : nd);
-    row("Material", nd);
+    if (DC_OWNER[id]) row("Owner", esc(DC_OWNER[id]));
+    DC_ROWS.forEach(([k, n]) => { if (f[k]) row(n, esc(f[k][0])); });
   }
   if (e) row("Status " + e.statusDate, esc(e.status.split(/(?<=\.)\s/)[0]), "gry");
   row("Source", esc(e ? `Epoch AI, “AI data centers”, Nov 2026 (CC BY 4.0)` : (DC[id] && DC[id].src) || "Not in the Epoch AI dataset"), "gry");
