@@ -133,7 +133,7 @@ body.intro .mapnav, body.intro .zoom { opacity: 0; pointer-events: none; }
 .more[aria-expanded="true"] { border-color: var(--certain); color: var(--certain); }
 .cert { color: var(--certain); } .unc { color: var(--unknown); } .nod { color: var(--nodata); }
 /* Design5 "Data Window": bottom right of the map, label column 128, rows 4 apart, labels sit on the last line of their value */
-.dccard { right: calc(3 * var(--ux)); bottom: calc(5 * var(--uy)); width: calc(562 * var(--ux)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: #262626; border: 1px solid #cbcbcb; padding: calc(8 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; color: #fff; }
+.dccard { right: calc(3 * var(--ux)); bottom: calc(5 * var(--uy)); width: calc(562 * var(--ux)); max-height: calc(100% - 120 * var(--u)); overflow-y: auto; z-index: 3; background: #262626; border: 0.8px solid #5a5a5a; /* like the Swiss border */ padding: calc(8 * var(--u)); font-family: var(--display); font-weight: 500; font-size: calc(14 * var(--u)); line-height: calc(17 * var(--u)); letter-spacing: 0; color: #fff; }
 .dccard[hidden] { display: none; }
 .dccard dl { display: grid; grid-template-columns: calc(128 * var(--u)) 1fr; row-gap: calc(4 * var(--u)); margin: 0; align-items: end; }
 .dccard dt { color: #6e6e6e; padding-right: calc(10 * var(--u)); } .dccard dd { margin: 0; color: #fff; }
@@ -956,7 +956,7 @@ function renderGridImage() {
 }
 function drawLand() {
   if (!LAND) return;
-  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), w = 1 - k, o = Math.round(78 + (90 - 78) * w); ctx.fillStyle = `rgba(255,255,255,${(0.08 * w).toFixed(3)})`; ctx.strokeStyle = `rgb(${o},${o},${o})`; ctx.lineWidth = 1 - 0.2 * w; } // Swiss views Dark; the world: land white at 8 %, outlines and borders #5A5A5A
+  ctx.save(); { const k = state.scene < 2 ? 1 : clamp01((Math.log(cam.s) - Math.log(CH_SCALE() * 0.25)) / (Math.log(CH_SCALE() * 0.7) - Math.log(CH_SCALE() * 0.25))), w = 1 - k; ctx.fillStyle = `rgba(255,255,255,${(0.08 * w).toFixed(3)})`; ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8; } // every outline like the Swiss border // Swiss views Dark; the world: land white at 8 %, outlines and borders #5A5A5A
   for (const ring of LAND.land) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = 0.8;
   for (const ring of LAND.ch) { ctx.beginPath(); ring.forEach((p, i) => { const q = toS(W(p)); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.stroke(); }
